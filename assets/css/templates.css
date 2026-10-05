@@ -807,3 +807,109 @@
   grid-template-columns: 1.3fr 1fr;
   gap: 24px;
 }
+
+/* ==========================================================================
+   PRO VISUAL CUSTOMIZER DESIGN PRESETS & VARIABLES
+   ========================================================================== */
+
+/* 1. Typography Presets (Gợi ý 3) */
+.font-preset-inter, .font-preset-inter #cv-printable-area, .font-preset-inter #cv-printable-area * {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+.font-preset-vietnam, .font-preset-vietnam #cv-printable-area, .font-preset-vietnam #cv-printable-area * {
+  font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+.font-preset-merriweather, .font-preset-merriweather #cv-printable-area, .font-preset-merriweather #cv-printable-area * {
+  font-family: 'Merriweather', 'Times New Roman', serif !important;
+}
+
+.font-preset-space, .font-preset-space #cv-printable-area, .font-preset-space #cv-printable-area * {
+  font-family: 'Space Grotesk', -apple-system, monospace !important;
+}
+
+/* Font Scale CSS Variable */
+#cv-printable-area {
+  zoom: var(--cv-font-scale, 1);
+}
+
+/* 2. Spacing Presets */
+.spacing-compact .cv-section {
+  margin-bottom: 11px !important;
+}
+.spacing-compact .timeline-item {
+  margin-bottom: 7px !important;
+}
+.spacing-compact .cv-summary-text, .spacing-compact .timeline-desc {
+  line-height: 1.35 !important;
+}
+
+.spacing-standard .cv-section {
+  margin-bottom: 16px !important;
+}
+.spacing-standard .timeline-item {
+  margin-bottom: 12px !important;
+}
+
+.spacing-spacious .cv-section {
+  margin-bottom: 24px !important;
+}
+.spacing-spacious .timeline-item {
+  margin-bottom: 18px !important;
+}
+.spacing-spacious .cv-summary-text, .spacing-spacious .timeline-desc {
+  line-height: 1.7 !important;
+}
+
+/* 3. Divider Styles */
+.divider-solid .cv-section-title {
+  border-bottom: 2px solid var(--cv-primary) !important;
+}
+.divider-dashed .cv-section-title {
+  border-bottom: 2px dashed var(--cv-primary) !important;
+}
+.divider-double .cv-section-title {
+  border-bottom: 3px double var(--cv-primary) !important;
+}
+.divider-gradient .cv-section-title {
+  border-bottom: 2px solid transparent !important;
+  border-image: linear-gradient(90deg, var(--cv-primary), transparent) 1 !important;
+}
+.divider-none .cv-section-title {
+  border-bottom: none !important;
+}
+.divider-none .cv-section-title::after {
+  display: none !important;
+}
+
+/* 4. Avatar Shapes & Effects */
+.avatar-shape-round .cv-avatar-img {
+  border-radius: 50% !important;
+}
+.avatar-shape-rounded .cv-avatar-img {
+  border-radius: 18px !important;
+}
+.avatar-shape-square .cv-avatar-img {
+  border-radius: 4px !important;
+}
+
+.avatar-border-0 .cv-avatar-img {
+  border: none !important;
+}
+.avatar-border-2 .cv-avatar-img {
+  border: 2px solid var(--cv-primary) !important;
+}
+.avatar-border-4 .cv-avatar-img {
+  border: 4px solid #ffffff !important;
+}
+
+.avatar-shadow-none .cv-avatar-img {
+  box-shadow: none !important;
+}
+.avatar-shadow-soft .cv-avatar-img {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12) !important;
+}
+.avatar-shadow-bold .cv-avatar-img {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28) !important;
+}

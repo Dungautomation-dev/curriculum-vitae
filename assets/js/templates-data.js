@@ -364,6 +364,20 @@ const CV_TEMPLATES_CATALOG = (function () {
     getDefaultTemplate: () => TEMPLATES[0],
     getTemplateById: (id) => TEMPLATES.find(t => t.id === id) || TEMPLATES[0],
     getTemplatesByIndustry: (indId) => TEMPLATES.filter(t => t.industryId === indId),
-    getTemplatesByStyle: (styleId) => TEMPLATES.filter(t => t.styleId === styleId)
+    getTemplatesByStyle: (styleId) => TEMPLATES.filter(t => t.styleId === styleId),
+    registerCustomTemplate: (customTpl) => {
+      const idx = TEMPLATES.findIndex(t => t.id === customTpl.id);
+      if (idx >= 0) TEMPLATES[idx] = customTpl;
+      else TEMPLATES.unshift(customTpl);
+    },
+    removeCustomTemplate: (id) => {
+      const idx = TEMPLATES.findIndex(t => t.id === id);
+      if (idx >= 0) TEMPLATES.splice(idx, 1);
+    },
+    clearCustomTemplates: () => {
+      for (let i = TEMPLATES.length - 1; i >= 0; i--) {
+        if (TEMPLATES[i].isCustom) TEMPLATES.splice(i, 1);
+      }
+    }
   };
 })();

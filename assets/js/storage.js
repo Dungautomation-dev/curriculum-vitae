@@ -7,6 +7,7 @@
 const CV_STORAGE = (function () {
   const STORAGE_KEY = 'dungauto_cv_profile_data';
   const CONFIG_KEY = 'dungauto_cv_builder_config';
+  const CUSTOM_TEMPLATES_KEY = 'dungauto_cv_custom_templates';
 
   // Default Sections Visibility Configuration
   const DEFAULT_SECTIONS_CONFIG = {
@@ -24,19 +25,31 @@ const CV_STORAGE = (function () {
     references: true
   };
 
+  // Default Custom Design Configuration
+  const DEFAULT_DESIGN_CONFIG = {
+    fontPreset: 'inter', // 'inter' | 'vietnam' | 'merriweather' | 'space'
+    fontScale: 100, // 85% to 115%
+    sectionSpacing: 'standard', // 'compact' | 'standard' | 'spacious'
+    dividerStyle: 'solid', // 'solid' | 'dashed' | 'double' | 'gradient' | 'none'
+    avatarShape: 'round', // 'round' | 'rounded' | 'square'
+    avatarBorder: 2, // 0 | 2 | 4
+    avatarShadow: 'soft' // 'none' | 'soft' | 'bold'
+  };
+
   /**
-   * Save current profile data to LocalStorage
+   * Save current profile data & custom design config to LocalStorage
    */
-  function saveToLocalStorage(profileData, templateId, ratingMode, sectionsConfig, themeColor) {
+  function saveToLocalStorage(profileData, templateId, ratingMode, sectionsConfig, themeColor, customDesignConfig) {
     try {
       const payload = {
         app: 'DungAutomation_CV_Builder',
-        version: '1.0.0',
+        version: '1.2.0',
         lastUpdated: new Date().toISOString(),
         templateId: templateId || 'tpl-001',
         skillRatingMode: ratingMode || 'percentage',
         sectionsConfig: sectionsConfig || DEFAULT_SECTIONS_CONFIG,
         themeColor: themeColor || '#1e40af',
+        customDesignConfig: customDesignConfig || DEFAULT_DESIGN_CONFIG,
         data: profileData
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
@@ -48,7 +61,7 @@ const CV_STORAGE = (function () {
   }
 
   /**
-   * Load profile data from LocalStorage
+   * Load profile data & custom design config from LocalStorage
    */
   function loadFromLocalStorage() {
     try {
@@ -65,9 +78,37 @@ const CV_STORAGE = (function () {
   }
 
   /**
+   * Save Custom Templates list to LocalStorage
+   */
+  function saveCustomTemplates(templatesList) {
+    try {
+      localStorage.setItem(CUSTOM_TEMPLATES_KEY, JSON.stringify(templatesList || []));
+      return true;
+    } catch (err) {
+      console.warn('Failed to save custom templates:', err);
+      return false;
+    }
+  }
+
+  /**
+   * Load Custom Templates list from LocalStorage
+   */
+  function loadCustomTemplates() {
+    try {
+      const raw = localStorage.getItem(CUSTOM_TEMPLATES_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (err) {
+      console.warn('Failed to load custom templates:', err);
+      return [];
+    }
+  }
+
+  /**
    * Export profile data as .dungauto file
    */
-  function exportDungAutoFile(profileData, templateId, ratingMode, sectionsConfig, themeColor) {
+  function exportDungAutoFile(profileData, templateId, ratingMode, sectionsConfig, themeColor, customDesignConfig, customTemplates) {
     try {
       const fullNameClean = (profileData.personalInfo && profileData.personalInfo.fullName)
         ? profileData.personalInfo.fullName.trim().replace(/[^a-zA-Z0-9\u00C0-\u1EF9]/g, '_')
@@ -78,13 +119,15 @@ const CV_STORAGE = (function () {
       const exportPayload = {
         app: 'DungAutomation_CV_Builder',
         fileFormat: '.dungauto',
-        version: '1.0.0',
+        version: '1.2.0',
         creator: 'Dung Automation',
         exportDate: new Date().toISOString(),
         templateId: templateId || 'tpl-001',
         skillRatingMode: ratingMode || 'percentage',
         sectionsConfig: sectionsConfig || DEFAULT_SECTIONS_CONFIG,
         themeColor: themeColor || '#1e40af',
+        customDesignConfig: customDesignConfig || DEFAULT_DESIGN_CONFIG,
+        customTemplates: customTemplates || [],
         data: profileData
       };
 
@@ -123,6 +166,8 @@ const CV_STORAGE = (function () {
         skillRatingMode: parsed.skillRatingMode || 'percentage',
         sectionsConfig: parsed.sectionsConfig || DEFAULT_SECTIONS_CONFIG,
         themeColor: parsed.themeColor || null,
+        customDesignConfig: parsed.customDesignConfig || DEFAULT_DESIGN_CONFIG,
+        customTemplates: parsed.customTemplates || [],
         exportDate: parsed.exportDate || null
       };
     } catch (err) {
@@ -168,8 +213,11 @@ const CV_STORAGE = (function () {
 
   return {
     DEFAULT_SECTIONS_CONFIG,
+    DEFAULT_DESIGN_CONFIG,
     saveToLocalStorage,
     loadFromLocalStorage,
+    saveCustomTemplates,
+    loadCustomTemplates,
     exportDungAutoFile,
     parseDungAutoFile,
     importDungAutoFile,

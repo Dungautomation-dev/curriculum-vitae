@@ -9,10 +9,10 @@
   <meta name="author" content="Dung Automation">
   <link rel="icon" type="image/svg+xml" href="assets/images/logo-icon.svg">
 
-  <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+  <!-- Google Fonts: Inter, Plus Jakarta Sans, Be Vietnam Pro, Merriweather, Space Grotesk -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&family=Merriweather:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 
   <!-- FontAwesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -436,29 +436,63 @@
          RIGHT PANEL: REAL-TIME A4 LIVE PREVIEW STAGE
          ==================================================================== -->
     <section class="preview-container">
-      <!-- Sticky Preview Toolbar -->
+      <!-- Sticky Preview Toolbar with Pro Customizer, Undo/Redo, Auto-fit A4 -->
       <div class="preview-toolbar no-print">
-        <div class="preview-zoom-controls">
-          <button type="button" class="btn btn-outline btn-sm" id="btn-zoom-out" title="Thu nhỏ"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
-          <span id="zoom-percentage-text" style="font-size:0.8rem; font-weight:700; width:40px; text-align:center;">95%</span>
-          <button type="button" class="btn btn-outline btn-sm" id="btn-zoom-in" title="Phóng to"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
-          <button type="button" class="btn btn-outline btn-sm" id="btn-zoom-fit" title="Vừa vặn màn hình">Vừa màn hình</button>
+        <!-- Cluster 1: Zoom & Undo/Redo -->
+        <div class="toolbar-cluster-left">
+          <div class="preview-zoom-controls">
+            <button type="button" class="btn btn-outline btn-sm" id="btn-zoom-out" title="Thu nhỏ"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+            <span id="zoom-percentage-text" style="font-size:0.8rem; font-weight:700; width:38px; text-align:center;">95%</span>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-zoom-in" title="Phóng to"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-zoom-fit" title="Vừa vặn màn hình">Vừa màn hình</button>
+          </div>
+
+          <div class="history-controls" style="display:flex; gap:4px; margin-left:6px;">
+            <button type="button" class="btn btn-outline btn-sm" id="btn-undo" title="Hoàn tác (Ctrl+Z)" onclick="CVApp.undo()" disabled>
+              <i class="fa-solid fa-rotate-left"></i>
+            </button>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-redo" title="Làm lại (Ctrl+Y)" onclick="CVApp.redo()" disabled>
+              <i class="fa-solid fa-rotate-right"></i>
+            </button>
+          </div>
         </div>
 
-        <div style="font-size:0.8rem; font-weight:600; color:var(--gray-600); display:flex; align-items:center; gap:8px;">
-          <i class="fa-solid fa-file-lines" style="color:var(--primary);"></i>
-          <span>Khổ giấy A4 Chuẩn Tuyển Dụng (210mm × 297mm) • Vector 100%</span>
+        <!-- Cluster 2: A4 Gauge & Auto-Fit Magic Button -->
+        <div class="toolbar-cluster-center">
+          <div class="a4-gauge-wrap" id="a4-gauge-wrap" title="Đo độ dài nội dung so với khổ A4 chuẩn (297mm)">
+            <i class="fa-solid fa-gauge-high" style="color:var(--primary);"></i>
+            <span id="a4-fill-text">95% A4</span>
+            <span class="a4-badge badge-green" id="a4-status-badge">Chuẩn 1 trang</span>
+          </div>
+          <button type="button" class="btn btn-outline btn-sm btn-magic-autofit" id="btn-autofit-a4" onclick="CVApp.autoFitA4()" title="Tự động căn chỉnh font và lề để vừa khít 100% đúng 1 trang A4">
+            <i class="fa-solid fa-bolt" style="color:#eab308;"></i> <span>Vừa 1 trang</span>
+          </button>
         </div>
 
-        <div style="display:flex; gap:8px;">
-          <button type="button" class="btn btn-outline btn-sm" onclick="CVApp.renderCVPreview()" title="Vẽ lại bản xem trước">
-            <i class="fa-solid fa-rotate"></i> Làm mới
+        <!-- Cluster 3: Live Edit Mode Toggle & Customizer & Save Custom Template -->
+        <div class="toolbar-cluster-right">
+          <!-- Live Edit Mode Toggle Button -->
+          <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-direct-edit" onclick="CVApp.toggleDirectEditMode()" title="Bật chế độ gõ sửa trực tiếp trên giấy A4">
+            <i class="fa-solid fa-pen-to-square"></i> <span id="direct-edit-text">Soạn Trực Quan</span>
+          </button>
+
+          <!-- Design Customizer Drawer Button -->
+          <button type="button" class="btn btn-outline btn-sm" id="btn-open-customizer" onclick="CVApp.toggleCustomizerDrawer()" title="Mở bảng tinh chỉnh sâu kiểu dáng mẫu CV">
+            <i class="fa-solid fa-sliders"></i> Tùy biến mẫu
+          </button>
+
+          <!-- Save My Custom Template Button -->
+          <button type="button" class="btn btn-primary btn-sm" id="btn-save-custom-template" onclick="CVApp.openSaveCustomTemplateModal()" title="Lưu cấu trúc và phối màu hiện tại thành Mẫu Của Tôi">
+            <i class="fa-solid fa-floppy-disk"></i> Lưu mẫu riêng
           </button>
         </div>
       </div>
 
       <!-- Live A4 Zoomable Stage Viewport -->
-      <div class="preview-stage-viewport">
+      <div class="preview-stage-viewport" id="preview-stage-viewport">
+        <!-- Floating Visual Inspector (Gợi ý 1) -->
+        <div class="floating-inspector no-print" id="floating-inspector" style="display:none;"></div>
+
         <div class="preview-zoom-stage" id="preview-zoom-stage">
           <!-- CV A4 Sheet Render Target -->
           <div id="cv-a4-render-target">
@@ -535,6 +569,146 @@
       <!-- 100 Template Cards Grid -->
       <div class="templates-cards-grid" id="modal-templates-grid">
         <!-- Dynamically populated -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       SLIDE-OVER DRAWER: TINH CHỈNH SÂU MẪU CV (VISUAL DESIGN INSPECTOR)
+       ======================================================================== -->
+  <aside class="customizer-drawer no-print" id="customizer-drawer">
+    <div class="customizer-drawer-header">
+      <div class="customizer-drawer-title">
+        <i class="fa-solid fa-palette" style="color:var(--primary);"></i>
+        <span>Tinh Chỉnh Sâu Thiết Kế Mẫu CV</span>
+      </div>
+      <button type="button" class="drawer-close-btn" onclick="CVApp.toggleCustomizerDrawer(false)" title="Đóng">&times;</button>
+    </div>
+
+    <div class="customizer-drawer-body">
+      <!-- Section 1: Typography Presets (Gợi ý 3) -->
+      <div class="customizer-group">
+        <label class="customizer-label"><i class="fa-solid fa-font"></i> Bộ Kiểu Chữ Chuẩn (Typography Presets)</label>
+        <div class="font-presets-grid">
+          <div class="font-preset-card active" data-font="inter" onclick="CVApp.setTypographyPreset('inter')">
+            <span class="font-preview-name" style="font-family:'Inter',sans-serif;">Inter &amp; Jakarta</span>
+            <span class="font-sub-desc">Hiện đại, sắc nét (CNTT &amp; Kỹ thuật)</span>
+          </div>
+          <div class="font-preset-card" data-font="vietnam" onclick="CVApp.setTypographyPreset('vietnam')">
+            <span class="font-preview-name" style="font-family:'Be Vietnam Pro',sans-serif;">Be Vietnam Pro</span>
+            <span class="font-sub-desc">Đương đại, quốc tế, thanh lịch</span>
+          </div>
+          <div class="font-preset-card" data-font="merriweather" onclick="CVApp.setTypographyPreset('merriweather')">
+            <span class="font-preview-name" style="font-family:'Merriweather',serif;">Merriweather</span>
+            <span class="font-sub-desc">Trang trọng, quý phái (Quản lý &amp; Luật)</span>
+          </div>
+          <div class="font-preset-card" data-font="space" onclick="CVApp.setTypographyPreset('space')">
+            <span class="font-preview-name" style="font-family:'Space Grotesk',sans-serif;">Space Grotesk</span>
+            <span class="font-sub-desc">Công nghệ cao, kỹ sư hệ thống</span>
+          </div>
+        </div>
+
+        <div style="margin-top:14px; background:var(--gray-50); padding:10px 12px; border-radius:8px; border:1px solid var(--gray-200);">
+          <div style="display:flex; justify-content:space-between; font-size:0.78rem; font-weight:700; margin-bottom:6px;">
+            <span><i class="fa-solid fa-text-height"></i> Tỷ lệ cỡ chữ tổng thể</span>
+            <span id="font-scale-text" style="color:var(--primary);">100%</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:0.75rem; font-weight:700;">85%</span>
+            <input type="range" min="85" max="115" value="100" class="customizer-slider" id="font-scale-slider" oninput="CVApp.setFontScale(this.value)" style="flex:1;">
+            <span style="font-size:0.75rem; font-weight:700;">115%</span>
+            <button type="button" class="btn btn-outline btn-sm" style="padding:2px 8px; font-size:0.7rem;" onclick="CVApp.setFontScale(100)">100%</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Spacing & Margins -->
+      <div class="customizer-group">
+        <label class="customizer-label"><i class="fa-solid fa-arrows-up-down"></i> Khoảng Cách Phân Mục (Section Spacing)</label>
+        <div class="chips-options-row">
+          <button type="button" class="customizer-chip" data-spacing="compact" onclick="CVApp.setSectionSpacing('compact')">Gọn gàng (Compact)</button>
+          <button type="button" class="customizer-chip active" data-spacing="standard" onclick="CVApp.setSectionSpacing('standard')">Tiêu chuẩn (Normal)</button>
+          <button type="button" class="customizer-chip" data-spacing="spacious" onclick="CVApp.setSectionSpacing('spacious')">Thoáng đãng (Spacious)</button>
+        </div>
+      </div>
+
+      <!-- Section 3: Divider Style -->
+      <div class="customizer-group">
+        <label class="customizer-label"><i class="fa-solid fa-grip-lines"></i> Kiểu Đường Ngăn Cách (Dividers)</label>
+        <div class="chips-options-row">
+          <button type="button" class="customizer-chip active" data-divider="solid" onclick="CVApp.setDividerStyle('solid')">Nét Liền</button>
+          <button type="button" class="customizer-chip" data-divider="dashed" onclick="CVApp.setDividerStyle('dashed')">Nét Đứt</button>
+          <button type="button" class="customizer-chip" data-divider="double" onclick="CVApp.setDividerStyle('double')">Viền Đôi</button>
+          <button type="button" class="customizer-chip" data-divider="gradient" onclick="CVApp.setDividerStyle('gradient')">Gradient</button>
+          <button type="button" class="customizer-chip" data-divider="none" onclick="CVApp.setDividerStyle('none')">Không Viền</button>
+        </div>
+      </div>
+
+      <!-- Section 4: Avatar Customization -->
+      <div class="customizer-group">
+        <label class="customizer-label"><i class="fa-solid fa-image-portrait"></i> Tùy Biến Ảnh Chân Dung (Avatar)</label>
+        
+        <div style="font-size:0.75rem; font-weight:700; color:var(--gray-600); margin-bottom:5px;">Hình dạng ảnh:</div>
+        <div class="chips-options-row" style="margin-bottom:10px;">
+          <button type="button" class="customizer-chip active" data-avatar-shape="round" onclick="CVApp.setAvatarShape('round')">● Tròn xoe</button>
+          <button type="button" class="customizer-chip" data-avatar-shape="rounded" onclick="CVApp.setAvatarShape('rounded')">▢ Bo góc mềm</button>
+          <button type="button" class="customizer-chip" data-avatar-shape="square" onclick="CVApp.setAvatarShape('square')">■ Vuông vắn</button>
+        </div>
+
+        <div style="font-size:0.75rem; font-weight:700; color:var(--gray-600); margin-bottom:5px;">Độ dày đường viền:</div>
+        <div class="chips-options-row" style="margin-bottom:10px;">
+          <button type="button" class="customizer-chip" data-avatar-border="0" onclick="CVApp.setAvatarBorder(0)">0px (Bỏ viền)</button>
+          <button type="button" class="customizer-chip active" data-avatar-border="2" onclick="CVApp.setAvatarBorder(2)">2px (Viền màu)</button>
+          <button type="button" class="customizer-chip" data-avatar-border="4" onclick="CVApp.setAvatarBorder(4)">4px (Viền trắng)</button>
+        </div>
+
+        <div style="font-size:0.75rem; font-weight:700; color:var(--gray-600); margin-bottom:5px;">Hiệu ứng bóng đổ:</div>
+        <div class="chips-options-row">
+          <button type="button" class="customizer-chip" data-avatar-shadow="none" onclick="CVApp.setAvatarShadow('none')">Không bóng</button>
+          <button type="button" class="customizer-chip active" data-avatar-shadow="soft" onclick="CVApp.setAvatarShadow('soft')">Bóng nhẹ</button>
+          <button type="button" class="customizer-chip" data-avatar-shadow="bold" onclick="CVApp.setAvatarShadow('bold')">Bóng nổi bật</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="customizer-drawer-footer">
+      <button type="button" class="btn btn-outline btn-sm" onclick="CVApp.resetCustomDesign()" title="Khôi phục thiết kế gốc của mẫu">
+        <i class="fa-solid fa-arrow-rotate-left"></i> Đặt lại mặc định
+      </button>
+      <button type="button" class="btn btn-primary btn-sm" onclick="CVApp.openSaveCustomTemplateModal()" title="Lưu thiết kế này thành mẫu riêng">
+        <i class="fa-solid fa-floppy-disk"></i> Lưu mẫu riêng
+      </button>
+    </div>
+  </aside>
+
+  <!-- ========================================================================
+       MODAL: LƯU THÀNH MẪU CV CỦA TÔI (MY CUSTOM TEMPLATES)
+       ======================================================================== -->
+  <div class="modal-overlay no-print" id="save-custom-template-modal">
+    <div class="modal-dialog" style="max-width:480px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-floppy-disk" style="color:var(--primary);"></i>
+          <span>Lưu Thành Mẫu CV Của Tôi</span>
+        </div>
+        <button type="button" class="modal-close-btn" onclick="CVApp.closeSaveCustomTemplateModal()">&times;</button>
+      </div>
+      <div style="padding:20px;">
+        <p style="font-size:0.85rem; color:var(--gray-600); margin-bottom:14px; line-height:1.5;">
+          Mẫu CV tùy biến sẽ được lưu vào trình duyệt của bạn và xuất hiện ngay ở đầu cột bên phải để bạn nạp lại bất cứ lúc nào.
+        </p>
+        <div class="form-group" style="margin-bottom:14px;">
+          <label class="form-label"><i class="fa-solid fa-tag"></i> Tên Mẫu CV Riêng *</label>
+          <input type="text" id="input-custom-template-name" class="form-input" placeholder="VD: Mẫu Kỹ Sư Điện của Dũng (Bản Chuẩn)">
+        </div>
+        <div class="form-group" style="margin-bottom:20px;">
+          <label class="form-label"><i class="fa-solid fa-align-left"></i> Mô tả ngắn (Tùy chọn)</label>
+          <input type="text" id="input-custom-template-desc" class="form-input" placeholder="VD: Phối màu Navy, font Inter, bo góc mềm...">
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+          <button type="button" class="btn btn-outline btn-sm" onclick="CVApp.closeSaveCustomTemplateModal()">Hủy</button>
+          <button type="button" class="btn btn-primary btn-sm" onclick="CVApp.saveCurrentAsCustomTemplate()"><i class="fa-solid fa-check"></i> Lưu Ngay</button>
+        </div>
       </div>
     </div>
   </div>

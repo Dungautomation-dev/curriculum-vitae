@@ -14,6 +14,22 @@ const CVApp = (function () {
   let sectionsConfig = {};
   let currentZoom = 0.95;
 
+  // Pro Customizer, Direct Edit, History & Custom Templates State
+  let customDesignConfig = {
+    fontPreset: 'inter',
+    fontScale: 100,
+    sectionSpacing: 'standard',
+    dividerStyle: 'solid',
+    avatarShape: 'round',
+    avatarBorder: 2,
+    avatarShadow: 'soft'
+  };
+  let isDirectEditMode = false;
+  let customTemplates = [];
+  let historyStack = [];
+  let historyIndex = -1;
+  let isUndoRedoAction = false;
+
   // Pre-defined Quick Selection Lists (Tích chọn nhanh)
   const QUICK_SOFT_SKILLS = [
     'Quản lý dự án & tiến độ thi công',
@@ -55,8 +71,12 @@ const CVApp = (function () {
     renderFormInputs();
     renderCVPreview();
     renderQuickTemplatesSidebar();
+    syncCustomizerDrawerInputs();
+    updateA4PageGauge();
+    pushHistoryState(); // Initial history snapshot for Undo/Redo
     setupEventListeners();
     setupAutoSave();
+    setupDirectEditEvents();
     showToast('⚡ Đã sẵn sàng! Mặc định hiển thị CV Kỹ sư Điện.', 'fa-solid fa-bolt');
   }
 
@@ -215,6 +235,10 @@ const CVApp = (function () {
    * Load state from LocalStorage or default to Electrical Engineer
    */
   function loadInitialState() {
+    // Load custom templates list
+    customTemplates = CV_STORAGE.loadCustomTemplates();
+    customTemplates.forEach(ct => CV_TEMPLATES_CATALOG.registerCustomTemplate(ct));
+
     const saved = CV_STORAGE.loadFromLocalStorage();
     if (saved && saved.data) {
       profile = saved.data;
@@ -226,12 +250,16 @@ const CVApp = (function () {
       } else if (activeTemplate && activeTemplate.colors) {
         activeThemeColor = activeTemplate.colors.primary;
       }
+      if (saved.customDesignConfig) {
+        customDesignConfig = Object.assign({}, saved.customDesignConfig);
+      }
     } else {
       profile = CV_SAMPLE_PROFILES.getDefaultProfile();
       activeTemplate = CV_TEMPLATES_CATALOG.getDefaultTemplate();
       ratingMode = profile.skillRatingMode || 'percentage';
       sectionsConfig = Object.assign({}, CV_STORAGE.DEFAULT_SECTIONS_CONFIG);
       activeThemeColor = activeTemplate.colors.primary;
+      customDesignConfig = Object.assign({}, CV_STORAGE.DEFAULT_DESIGN_CONFIG);
     }
 
     // Sync rating mode select
@@ -262,6 +290,11 @@ const CVApp = (function () {
 
     const dot = document.getElementById('header-theme-color-dot');
     if (dot) dot.style.background = prim;
+
+    if (tpl.customDesignConfig) {
+      customDesignConfig = Object.assign({}, tpl.customDesignConfig);
+      syncCustomizerDrawerInputs();
+    }
 
     // Update active template button in header (Compact single-line)
     const activePill = document.getElementById('active-template-name');
@@ -1154,7 +1187,30 @@ const CVApp = (function () {
       `;
     }
 
+    // Apply Deep Visual Customizer Classes & CSS Font Scale
+    const printableArea = document.getElementById('cv-printable-area');
+    if (printableArea) {
+      const customClasses = [
+        `font-preset-${customDesignConfig.fontPreset || 'inter'}`,
+        `spacing-${customDesignConfig.sectionSpacing || 'standard'}`,
+        `divider-${customDesignConfig.dividerStyle || 'solid'}`,
+        `avatar-shape-${customDesignConfig.avatarShape || 'round'}`,
+        `avatar-border-${customDesignConfig.avatarBorder !== undefined ? customDesignConfig.avatarBorder : 2}`,
+        `avatar-shadow-${customDesignConfig.avatarShadow || 'soft'}`
+      ];
+      if (isDirectEditMode) {
+        customClasses.push('direct-edit-active');
+      }
+      printableArea.classList.add(...customClasses);
+      printableArea.style.setProperty('--cv-font-scale', `${(customDesignConfig.fontScale || 100) / 100}`);
+
+      if (isDirectEditMode) {
+        enableDirectEditOnCanvas(printableArea);
+      }
+    }
+
     applyZoom(currentZoom);
+    updateA4PageGauge();
   }
 
   /* Zoom Controller */
@@ -1234,7 +1290,7 @@ const CVApp = (function () {
     const btnExportDungauto = document.getElementById('btn-export-dungauto');
     if (btnExportDungauto) {
       btnExportDungauto.addEventListener('click', () => {
-        CV_STORAGE.exportDungAutoFile(profile, activeTemplate ? activeTemplate.id : 'tpl-001', ratingMode, sectionsConfig, activeThemeColor);
+        CV_STORAGE.exportDungAutoFile(profile, activeTemplate ? activeTemplate.id : 'tpl-001', ratingMode, sectionsConfig, activeThemeColor, customDesignConfig, customTemplates);
         showToast('Đã lưu toàn bộ hồ sơ ra tệp .dungauto!', 'fa-solid fa-floppy-disk');
       });
     }
@@ -1304,6 +1360,20 @@ const CVApp = (function () {
         activeThemeColor = importedData.themeColor;
       } else if (activeTemplate && activeTemplate.colors) {
         activeThemeColor = activeTemplate.colors.primary;
+      }
+      if (importedData.customDesignConfig) {
+        customDesignConfig = Object.assign({}, importedData.customDesignConfig);
+        syncCustomizerDrawerInputs();
+      }
+      if (importedData.customTemplates && Array.isArray(importedData.customTemplates)) {
+        importedData.customTemplates.forEach(t => {
+          if (!customTemplates.some(ct => ct.id === t.id)) {
+            customTemplates.push(t);
+            CV_TEMPLATES_CATALOG.registerCustomTemplate(t);
+          }
+        });
+        CV_STORAGE.saveCustomTemplates(customTemplates);
+        renderQuickTemplatesSidebar();
       }
 
       applyTemplateStyles(activeTemplate);
@@ -1695,8 +1765,14 @@ const CVApp = (function () {
       }
     }
 
+    if (tpl.customDesignConfig) {
+      customDesignConfig = Object.assign({}, tpl.customDesignConfig);
+      syncCustomizerDrawerInputs();
+    }
+
     renderCVPreview();
     renderQuickTemplatesSidebar();
+    pushHistoryState();
     triggerAutoSave();
 
     // Close Modal
@@ -1747,7 +1823,49 @@ const CVApp = (function () {
       'framed-luxury': 'fa-solid fa-square-full'
     };
 
-    container.innerHTML = list.map(tpl => {
+    let html = '';
+
+    // Show My Custom Templates at the top if any exist and filter is 'all'
+    if (activeQuickFilter === 'all' && customTemplates.length > 0) {
+      html += `
+        <div style="font-size:0.75rem; font-weight:800; color:#b45309; margin:2px 0 4px 2px; display:flex; align-items:center; gap:6px;">
+          <i class="fa-solid fa-star"></i> Mẫu Của Tôi (${customTemplates.length})
+        </div>
+      `;
+      html += customTemplates.map(tpl => {
+        const isSelected = (activeTemplate && activeTemplate.id === tpl.id);
+        return `
+          <div class="quick-tpl-card ${isSelected ? 'active' : ''}" 
+               style="border-color:#fde68a; background:#fefce8;"
+               onclick="CVApp.applySelectedTemplate('${tpl.id}', false)" 
+               title="Mẫu tự tạo: ${escapeHtml(tpl.name)}">
+            <div class="quick-tpl-icon-box" style="background:#fef3c7; color:#d97706; border-color:#fde68a;">
+              <i class="fa-solid fa-star"></i>
+            </div>
+            <div class="quick-tpl-info">
+              <div class="quick-tpl-name" style="color:#92400e;">⭐ ${escapeHtml(tpl.name)}</div>
+              <div class="quick-tpl-style">
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:${tpl.colors.primary};"></span>
+                <span>Mẫu tùy chỉnh</span>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:4px;">
+              <button type="button" class="btn-remove-item" style="color:#ef4444; width:22px; height:22px; font-size:0.75rem;" onclick="event.stopPropagation(); CVApp.deleteCustomTemplate('${tpl.id}')" title="Xóa mẫu này"><i class="fa-solid fa-trash-can"></i></button>
+              <div class="quick-tpl-active-check" style="${isSelected ? 'display:block;' : ''}">
+                <i class="fa-solid fa-circle-check"></i>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      html += `
+        <div style="font-size:0.75rem; font-weight:800; color:var(--gray-500); margin:8px 0 4px 2px;">
+          Bố Cục Chuẩn Hệ Thống
+        </div>
+      `;
+    }
+
+    html += list.map(tpl => {
       const isSelected = (activeTemplate && activeTemplate.id === tpl.id);
       const iconClass = archetypeIcons[tpl.styleId] || 'fa-solid fa-file-lines';
       return `
@@ -1770,6 +1888,556 @@ const CVApp = (function () {
         </div>
       `;
     }).join('');
+
+    container.innerHTML = html;
+  }
+
+  /* ==========================================================================
+     PRO VISUAL CUSTOMIZER, DIRECT EDIT, FLOATING INSPECTOR, AUTO-FIT & HISTORY
+     ========================================================================== */
+
+  /**
+   * History Management (Undo / Redo - Gợi ý 4)
+   */
+  function getSnapshot() {
+    return {
+      profile: JSON.parse(JSON.stringify(profile)),
+      templateId: activeTemplate ? activeTemplate.id : 'tpl-001',
+      themeColor: activeThemeColor,
+      ratingMode: ratingMode,
+      sectionsConfig: Object.assign({}, sectionsConfig),
+      customDesignConfig: Object.assign({}, customDesignConfig)
+    };
+  }
+
+  function pushHistoryState() {
+    if (isUndoRedoAction) return;
+    // Discard any forward history beyond current position
+    historyStack = historyStack.slice(0, historyIndex + 1);
+    historyStack.push(getSnapshot());
+    if (historyStack.length > 25) {
+      historyStack.shift();
+    }
+    historyIndex = historyStack.length - 1;
+    updateHistoryButtons();
+  }
+
+  function undo() {
+    if (historyIndex > 0) {
+      historyIndex--;
+      isUndoRedoAction = true;
+      restoreHistoryState(historyStack[historyIndex]);
+      isUndoRedoAction = false;
+      updateHistoryButtons();
+      showToast('Đã hoàn tác thao tác!', 'fa-solid fa-rotate-left');
+    }
+  }
+
+  function redo() {
+    if (historyIndex < historyStack.length - 1) {
+      historyIndex++;
+      isUndoRedoAction = true;
+      restoreHistoryState(historyStack[historyIndex]);
+      isUndoRedoAction = false;
+      updateHistoryButtons();
+      showToast('Đã làm lại thao tác!', 'fa-solid fa-rotate-right');
+    }
+  }
+
+  function updateHistoryButtons() {
+    const btnUndo = document.getElementById('btn-undo');
+    const btnRedo = document.getElementById('btn-redo');
+    if (btnUndo) btnUndo.disabled = (historyIndex <= 0);
+    if (btnRedo) btnRedo.disabled = (historyIndex >= historyStack.length - 1);
+  }
+
+  function restoreHistoryState(state) {
+    if (!state) return;
+    profile = JSON.parse(JSON.stringify(state.profile));
+    activeTemplate = CV_TEMPLATES_CATALOG.getTemplateById(state.templateId) || CV_TEMPLATES_CATALOG.getDefaultTemplate();
+    activeThemeColor = state.themeColor;
+    ratingMode = state.ratingMode;
+    sectionsConfig = Object.assign({}, state.sectionsConfig);
+    customDesignConfig = Object.assign({}, state.customDesignConfig);
+
+    applyTemplateStyles(activeTemplate);
+    renderFormInputs();
+    renderCVPreview();
+    renderQuickTemplatesSidebar();
+    syncCustomizerDrawerInputs();
+    updateA4PageGauge();
+    triggerAutoSave();
+  }
+
+  /**
+   * Direct Edit Mode on A4 Canvas
+   */
+  function toggleDirectEditMode() {
+    isDirectEditMode = !isDirectEditMode;
+    const btn = document.getElementById('btn-toggle-direct-edit');
+    const txt = document.getElementById('direct-edit-text');
+    if (isDirectEditMode) {
+      if (btn) btn.classList.add('active');
+      if (txt) txt.innerText = 'Đang Soạn Trực Quan';
+      showToast('Chế độ soạn trực quan: Nhấp chuột trực tiếp lên A4 để gõ & chỉnh sửa!', 'fa-solid fa-pen-to-square');
+    } else {
+      if (btn) btn.classList.remove('active');
+      if (txt) txt.innerText = 'Soạn Trực Quan';
+      hideFloatingInspector();
+      showToast('Đã tắt chế độ soạn trực quan.', 'fa-solid fa-eye');
+    }
+    renderCVPreview();
+  }
+
+  function setupDirectEditEvents() {
+    // Keyboard shortcuts for Undo (Ctrl+Z) / Redo (Ctrl+Y or Ctrl+Shift+Z)
+    document.addEventListener('keydown', (e) => {
+      const isInput = ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName);
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && (e.key === 'z' || e.key === 'Z')) {
+        if (!isInput) {
+          e.preventDefault();
+          undo();
+        }
+      } else if (((e.ctrlKey || e.metaKey) && (e.key === 'y' || e.key === 'Y')) ||
+                 ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'z' || e.key === 'Z'))) {
+        if (!isInput) {
+          e.preventDefault();
+          redo();
+        }
+      }
+    });
+
+    // Dismiss floating inspector on outside click
+    document.addEventListener('click', (e) => {
+      const inspector = document.getElementById('floating-inspector');
+      if (inspector && inspector.style.display !== 'none') {
+        if (!inspector.contains(e.target) && !e.target.closest('.cv-avatar-wrap, .cv-section-title, .cv-minimal-avatar, .cv-avatar-img, .floating-inspector-btn')) {
+          hideFloatingInspector();
+        }
+      }
+    });
+  }
+
+  function enableDirectEditOnCanvas(canvas) {
+    if (!canvas) return;
+
+    // Direct edit Candidate Name
+    canvas.querySelectorAll('.cv-candidate-name').forEach(el => {
+      el.contentEditable = 'true';
+      el.title = 'Bấm để sửa họ tên';
+      el.addEventListener('input', () => {
+        profile.personalInfo.fullName = el.innerText.trim();
+        const input = document.getElementById('input-fullname');
+        if (input) input.value = profile.personalInfo.fullName;
+        triggerAutoSave();
+        updateA4PageGauge();
+      });
+      el.addEventListener('blur', () => pushHistoryState());
+    });
+
+    // Direct edit Job Title
+    canvas.querySelectorAll('.cv-candidate-title').forEach(el => {
+      el.contentEditable = 'true';
+      el.title = 'Bấm để sửa chức danh';
+      el.addEventListener('input', () => {
+        profile.personalInfo.jobTitle = el.innerText.trim();
+        const input = document.getElementById('input-jobtitle');
+        if (input) input.value = profile.personalInfo.jobTitle;
+        triggerAutoSave();
+        updateA4PageGauge();
+      });
+      el.addEventListener('blur', () => pushHistoryState());
+    });
+
+    // Direct edit Summary
+    canvas.querySelectorAll('.cv-summary-text').forEach(el => {
+      el.contentEditable = 'true';
+      el.title = 'Bấm để sửa phần giới thiệu';
+      el.addEventListener('input', () => {
+        profile.summary = el.innerText.trim();
+        const input = document.getElementById('input-summary');
+        if (input) input.value = profile.summary;
+        triggerAutoSave();
+        updateA4PageGauge();
+      });
+      el.addEventListener('blur', () => pushHistoryState());
+    });
+
+    // Direct edit Descriptions & Titles in items
+    canvas.querySelectorAll('.timeline-desc, .cv-card-desc, .timeline-title, .timeline-subtitle, .cv-card-title, .cv-card-meta').forEach(el => {
+      el.contentEditable = 'true';
+      el.addEventListener('input', () => {
+        triggerAutoSave();
+        updateA4PageGauge();
+      });
+      el.addEventListener('blur', () => pushHistoryState());
+    });
+
+    // Floating Inspector triggers on Avatar
+    canvas.querySelectorAll('.cv-avatar-wrap, .cv-minimal-avatar, .cv-avatar-img').forEach(avatarEl => {
+      avatarEl.style.cursor = 'pointer';
+      avatarEl.title = 'Bấm để mở công cụ chỉnh ảnh đại diện';
+      avatarEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showFloatingInspectorForAvatar(avatarEl);
+      });
+    });
+
+    // Floating Inspector triggers on Section Titles
+    canvas.querySelectorAll('.cv-section-title').forEach(titleEl => {
+      titleEl.style.cursor = 'pointer';
+      titleEl.title = 'Bấm để chỉnh kiểu dáng đường kẻ & giãn cách';
+      titleEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showFloatingInspectorForTitle(titleEl);
+      });
+    });
+  }
+
+  /**
+   * Floating Visual Inspector (Gợi ý 1)
+   */
+  function showFloatingInspectorForAvatar(targetEl) {
+    const inspector = document.getElementById('floating-inspector');
+    const viewport = document.getElementById('preview-stage-viewport');
+    if (!inspector || !viewport) return;
+
+    inspector.innerHTML = `
+      <span class="floating-inspector-title"><i class="fa-solid fa-image"></i> Ảnh Chân Dung:</span>
+      <button type="button" class="floating-inspector-btn ${customDesignConfig.avatarShape === 'round' ? 'active' : ''}" onclick="CVApp.setAvatarShape('round')" title="Tròn xoe">● Tròn</button>
+      <button type="button" class="floating-inspector-btn ${customDesignConfig.avatarShape === 'rounded' ? 'active' : ''}" onclick="CVApp.setAvatarShape('rounded')" title="Bo góc mềm">▢ Bo góc</button>
+      <button type="button" class="floating-inspector-btn ${customDesignConfig.avatarShape === 'square' ? 'active' : ''}" onclick="CVApp.setAvatarShape('square')" title="Vuông vắn">■ Vuông</button>
+      <div class="floating-inspector-divider"></div>
+      <button type="button" class="floating-inspector-btn" onclick="CVApp.cycleAvatarBorder()" title="Đổi viền ảnh (0px / 2px / 4px)"><i class="fa-solid fa-border-all"></i> Viền</button>
+      <label class="floating-inspector-btn" style="cursor:pointer;" title="Tải ảnh mới từ máy tính">
+        <i class="fa-solid fa-camera"></i> Đổi Ảnh
+        <input type="file" accept="image/*" style="display:none;" onchange="CVApp.handleFloatingAvatarUpload(event)">
+      </label>
+      <button type="button" class="floating-inspector-btn" onclick="CVApp.hideFloatingInspector()" style="color:#ef4444; font-weight:bold;" title="Đóng">&times;</button>
+    `;
+
+    const targetRect = targetEl.getBoundingClientRect();
+    const viewportRect = viewport.getBoundingClientRect();
+    const top = targetRect.top - viewportRect.top - 46;
+    const left = targetRect.left - viewportRect.left + (targetRect.width / 2);
+
+    inspector.style.top = Math.max(10, top) + 'px';
+    inspector.style.left = Math.max(20, left) + 'px';
+    inspector.style.transform = 'translateX(-50%)';
+    inspector.style.display = 'flex';
+  }
+
+  function handleFloatingAvatarUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      const dataUrl = event.target.result;
+      profile.personalInfo.avatarUrl = dataUrl;
+      const avatarPreview = document.getElementById('avatar-preview-display');
+      if (avatarPreview) avatarPreview.src = dataUrl;
+      renderCVPreview();
+      pushHistoryState();
+      triggerAutoSave();
+      showToast('Đã cập nhật ảnh đại diện mới!', 'fa-solid fa-camera');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function showFloatingInspectorForTitle(targetEl) {
+    const inspector = document.getElementById('floating-inspector');
+    const viewport = document.getElementById('preview-stage-viewport');
+    if (!inspector || !viewport) return;
+
+    inspector.innerHTML = `
+      <span class="floating-inspector-title"><i class="fa-solid fa-grip-lines"></i> Đường Ngăn:</span>
+      <button type="button" class="floating-inspector-btn ${customDesignConfig.dividerStyle === 'solid' ? 'active' : ''}" onclick="CVApp.setDividerStyle('solid')" title="Nét liền">Liền</button>
+      <button type="button" class="floating-inspector-btn ${customDesignConfig.dividerStyle === 'dashed' ? 'active' : ''}" onclick="CVApp.setDividerStyle('dashed')" title="Nét đứt">Đứt</button>
+      <button type="button" class="floating-inspector-btn ${customDesignConfig.dividerStyle === 'double' ? 'active' : ''}" onclick="CVApp.setDividerStyle('double')" title="Viền đôi">Đôi</button>
+      <button type="button" class="floating-inspector-btn ${customDesignConfig.dividerStyle === 'gradient' ? 'active' : ''}" onclick="CVApp.setDividerStyle('gradient')" title="Gradient">Grad</button>
+      <button type="button" class="floating-inspector-btn ${customDesignConfig.dividerStyle === 'none' ? 'active' : ''}" onclick="CVApp.setDividerStyle('none')" title="Bỏ viền">Không</button>
+      <div class="floating-inspector-divider"></div>
+      <button type="button" class="floating-inspector-btn ${customDesignConfig.sectionSpacing === 'compact' ? 'active' : ''}" onclick="CVApp.setSectionSpacing('compact')" title="Giãn cách gọn">Gọn</button>
+      <button type="button" class="floating-inspector-btn ${customDesignConfig.sectionSpacing === 'standard' ? 'active' : ''}" onclick="CVApp.setSectionSpacing('standard')" title="Giãn cách chuẩn">Chuẩn</button>
+      <button type="button" class="floating-inspector-btn" onclick="CVApp.hideFloatingInspector()" style="color:#ef4444; font-weight:bold;" title="Đóng">&times;</button>
+    `;
+
+    const targetRect = targetEl.getBoundingClientRect();
+    const viewportRect = viewport.getBoundingClientRect();
+    const top = targetRect.top - viewportRect.top - 46;
+    const left = targetRect.left - viewportRect.left + (targetRect.width / 2);
+
+    inspector.style.top = Math.max(10, top) + 'px';
+    inspector.style.left = Math.max(20, left) + 'px';
+    inspector.style.transform = 'translateX(-50%)';
+    inspector.style.display = 'flex';
+  }
+
+  function hideFloatingInspector() {
+    const inspector = document.getElementById('floating-inspector');
+    if (inspector) {
+      inspector.style.display = 'none';
+    }
+  }
+
+  /**
+   * Live A4 Page Fill Gauge & Auto-Fit 1 Page Magic Button (Gợi ý 2)
+   */
+  function updateA4PageGauge() {
+    const sheet = document.getElementById('cv-printable-area');
+    const fillText = document.getElementById('a4-fill-text');
+    const badge = document.getElementById('a4-status-badge');
+    if (!sheet || !fillText || !badge) return;
+
+    // 297mm at 96 DPI = 1122.5px
+    const standardA4Height = 1122.5;
+    const scrollH = sheet.scrollHeight;
+    const percent = Math.round((scrollH / standardA4Height) * 100);
+
+    fillText.innerText = `${percent}% A4`;
+
+    if (percent <= 100) {
+      badge.className = 'a4-badge badge-green';
+      badge.innerText = 'Chuẩn 1 trang';
+    } else if (percent <= 108) {
+      badge.className = 'a4-badge badge-yellow';
+      badge.innerText = `Tràn nhẹ (${percent}%)`;
+    } else {
+      badge.className = 'a4-badge badge-red';
+      badge.innerText = 'Tràn sang trang 2';
+    }
+  }
+
+  function autoFitA4() {
+    const sheet = document.getElementById('cv-printable-area');
+    if (!sheet) return;
+
+    const standardA4Height = 1122.5;
+    const initialH = sheet.scrollHeight;
+
+    if (initialH <= standardA4Height && customDesignConfig.fontScale === 100 && customDesignConfig.sectionSpacing === 'standard') {
+      showToast('CV của bạn đã vừa vặn chuẩn 1 trang A4 rồi!', 'fa-solid fa-circle-check');
+      return;
+    }
+
+    // Step 1: Switch spacing to compact
+    customDesignConfig.sectionSpacing = 'compact';
+    sheet.classList.remove('spacing-standard', 'spacing-spacious');
+    sheet.classList.add('spacing-compact');
+
+    // Step 2: Calibrate fontScale incrementally until fits or reaches 85%
+    let scale = 100;
+    while (scale > 85) {
+      sheet.style.setProperty('--cv-font-scale', `${scale / 100}`);
+      if (sheet.scrollHeight <= standardA4Height + 10) {
+        break;
+      }
+      scale -= 2;
+    }
+
+    customDesignConfig.fontScale = scale;
+    syncCustomizerDrawerInputs();
+    renderCVPreview();
+    pushHistoryState();
+    triggerAutoSave();
+    showToast(`⚡ Đã tự động căn vừa 1 trang A4 (Giãn cách: Gọn, Cỡ chữ: ${scale}%)!`, 'fa-solid fa-bolt');
+  }
+
+  /**
+   * Customizer Slide-Over Drawer Controls (Gợi ý 3)
+   */
+  function toggleCustomizerDrawer() {
+    const drawer = document.getElementById('customizer-drawer');
+    if (drawer) {
+      drawer.classList.toggle('active');
+    }
+  }
+
+  function syncCustomizerDrawerInputs() {
+    // Font presets
+    document.querySelectorAll('.font-card').forEach(card => {
+      card.classList.toggle('active', card.dataset.font === customDesignConfig.fontPreset);
+    });
+
+    // Font scale slider
+    const slider = document.getElementById('font-scale-slider');
+    const scaleNum = document.getElementById('font-scale-num');
+    if (slider) slider.value = customDesignConfig.fontScale || 100;
+    if (scaleNum) scaleNum.innerText = `${customDesignConfig.fontScale || 100}%`;
+
+    // Spacing chips
+    document.querySelectorAll('.customizer-chip[data-spacing]').forEach(chip => {
+      chip.classList.toggle('active', chip.dataset.spacing === customDesignConfig.sectionSpacing);
+    });
+
+    // Divider chips
+    document.querySelectorAll('.customizer-chip[data-divider]').forEach(chip => {
+      chip.classList.toggle('active', chip.dataset.divider === customDesignConfig.dividerStyle);
+    });
+
+    // Avatar shape chips
+    document.querySelectorAll('.customizer-chip[data-avatar-shape]').forEach(chip => {
+      chip.classList.toggle('active', chip.dataset.avatarShape === customDesignConfig.avatarShape);
+    });
+
+    // Avatar border chips
+    document.querySelectorAll('.customizer-chip[data-avatar-border]').forEach(chip => {
+      chip.classList.toggle('active', parseInt(chip.dataset.avatarBorder, 10) === customDesignConfig.avatarBorder);
+    });
+
+    // Avatar shadow chips
+    document.querySelectorAll('.customizer-chip[data-avatar-shadow]').forEach(chip => {
+      chip.classList.toggle('active', chip.dataset.avatarShadow === customDesignConfig.avatarShadow);
+    });
+  }
+
+  function setTypographyPreset(preset) {
+    customDesignConfig.fontPreset = preset;
+    syncCustomizerDrawerInputs();
+    renderCVPreview();
+    pushHistoryState();
+    triggerAutoSave();
+  }
+
+  function setFontScale(scale) {
+    customDesignConfig.fontScale = parseInt(scale, 10) || 100;
+    const scaleNum = document.getElementById('font-scale-num');
+    if (scaleNum) scaleNum.innerText = `${customDesignConfig.fontScale}%`;
+    const printableArea = document.getElementById('cv-printable-area');
+    if (printableArea) {
+      printableArea.style.setProperty('--cv-font-scale', `${customDesignConfig.fontScale / 100}`);
+    }
+    updateA4PageGauge();
+    triggerAutoSave();
+  }
+
+  function setSectionSpacing(spacing) {
+    customDesignConfig.sectionSpacing = spacing;
+    syncCustomizerDrawerInputs();
+    renderCVPreview();
+    pushHistoryState();
+    triggerAutoSave();
+  }
+
+  function setDividerStyle(divider) {
+    customDesignConfig.dividerStyle = divider;
+    syncCustomizerDrawerInputs();
+    renderCVPreview();
+    pushHistoryState();
+    triggerAutoSave();
+  }
+
+  function setAvatarShape(shape) {
+    customDesignConfig.avatarShape = shape;
+    syncCustomizerDrawerInputs();
+    renderCVPreview();
+    pushHistoryState();
+    triggerAutoSave();
+  }
+
+  function setAvatarBorder(width) {
+    customDesignConfig.avatarBorder = parseInt(width, 10);
+    syncCustomizerDrawerInputs();
+    renderCVPreview();
+    pushHistoryState();
+    triggerAutoSave();
+  }
+
+  function cycleAvatarBorder() {
+    const borders = [0, 2, 4];
+    const cur = customDesignConfig.avatarBorder !== undefined ? customDesignConfig.avatarBorder : 2;
+    const idx = borders.indexOf(cur);
+    const next = borders[(idx + 1) % borders.length];
+    setAvatarBorder(next);
+  }
+
+  function setAvatarShadow(shadow) {
+    customDesignConfig.avatarShadow = shadow;
+    syncCustomizerDrawerInputs();
+    renderCVPreview();
+    pushHistoryState();
+    triggerAutoSave();
+  }
+
+  function resetCustomDesign() {
+    customDesignConfig = Object.assign({}, CV_STORAGE.DEFAULT_DESIGN_CONFIG);
+    syncCustomizerDrawerInputs();
+    renderCVPreview();
+    pushHistoryState();
+    triggerAutoSave();
+    showToast('Đã đặt lại kiểu dáng thiết kế về mặc định!', 'fa-solid fa-arrow-rotate-left');
+  }
+
+  /**
+   * Save My Custom Templates (Lưu & Quản Lý Mẫu Của Tôi)
+   */
+  function openSaveCustomTemplateModal() {
+    const modal = document.getElementById('save-custom-template-modal');
+    const input = document.getElementById('input-custom-template-name');
+    if (modal) modal.classList.add('active');
+    if (input) {
+      input.value = activeTemplate ? `${activeTemplate.name.split('-')[0].trim()} (Bản Riêng)` : 'Mẫu CV Của Tôi';
+      input.focus();
+    }
+  }
+
+  function closeSaveCustomTemplateModal() {
+    const modal = document.getElementById('save-custom-template-modal');
+    if (modal) modal.classList.remove('active');
+  }
+
+  function saveCurrentAsCustomTemplate() {
+    const nameInput = document.getElementById('input-custom-template-name');
+    const descInput = document.getElementById('input-custom-template-desc');
+    const name = nameInput ? nameInput.value.trim() : '';
+    if (!name) {
+      showToast('Vui lòng nhập tên cho mẫu CV riêng của bạn!', 'fa-solid fa-triangle-exclamation');
+      return;
+    }
+
+    const newTpl = {
+      id: 'custom-' + Date.now(),
+      name: name,
+      styleId: activeTemplate ? activeTemplate.styleId : 'modern-left-col',
+      styleName: 'Mẫu Tự Tùy Chỉnh',
+      category: 'custom',
+      industry: 'Tùy Chỉnh Riêng',
+      badge: 'Cá Nhân',
+      desc: descInput ? descInput.value.trim() || 'Mẫu CV do bạn tự tinh chỉnh' : 'Mẫu CV do bạn tự tinh chỉnh',
+      colors: {
+        primary: activeThemeColor,
+        secondary: '#1e293b'
+      },
+      customDesignConfig: Object.assign({}, customDesignConfig)
+    };
+
+    customTemplates.unshift(newTpl);
+    CV_TEMPLATES_CATALOG.registerCustomTemplate(newTpl);
+    CV_STORAGE.saveCustomTemplates(customTemplates);
+    activeTemplate = newTpl;
+
+    closeSaveCustomTemplateModal();
+    renderQuickTemplatesSidebar();
+    renderCVPreview();
+    pushHistoryState();
+    triggerAutoSave();
+    showToast(`⭐ Đã lưu thành công "${name}" vào Mẫu Của Tôi!`, 'fa-solid fa-star');
+  }
+
+  function deleteCustomTemplate(tplId) {
+    if (!confirm('Bạn có chắc chắn muốn xóa mẫu tùy biến này khỏi danh sách?')) return;
+    customTemplates = customTemplates.filter(t => t.id !== tplId);
+    CV_TEMPLATES_CATALOG.removeCustomTemplate(tplId);
+    CV_STORAGE.saveCustomTemplates(customTemplates);
+    if (activeTemplate && activeTemplate.id === tplId) {
+      activeTemplate = CV_TEMPLATES_CATALOG.getDefaultTemplate();
+      applyTemplateStyles(activeTemplate);
+    }
+    renderQuickTemplatesSidebar();
+    renderCVPreview();
+    pushHistoryState();
+    triggerAutoSave();
+    showToast('Đã xóa mẫu tùy biến thành công!', 'fa-solid fa-trash-can');
   }
 
   /* Autosave & Toast Engine */
@@ -1777,7 +2445,7 @@ const CVApp = (function () {
   function triggerAutoSave() {
     clearTimeout(autoSaveTimer);
     autoSaveTimer = setTimeout(() => {
-      CV_STORAGE.saveToLocalStorage(profile, activeTemplate ? activeTemplate.id : 'tpl-001', ratingMode, sectionsConfig, activeThemeColor);
+      CV_STORAGE.saveToLocalStorage(profile, activeTemplate ? activeTemplate.id : 'tpl-001', ratingMode, sectionsConfig, activeThemeColor, customDesignConfig);
     }, 400);
   }
 
@@ -1849,7 +2517,32 @@ const CVApp = (function () {
     addReference,
     updateReference,
     removeReference,
-    toggleSectionVisibility
+    toggleSectionVisibility,
+    // Pro Customizer, Direct Edit, History & My Templates API
+    undo,
+    redo,
+    toggleDirectEditMode,
+    showFloatingInspectorForAvatar,
+    showFloatingInspectorForTitle,
+    hideFloatingInspector,
+    handleFloatingAvatarUpload,
+    updateA4PageGauge,
+    autoFitA4,
+    toggleCustomizerDrawer,
+    syncCustomizerDrawerInputs,
+    setTypographyPreset,
+    setFontScale,
+    setSectionSpacing,
+    setDividerStyle,
+    setAvatarShape,
+    setAvatarBorder,
+    cycleAvatarBorder,
+    setAvatarShadow,
+    resetCustomDesign,
+    openSaveCustomTemplateModal,
+    closeSaveCustomTemplateModal,
+    saveCurrentAsCustomTemplate,
+    deleteCustomTemplate
   };
 })();
 
