@@ -449,41 +449,43 @@
     <section class="preview-container">
       <!-- Sticky Preview Toolbar with Pro Customizer, Undo/Redo, Auto-fit A4 -->
       <div class="preview-toolbar no-print">
-        <!-- Cluster 1: Zoom & Undo/Redo -->
+        <!-- Cluster 1: Zoom & Undo/Redo & Layout View Modes -->
         <div class="toolbar-cluster-left">
           <div class="preview-zoom-controls">
-            <button type="button" class="btn btn-outline btn-sm" id="btn-zoom-out" title="Thu nhỏ"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
-            <span id="zoom-percentage-text" style="font-size:0.8rem; font-weight:700; width:36px; text-align:center;">95%</span>
-            <button type="button" class="btn btn-outline btn-sm" id="btn-zoom-in" title="Phóng to"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
-            <button type="button" class="btn btn-outline btn-sm" id="btn-zoom-fit" title="Vừa vặn màn hình"><i class="fa-solid fa-arrows-to-eye"></i></button>
+            <button type="button" class="btn btn-outline btn-sm btn-icon-only" id="btn-zoom-out" data-tooltip="Thu nhỏ (Zoom -)" title="Thu nhỏ"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+            <span id="zoom-percentage-text" style="font-size:0.82rem; font-weight:700; width:40px; text-align:center;">95%</span>
+            <button type="button" class="btn btn-outline btn-sm btn-icon-only" id="btn-zoom-in" data-tooltip="Phóng to (Zoom +)" title="Phóng to"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+            <button type="button" class="btn btn-outline btn-sm btn-icon-only" id="btn-zoom-fit" data-tooltip="Căn vừa vặn màn hình" title="Vừa vặn màn hình"><i class="fa-solid fa-arrows-to-eye"></i></button>
           </div>
 
-          <div class="history-controls" style="display:flex; gap:4px; margin-left:4px;">
-            <button type="button" class="btn btn-outline btn-sm" id="btn-undo" title="Hoàn tác (Ctrl+Z)" onclick="CVApp.undo()" disabled>
+          <div class="history-controls" style="display:flex; gap:4px; margin-left:2px;">
+            <button type="button" class="btn btn-outline btn-sm btn-icon-only" id="btn-undo" data-tooltip="Hoàn tác (Ctrl+Z)" title="Hoàn tác (Ctrl+Z)" onclick="CVApp.undo()" disabled>
               <i class="fa-solid fa-rotate-left"></i>
             </button>
-            <button type="button" class="btn btn-outline btn-sm" id="btn-redo" title="Làm lại (Ctrl+Y)" onclick="CVApp.redo()" disabled>
+            <button type="button" class="btn btn-outline btn-sm btn-icon-only" id="btn-redo" data-tooltip="Làm lại (Ctrl+Y)" title="Làm lại (Ctrl+Y)" onclick="CVApp.redo()" disabled>
               <i class="fa-solid fa-rotate-right"></i>
             </button>
           </div>
 
-          <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-page-layout" onclick="CVApp.togglePageLayoutMode()" title="Chuyển đổi chế độ xem: Cuộn Dọc hoặc Dàn Ngang các trang A4">
-            <i class="fa-solid fa-book-open"></i> <span id="page-layout-text">Dàn Ngang</span>
+          <div class="toolbar-divider-v"></div>
+
+          <button type="button" class="btn btn-outline btn-sm btn-icon-only" id="btn-toggle-page-layout" onclick="CVApp.togglePageLayoutMode()" data-tooltip="Dàn trang Ngang (Xem các trang cạnh nhau)" title="Dàn trang Ngang (Xem các trang cạnh nhau)">
+            <i class="fa-solid fa-book-open"></i>
           </button>
 
-          <button type="button" class="btn btn-outline btn-sm btn-zen-mode" id="btn-zen-mode" onclick="CVApp.toggleZenMode()" title="Chế độ Siêu Rộng: Thu gọn cả 2 thanh bên để tạo không gian chỉnh sửa siêu rộng">
-            <i class="fa-solid fa-expand"></i> <span id="zen-mode-text">Siêu Rộng</span>
+          <button type="button" class="btn btn-outline btn-sm btn-zen-mode btn-icon-only" id="btn-zen-mode" onclick="CVApp.toggleZenMode()" data-tooltip="Chế độ Siêu Rộng (Thu gọn 2 bên)" title="Chế độ Siêu Rộng (Thu gọn 2 bên)">
+            <i class="fa-solid fa-expand"></i>
           </button>
         </div>
 
         <!-- Cluster 2: A4 Gauge & Auto-Fit Magic Button -->
         <div class="toolbar-cluster-center">
-          <div class="a4-gauge-wrap" id="a4-gauge-wrap" title="Đo độ dài nội dung so với khổ A4 chuẩn (297mm)">
+          <div class="a4-gauge-wrap" id="a4-gauge-wrap" data-tooltip="Đo độ dài nội dung so với khổ A4 chuẩn (297mm)" title="Đo độ dài nội dung so với khổ A4 chuẩn (297mm)">
             <i class="fa-solid fa-gauge-high" style="color:var(--primary);"></i>
             <span id="a4-fill-text">95% A4</span>
             <span class="a4-badge badge-green" id="a4-status-badge">Chuẩn 1 trang</span>
           </div>
-          <button type="button" class="btn btn-outline btn-sm btn-magic-autofit" id="btn-autofit-a4" onclick="CVApp.autoFitA4()" title="Tự động căn chỉnh font và lề để vừa khít 100% đúng 1 trang A4">
+          <button type="button" class="btn btn-outline btn-sm btn-magic-autofit" id="btn-autofit-a4" onclick="CVApp.autoFitA4()" data-tooltip="Tự động ép vừa khít đúng 1 trang A4" title="Tự động căn chỉnh font và lề để vừa khít 100% đúng 1 trang A4">
             <i class="fa-solid fa-bolt" style="color:#eab308;"></i> <span>Vừa 1 trang</span>
           </button>
         </div>
@@ -491,17 +493,17 @@
         <!-- Cluster 3: Live Edit Mode Toggle & Customizer & Save Custom Template -->
         <div class="toolbar-cluster-right">
           <!-- Live Edit Mode Toggle Button -->
-          <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-direct-edit" onclick="CVApp.toggleDirectEditMode()" title="Bật chế độ gõ sửa trực tiếp trên giấy A4">
+          <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-direct-edit" onclick="CVApp.toggleDirectEditMode()" data-tooltip="Sửa chữ trực tiếp trên bản in A4" title="Bật chế độ gõ sửa trực tiếp trên giấy A4">
             <i class="fa-solid fa-pen-to-square"></i> <span id="direct-edit-text">Soạn Trực Quan</span>
           </button>
 
           <!-- Design Customizer Drawer Button -->
-          <button type="button" class="btn btn-outline btn-sm" id="btn-open-customizer" onclick="CVApp.toggleCustomizerDrawer()" title="Mở bảng tinh chỉnh sâu kiểu dáng mẫu CV">
+          <button type="button" class="btn btn-outline btn-sm" id="btn-open-customizer" onclick="CVApp.toggleCustomizerDrawer()" data-tooltip-pos="left" data-tooltip="Tùy biến: Font, khoảng cách, viền avatar" title="Mở bảng tinh chỉnh sâu kiểu dáng mẫu CV">
             <i class="fa-solid fa-sliders"></i> Tùy biến
           </button>
 
           <!-- Save My Custom Template Button -->
-          <button type="button" class="btn btn-primary btn-sm" id="btn-save-custom-template" onclick="CVApp.openSaveCustomTemplateModal()" title="Lưu cấu trúc và phối màu hiện tại thành Mẫu Của Tôi">
+          <button type="button" class="btn btn-primary btn-sm" id="btn-save-custom-template" onclick="CVApp.openSaveCustomTemplateModal()" data-tooltip-pos="left" data-tooltip="Lưu cấu trúc &amp; phối màu này thành Mẫu Của Tôi" title="Lưu cấu trúc và phối màu hiện tại thành Mẫu Của Tôi">
             <i class="fa-solid fa-floppy-disk"></i> Lưu mẫu
           </button>
         </div>

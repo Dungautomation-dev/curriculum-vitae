@@ -2284,18 +2284,19 @@ const CVApp = (function () {
 
   function updateZenModeButton() {
     const btnZen = document.getElementById('btn-zen-mode');
-    const zenText = document.getElementById('zen-mode-text');
-    if (!btnZen || !zenText) return;
+    if (!btnZen) return;
 
     const bothCollapsed = isLeftSidebarCollapsed && isRightSidebarCollapsed;
     if (bothCollapsed) {
       btnZen.classList.add('active');
-      btnZen.innerHTML = '<i class="fa-solid fa-compress"></i> <span id="zen-mode-text">Thu Gọn Siêu Rộng</span>';
-      btnZen.title = 'Khôi phục lại 2 thanh công cụ bên lề';
+      btnZen.innerHTML = '<i class="fa-solid fa-compress"></i>';
+      btnZen.setAttribute('data-tooltip', 'Khôi phục 2 thanh bên (Thoát Siêu Rộng)');
+      btnZen.title = 'Khôi phục 2 thanh bên (Thoát Siêu Rộng)';
     } else {
       btnZen.classList.remove('active');
-      btnZen.innerHTML = '<i class="fa-solid fa-expand"></i> <span id="zen-mode-text">Siêu Rộng</span>';
-      btnZen.title = 'Thu gọn cả 2 thanh bên để có không gian chỉnh sửa siêu rộng';
+      btnZen.innerHTML = '<i class="fa-solid fa-expand"></i>';
+      btnZen.setAttribute('data-tooltip', 'Chế độ Siêu Rộng (Thu gọn 2 bên)');
+      btnZen.title = 'Chế độ Siêu Rộng (Thu gọn 2 bên)';
     }
   }
 
@@ -2322,19 +2323,20 @@ const CVApp = (function () {
   function applyPageLayoutMode() {
     const stageViewport = document.querySelector('.preview-container');
     const btnToggle = document.getElementById('btn-toggle-page-layout');
-    const txt = document.getElementById('page-layout-text');
-    if (!btnToggle || !txt) return;
+    if (!btnToggle) return;
 
     if (pageLayoutMode === 'horizontal') {
       if (stageViewport) stageViewport.classList.add('stage-horizontal-layout');
       btnToggle.classList.add('active');
-      btnToggle.innerHTML = '<i class="fa-solid fa-file-lines"></i> <span id="page-layout-text">Dàn Dọc</span>';
-      btnToggle.title = 'Chuyển về xem Cuộn Dọc truyền thống';
+      btnToggle.innerHTML = '<i class="fa-solid fa-file-lines"></i>';
+      btnToggle.setAttribute('data-tooltip', 'Cuộn Dọc truyền thống');
+      btnToggle.title = 'Cuộn Dọc truyền thống';
     } else {
       if (stageViewport) stageViewport.classList.remove('stage-horizontal-layout');
       btnToggle.classList.remove('active');
-      btnToggle.innerHTML = '<i class="fa-solid fa-book-open"></i> <span id="page-layout-text">Dàn Ngang</span>';
-      btnToggle.title = 'Chuyển sang Dàn Ngang các trang cạnh nhau';
+      btnToggle.innerHTML = '<i class="fa-solid fa-book-open"></i>';
+      btnToggle.setAttribute('data-tooltip', 'Dàn trang Ngang (Xem các trang cạnh nhau)');
+      btnToggle.title = 'Dàn trang Ngang (Xem các trang cạnh nhau)';
     }
   }
 

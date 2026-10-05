@@ -694,19 +694,19 @@ body {
 .preview-toolbar {
   position: sticky;
   top: 0;
-  z-index: 10;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--gray-200);
-  padding: 6px 14px;
+  min-height: 52px;
+  padding: 9px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  box-shadow: var(--shadow-sm);
-  overflow-x: auto;
-  scrollbar-width: none;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  overflow: visible;
   white-space: nowrap;
 }
 
@@ -717,7 +717,7 @@ body {
 .preview-zoom-controls {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .preview-stage-viewport {
@@ -1377,26 +1377,71 @@ body {
 .toolbar-cluster-left, .toolbar-cluster-center, .toolbar-cluster-right {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   flex-shrink: 0;
   white-space: nowrap;
+}
+
+/* Enhanced Preview Toolbar Buttons */
+.preview-toolbar .btn {
+  height: 35px;
+  padding: 0 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 7px;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.preview-toolbar .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+.preview-toolbar .btn:active {
+  transform: translateY(0);
+}
+
+/* Icon-only Buttons (Dàn ngang, Siêu rộng, Undo, Redo, Zoom) */
+.preview-toolbar .btn.btn-icon-only {
+  width: 35px;
+  height: 35px;
+  padding: 0 !important;
+  font-size: 0.86rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Vertical divider between toolbar groups */
+.toolbar-divider-v {
+  width: 1px;
+  height: 22px;
+  background: var(--gray-300);
+  margin: 0 3px;
+  flex-shrink: 0;
 }
 
 /* A4 Page Gauge (Gợi ý 2) */
 .a4-gauge-wrap {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
+  gap: 8px;
+  height: 35px;
+  padding: 0 12px;
   background: #ffffff;
   border: 1px solid var(--gray-300);
   border-radius: 20px;
-  font-size: 0.76rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: var(--gray-800);
   white-space: nowrap;
   flex-shrink: 0;
-  line-height: 1.1;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .a4-gauge-wrap span {
@@ -1407,10 +1452,10 @@ body {
 .a4-badge {
   display: inline-flex;
   align-items: center;
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 10px;
+  padding: 3px 9px;
+  border-radius: 12px;
   white-space: nowrap;
   flex-shrink: 0;
   line-height: 1.1;
@@ -1829,3 +1874,76 @@ body {
     display: none !important;
   }
 }
+
+/* ==========================================================================
+   SLEEK MICRO-TOOLTIP POPUP SYSTEM (Hiện popup nhỏ note tính năng khi di chuột)
+   ========================================================================== */
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + 9px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  background: #0f172a;
+  color: #f8fafc;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.16s cubic-bezier(0.16, 1, 0.3, 1), transform 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 9999;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  line-height: 1.35;
+}
+
+[data-tooltip]::after {
+  content: '';
+  position: absolute;
+  top: calc(100% + 3px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  border-width: 6px;
+  border-style: solid;
+  border-color: transparent transparent #0f172a transparent;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.16s cubic-bezier(0.16, 1, 0.3, 1), transform 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 9999;
+}
+
+[data-tooltip]:hover::before,
+[data-tooltip]:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Position tooltip aligned to the right (avoid screen edge collision) */
+[data-tooltip-pos="left"]::before {
+  left: auto;
+  right: 0;
+  transform: translateX(0) translateY(-4px);
+}
+
+[data-tooltip-pos="left"]::after {
+  left: auto;
+  right: 14px;
+  transform: translateX(0) translateY(-4px);
+}
+
+[data-tooltip-pos="left"]:hover::before,
+[data-tooltip-pos="left"]:hover::after {
+  transform: translateX(0) translateY(0);
+}
+
