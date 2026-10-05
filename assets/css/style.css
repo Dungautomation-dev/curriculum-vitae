@@ -765,10 +765,6 @@ body.fit-screen-mode {
   overflow: hidden !important;
 }
 
-body.fit-screen-mode .editor-sidebar {
-  scroll-behavior: smooth;
-}
-
 body.fit-screen-mode .preview-container {
   overflow: hidden !important;
 }
@@ -877,6 +873,34 @@ body.fit-screen-mode .preview-zoom-stage {
   background: var(--primary);
   color: #ffffff;
   box-shadow: 0 2px 8px rgba(30, 64, 175, 0.5);
+}
+
+/* ==========================================================================
+   SMART EDIT JUMP & PULSE HIGHLIGHT (NHẢY ĐẾN ĐÚNG CHỖ ĐANG SỬA TRÊN CV)
+   ========================================================================== */
+@keyframes cvSectionFocusPulse {
+  0% {
+    outline: 2px solid var(--primary);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.35);
+    background-color: rgba(37, 99, 235, 0.08);
+  }
+  40% {
+    outline: 2px solid var(--primary);
+    box-shadow: 0 0 0 8px rgba(37, 99, 235, 0.2);
+    background-color: rgba(37, 99, 235, 0.08);
+  }
+  100% {
+    outline: 2px solid transparent;
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+    background-color: transparent;
+  }
+}
+
+.cv-section-focused {
+  animation: cvSectionFocusPulse 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  border-radius: 6px;
+  position: relative;
+  z-index: 5;
 }
 
 /* ==========================================================================
