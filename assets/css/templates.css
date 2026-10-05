@@ -216,11 +216,33 @@
   padding: 8px 12px;
   margin-bottom: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 .cv-card-item:last-child {
   margin-bottom: 0;
 }
+
+/* Page Break Protection & Smart Spacers (Hướng B) */
+.timeline-item,
+.skill-item-bar,
+.bento-card,
+.cv-avatar-wrap,
+.tag-pills-wrap {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.cv-page-break-spacer {
+  display: block;
+  width: 100%;
+  pointer-events: none;
+  background: transparent;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
 
 .cv-card-title {
   font-weight: 700;

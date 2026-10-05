@@ -263,7 +263,9 @@ const CVApp = (function () {
         !saved.data.languages ||
         saved.data.languages.length < 3 ||
         !saved.data.experience ||
-        saved.data.experience.length < 4
+        saved.data.experience.length < 4 ||
+        !saved.data.awards ||
+        saved.data.awards.length < 3
       )) {
         profile = CV_SAMPLE_PROFILES.getDefaultProfile();
         CV_STORAGE.saveToLocalStorage(profile, saved.templateId || 'tpl-001', saved.skillRatingMode || 'percentage', saved.sectionsConfig, saved.themeColor, saved.customDesignConfig);
@@ -395,6 +397,7 @@ const CVApp = (function () {
     renderHobbiesCheckboxes();
     renderCertificatesInputs();
     renderProjectsInputs();
+    renderAwardsInputs();
     renderLanguagesInputs();
     renderReferencesInputs();
     renderSectionsVisibilityToggles();
@@ -577,6 +580,37 @@ const CVApp = (function () {
         <div class="form-group">
           <label class="form-label">Mô tả kết quả đạt được</label>
           <textarea class="form-textarea" rows="2" oninput="CVApp.updateProject('${p.id}', 'description', this.value)">${escapeHtml(p.description || '')}</textarea>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderAwardsInputs() {
+    const container = document.getElementById('awards-list-inputs');
+    if (!container) return;
+    container.innerHTML = (profile.awards || []).map((awd, idx) => `
+      <div class="repeatable-item-card" data-id="${awd.id}">
+        <div class="repeatable-card-header">
+          <span class="repeatable-card-index"><i class="fa-solid fa-trophy"></i> Thành tựu #${idx + 1}</span>
+          <button type="button" class="btn-remove-item" onclick="CVApp.removeAward('${awd.id}')" title="Xóa"><i class="fa-solid fa-trash-can"></i></button>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tên giải thưởng / Thành tựu</label>
+          <input type="text" class="form-input" value="${escapeHtml(awd.title || '')}" oninput="CVApp.updateAward('${awd.id}', 'title', this.value)">
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">Cơ quan / Đơn vị trao</label>
+            <input type="text" class="form-input" value="${escapeHtml(awd.organization || '')}" oninput="CVApp.updateAward('${awd.id}', 'organization', this.value)">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Năm đạt giải</label>
+            <input type="text" class="form-input" value="${escapeHtml(awd.year || '')}" oninput="CVApp.updateAward('${awd.id}', 'year', this.value)">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Chi tiết (Tùy chọn)</label>
+          <textarea class="form-textarea" rows="2" oninput="CVApp.updateAward('${awd.id}', 'description', this.value)">${escapeHtml(awd.description || '')}</textarea>
         </div>
       </div>
     `).join('');
@@ -820,6 +854,19 @@ const CVApp = (function () {
       </div>
     ` : '';
 
+    const awardsHtml = (sectionsConfig.awards !== false && (profile.awards || []).length > 0) ? `
+      <div class="cv-section">
+        <h3 class="cv-section-title"><i class="fa-solid fa-trophy"></i> Thành Tựu &amp; Giải Thưởng</h3>
+        ${profile.awards.map(awd => `
+          <div class="cv-card-item">
+            <div class="cv-card-title">${escapeHtml(awd.title)}</div>
+            <div class="cv-card-meta">${escapeHtml(awd.organization)} ${awd.year ? `• ${escapeHtml(awd.year)}` : ''}</div>
+            ${awd.description ? `<div class="cv-card-desc">${escapeHtml(awd.description)}</div>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    ` : '';
+
     const referencesHtml = (sectionsConfig.references !== false && (profile.references || []).length > 0) ? `
       <div class="cv-section">
         <h3 class="cv-section-title"><i class="fa-solid fa-user-check"></i> Người Tham Chiếu</h3>
@@ -860,6 +907,7 @@ const CVApp = (function () {
             ${experienceHtml}
             ${educationHtml}
             ${projectsHtml}
+            ${awardsHtml}
             ${referencesHtml}
           </div>
           <div class="cv-sidebar">
@@ -894,6 +942,7 @@ const CVApp = (function () {
               ${summaryBlock}
               ${experienceHtml}
               ${projectsHtml}
+              ${awardsHtml}
               ${certificationsHtml}
             </div>
             <div>
@@ -927,6 +976,7 @@ const CVApp = (function () {
             <div>
               ${experienceHtml}
               ${projectsHtml}
+              ${awardsHtml}
               ${certificationsHtml}
             </div>
             <div>
@@ -972,6 +1022,7 @@ const CVApp = (function () {
                 </div>
               </div>
               ${projectsHtml}
+              ${awardsHtml}
               ${certificationsHtml}
             </div>
             <div>
@@ -1003,6 +1054,7 @@ const CVApp = (function () {
             <div>
               ${experienceHtml ? `<div class="bento-card">${experienceHtml}</div>` : ''}
               ${projectsHtml ? `<div class="bento-card">${projectsHtml}</div>` : ''}
+              ${awardsHtml ? `<div class="bento-card">${awardsHtml}</div>` : ''}
               ${certificationsHtml ? `<div class="bento-card">${certificationsHtml}</div>` : ''}
             </div>
             <div>
@@ -1032,6 +1084,7 @@ const CVApp = (function () {
               <div>
                 ${experienceHtml}
                 ${projectsHtml}
+                ${awardsHtml}
                 ${certificationsHtml}
               </div>
               <div>
@@ -1072,6 +1125,7 @@ const CVApp = (function () {
             <div>
               ${experienceHtml}
               ${projectsHtml}
+              ${awardsHtml}
             </div>
             <div>
               ${hardSkillsHtml}
@@ -1106,6 +1160,7 @@ const CVApp = (function () {
             <div>
               ${experienceHtml}
               ${projectsHtml}
+              ${awardsHtml}
               ${certificationsHtml}
             </div>
             <div>
@@ -1146,6 +1201,7 @@ const CVApp = (function () {
             ${experienceHtml}
             ${educationHtml}
             ${projectsHtml}
+            ${awardsHtml}
             ${referencesHtml}
           </div>
         </div>
@@ -1167,6 +1223,7 @@ const CVApp = (function () {
             <div>
               ${experienceHtml}
               ${projectsHtml}
+              ${awardsHtml}
               ${certificationsHtml}
             </div>
             <div>
@@ -1197,6 +1254,7 @@ const CVApp = (function () {
               <div>
                 ${experienceHtml}
                 ${projectsHtml}
+                ${awardsHtml}
                 ${certificationsHtml}
               </div>
               <div>
@@ -1238,6 +1296,7 @@ const CVApp = (function () {
             ${experienceHtml}
             ${educationHtml}
             ${projectsHtml}
+            ${awardsHtml}
             ${referencesHtml}
           </div>
         </div>
@@ -1668,6 +1727,36 @@ const CVApp = (function () {
   function removeLanguage(id) {
     profile.languages = (profile.languages || []).filter(l => l.id !== id);
     renderLanguagesInputs();
+    renderCVPreview();
+    triggerAutoSave();
+  }
+
+  function addAward() {
+    profile.awards = profile.awards || [];
+    profile.awards.push({
+      id: 'awd-' + Date.now(),
+      title: 'Tên thành tựu / giải thưởng mới...',
+      organization: 'Đơn vị / Tổ chức trao giải',
+      year: '2024',
+      description: ''
+    });
+    renderAwardsInputs();
+    renderCVPreview();
+    triggerAutoSave();
+  }
+
+  function updateAward(id, field, val) {
+    const item = (profile.awards || []).find(a => a.id === id);
+    if (item) {
+      item[field] = val;
+      renderCVPreview();
+      triggerAutoSave();
+    }
+  }
+
+  function removeAward(id) {
+    profile.awards = (profile.awards || []).filter(a => a.id !== id);
+    renderAwardsInputs();
     renderCVPreview();
     triggerAutoSave();
   }
@@ -2374,22 +2463,137 @@ const CVApp = (function () {
     }
   }
 
+  /**
+   * Smart Semantic Pagination Engine (Hướng B - Chuẩn hóa ngắt trang không cắt chữ)
+   * Tự động đo đạc vị trí các khối nội dung (.timeline-item, .cv-card-item, .cv-section, badge...)
+   * và chèn spacer thông minh để đẩy các phần tử tràn trang sang đầu trang mới nguyên vẹn.
+   */
+  function applySmartPagination() {
+    const sheet = document.getElementById('cv-printable-area');
+    if (!sheet) return 1;
+
+    // 1. Dọn dẹp toàn bộ spacer cũ
+    sheet.querySelectorAll('.cv-page-break-spacer').forEach(el => el.remove());
+    sheet.querySelectorAll('.cv-page-break-divider').forEach(el => el.remove());
+    sheet.style.minHeight = '';
+
+    const sheetRect = sheet.getBoundingClientRect();
+    if (!sheetRect || sheetRect.width <= 0) return 1;
+
+    // Chiều cao chuẩn A4 (297mm / 210mm = 1.4142857)
+    const a4HeightPx = sheetRect.width * (297 / 210);
+    const scrollH = sheet.scrollHeight;
+
+    // Nếu vừa khít trong 1 trang A4
+    if (scrollH <= a4HeightPx + 10) {
+      sheet.style.minHeight = '297mm';
+      return 1;
+    }
+
+    const maxPages = 4;
+    const pageTopPadding = 26; // Khoảng đệm đầu trang mới (px)
+
+    // Xác định các cột độc lập trong layout (hỗ trợ cả 12 mẫu template)
+    let columnContainers = Array.from(sheet.querySelectorAll(
+      '.cv-sidebar, .cv-main, .split-col-left, .split-col-right, ' +
+      '.cv-body-content > div, .cv-columns-grid > div, .cv-two-col-body > div, ' +
+      '.bento-grid-2col > div, .executive-columns > div, .compact-3col-grid > div, ' +
+      '.editorial-columns > div, .tech-columns > div, .luxury-columns > div'
+    ));
+
+    if (columnContainers.length === 0) {
+      columnContainers = [sheet];
+    }
+
+    for (let p = 1; p < maxPages; p++) {
+      const boundaryY = p * a4HeightPx;
+      if (sheet.scrollHeight < boundaryY - 20) break;
+
+      columnContainers.forEach(col => {
+        const colRect = col.getBoundingClientRect();
+        if (colRect.width <= 0) return;
+
+        const blocks = [];
+        Array.from(col.children).forEach(child => {
+          if (child.classList.contains('cv-page-break-spacer') || child.classList.contains('no-print')) return;
+
+          if (child.classList.contains('cv-section')) {
+            const items = child.querySelectorAll('.timeline-item, .cv-card-item, .skill-item-bar');
+            const title = child.querySelector('.cv-section-title');
+
+            if (items.length > 0) {
+              if (title) blocks.push({ el: title, parentSection: child, isTitle: true });
+              items.forEach(it => blocks.push({ el: it, parentSection: child, isItem: true }));
+            } else {
+              blocks.push({ el: child, isWholeSection: true });
+            }
+          } else {
+            blocks.push({ el: child });
+          }
+        });
+
+        for (let i = 0; i < blocks.length; i++) {
+          const item = blocks[i];
+          const el = item.el;
+          const rect = el.getBoundingClientRect();
+          const top = rect.top - sheetRect.top;
+          const bottom = top + rect.height;
+
+          // Nếu phần tử bị vạch boundaryY cắt ngang hoặc quá sát mép đáy trang (< 24px)
+          if (top < boundaryY && bottom > boundaryY - 24) {
+            let targetToPush = el;
+
+            // Xử lý chống mồ côi tiêu đề
+            if (item.isTitle && item.parentSection) {
+              targetToPush = item.parentSection;
+            } else if (item.isItem && item.parentSection) {
+              const firstItem = item.parentSection.querySelector('.timeline-item, .cv-card-item, .skill-item-bar');
+              if (el === firstItem) {
+                targetToPush = item.parentSection;
+              }
+            }
+
+            const pushRect = targetToPush.getBoundingClientRect();
+            const pushTop = pushRect.top - sheetRect.top;
+            const pushDistance = (boundaryY - pushTop) + pageTopPadding;
+
+            if (pushDistance > 0) {
+              const spacer = document.createElement('div');
+              spacer.className = 'cv-page-break-spacer';
+              spacer.style.height = `${Math.round(pushDistance)}px`;
+              spacer.style.width = '100%';
+              spacer.style.display = 'block';
+              spacer.style.flexShrink = '0';
+              spacer.style.pointerEvents = 'none';
+
+              targetToPush.parentNode.insertBefore(spacer, targetToPush);
+            }
+            break; // Cột này đã được căn ngắt trang cho boundaryY
+          }
+        }
+      });
+    }
+
+    const finalScrollH = sheet.scrollHeight;
+    const totalPages = Math.max(1, Math.ceil(finalScrollH / a4HeightPx));
+    sheet.style.minHeight = `${totalPages * 297}mm`;
+    return totalPages;
+  }
+
   function renderPageBreakDividersAndHorizontal() {
     const previewWrapper = document.getElementById('cv-a4-render-target');
     const sheet = document.getElementById('cv-printable-area');
     if (!previewWrapper || !sheet) return;
 
-    // Remove any previous dividers
+    // 1. Phân trang DOM Semantic thông minh trước khi render hiển thị
+    const totalPages = applySmartPagination();
+
+    // Dọn dẹp DOM cũ
     sheet.querySelectorAll('.cv-page-break-divider').forEach(el => el.remove());
     const oldRow = previewWrapper.querySelector('.horizontal-pages-row');
     if (oldRow) oldRow.remove();
 
-    // Standard A4 height = 297mm = ~1122.52px at 96 DPI
-    const standardA4Height = 1122.52;
-    const scrollH = sheet.scrollHeight;
-    const totalPages = Math.ceil(scrollH / standardA4Height);
-
-    // Requirement 1: In vertical mode, render scissors cut dividers at 297mm, 594mm...
+    // 2. Chế độ Dọc (Vertical)
     if (pageLayoutMode === 'vertical') {
       sheet.style.display = '';
       if (totalPages > 1) {
@@ -2409,13 +2613,13 @@ const CVApp = (function () {
         }
       }
     } else {
-      // Requirement 2: In horizontal mode, render pages side-by-side
+      // 3. Chế độ Dàn Trang Ngang (Horizontal)
       if (totalPages > 1) {
-        sheet.style.display = 'none'; // sheet remains in DOM for print / pdf export
+        sheet.style.display = 'none'; // Giữ sheet trong DOM cho in ấn / xuất PDF
         const row = document.createElement('div');
         row.className = 'horizontal-pages-row no-print';
 
-        for (let p = 1; p < totalPages + 1; p++) {
+        for (let p = 1; p <= totalPages; p++) {
           const card = document.createElement('div');
           card.className = 'horizontal-page-card';
           card.innerHTML = `
@@ -2438,7 +2642,7 @@ const CVApp = (function () {
   }
 
   /**
-   * Live A4 Page Fill Gauge & Auto-Fit 1 Page Magic Button (Gợi ý 2)
+   * Live A4 Page Fill Gauge (Chuẩn Hướng B)
    */
   function updateA4PageGauge() {
     const sheet = document.getElementById('cv-printable-area');
@@ -2448,19 +2652,34 @@ const CVApp = (function () {
 
     renderPageBreakDividersAndHorizontal();
 
-    const standardA4Height = 1122.52;
+    const sheetRect = sheet.getBoundingClientRect();
+    const a4HeightPx = (sheetRect && sheetRect.width > 0) ? (sheetRect.width * (297 / 210)) : 1122.52;
     const scrollH = sheet.scrollHeight;
-    const percent = Math.round((scrollH / standardA4Height) * 100);
-    const totalPages = Math.ceil(scrollH / standardA4Height);
+    const percent = Math.round((scrollH / a4HeightPx) * 100);
+    const totalPages = Math.max(1, Math.ceil(scrollH / a4HeightPx));
 
-    if (totalPages <= 1) {
+    if (totalPages === 1) {
       fillText.innerText = `${percent}% A4`;
       badge.className = 'a4-badge badge-green';
       badge.innerText = 'Chuẩn 1 trang';
-    } else if (percent <= 108) {
-      fillText.innerText = `${percent}% A4`;
-      badge.className = 'a4-badge badge-yellow';
-      badge.innerText = `Tràn nhẹ (${percent}%)`;
+    } else if (totalPages === 2) {
+      fillText.innerText = `${percent}% (2 Trang)`;
+      if (percent <= 208) {
+        badge.className = 'a4-badge badge-green';
+        badge.innerText = 'Chuẩn 2 trang';
+      } else {
+        badge.className = 'a4-badge badge-yellow';
+        badge.innerText = `Tràn nhẹ (${percent}%)`;
+      }
+    } else if (totalPages === 3) {
+      fillText.innerText = `${percent}% (3 Trang)`;
+      if (percent <= 308) {
+        badge.className = 'a4-badge badge-green';
+        badge.innerText = 'Chuẩn 3 trang';
+      } else {
+        badge.className = 'a4-badge badge-yellow';
+        badge.innerText = `Tràn nhẹ (${percent}%)`;
+      }
     } else {
       fillText.innerText = `${percent}% A4`;
       badge.className = 'a4-badge badge-red';
@@ -2468,40 +2687,110 @@ const CVApp = (function () {
     }
   }
 
-  function autoFitA4() {
+  /**
+   * Nút Thần Thánh Sấm Sét (⚡ Smart Auto-Fit Engine)
+   * Tự động cân đối vừa khít các trang A4 mà không làm xấu layout hoặc cắt chữ.
+   */
+  function smartAutoFit(targetMode) {
     const sheet = document.getElementById('cv-printable-area');
     if (!sheet) return;
 
-    const standardA4Height = 1122.5;
-    const initialH = sheet.scrollHeight;
+    // Gỡ tạm spacer để đo độ dài nội dung thực tế
+    sheet.querySelectorAll('.cv-page-break-spacer').forEach(el => el.remove());
+    sheet.style.minHeight = '';
 
-    if (initialH <= standardA4Height && customDesignConfig.fontScale === 100 && customDesignConfig.sectionSpacing === 'standard') {
-      showToast('CV của bạn đã vừa vặn chuẩn 1 trang A4 rồi!', 'fa-solid fa-circle-check');
-      return;
-    }
+    const sheetRect = sheet.getBoundingClientRect();
+    const a4HeightPx = (sheetRect && sheetRect.width > 0) ? (sheetRect.width * (297 / 210)) : 1122.52;
+    const naturalHeight = sheet.scrollHeight;
 
-    // Step 1: Switch spacing to compact
-    customDesignConfig.sectionSpacing = 'compact';
-    sheet.classList.remove('spacing-standard', 'spacing-spacious');
-    sheet.classList.add('spacing-compact');
-
-    // Step 2: Calibrate fontScale incrementally until fits or reaches 85%
-    let scale = 100;
-    while (scale > 85) {
-      sheet.style.setProperty('--cv-font-scale', `${scale / 100}`);
-      if (sheet.scrollHeight <= standardA4Height + 10) {
-        break;
+    // Xác định số trang mục tiêu
+    let targetPages = 2; // Hướng B mặc định là 2 trang cân đối
+    if (typeof targetMode === 'number') {
+      targetPages = targetMode;
+    } else if (targetMode === 'auto' || !targetMode) {
+      if (naturalHeight <= a4HeightPx * 1.15) {
+        targetPages = 1;
+      } else if (naturalHeight <= a4HeightPx * 2.3) {
+        targetPages = 2; // Hướng B
+      } else {
+        targetPages = 3;
       }
-      scale -= 2;
     }
 
-    customDesignConfig.fontScale = scale;
+    const targetMaxH = targetPages * a4HeightPx;
+
+    const spacingOptions = ['standard', 'compact', 'spacious'];
+    const scaleOptions = [100, 98, 96, 94, 92, 90, 88, 102, 104];
+
+    let bestConfig = null;
+    let minDiff = Infinity;
+
+    for (const sp of spacingOptions) {
+      sheet.classList.remove('spacing-compact', 'spacing-standard', 'spacing-spacious');
+      sheet.classList.add(`spacing-${sp}`);
+
+      for (const sc of scaleOptions) {
+        sheet.style.setProperty('--cv-font-scale', `${sc / 100}`);
+        const testH = sheet.scrollHeight;
+
+        if (testH <= targetMaxH) {
+          const scalePenalty = Math.abs(sc - 100) * 1.5;
+          const spacingPenalty = (sp === 'standard') ? 0 : 4;
+          const fillRatio = testH / targetMaxH;
+          const fillPenalty = (fillRatio >= 0.75 && fillRatio <= 0.98) ? 0 : Math.abs(0.88 - fillRatio) * 50;
+
+          const totalScore = scalePenalty + spacingPenalty + fillPenalty;
+          if (totalScore < minDiff) {
+            minDiff = totalScore;
+            bestConfig = { spacing: sp, scale: sc };
+          }
+        }
+      }
+    }
+
+    if (!bestConfig) {
+      bestConfig = { spacing: 'compact', scale: 88 };
+    }
+
+    customDesignConfig.sectionSpacing = bestConfig.spacing;
+    customDesignConfig.fontScale = bestConfig.scale;
+
+    sheet.classList.remove('spacing-compact', 'spacing-standard', 'spacing-spacious');
+    sheet.classList.add(`spacing-${bestConfig.spacing}`);
+    sheet.style.setProperty('--cv-font-scale', `${bestConfig.scale / 100}`);
+
     syncCustomizerDrawerInputs();
     renderCVPreview();
     pushHistoryState();
     triggerAutoSave();
-    showToast(`⚡ Đã tự động căn vừa 1 trang A4 (Giãn cách: Gọn, Cỡ chữ: ${scale}%)!`, 'fa-solid fa-bolt');
+
+    const spacingLabel = bestConfig.spacing === 'compact' ? 'Gọn' : (bestConfig.spacing === 'spacious' ? 'Thoáng' : 'Tiêu Chuẩn');
+    showToast(`⚡ Đã tự động căn chuẩn ${targetPages} trang A4 (Giãn cách: ${spacingLabel}, Cỡ chữ: ${bestConfig.scale}%)!`, 'fa-solid fa-bolt');
   }
+
+  function autoFitA4() {
+    smartAutoFit('auto');
+  }
+
+  function toggleAutoFitMenu(event) {
+    if (event) event.stopPropagation();
+    const menu = document.getElementById('autofit-dropdown-menu');
+    if (menu) menu.classList.toggle('active');
+  }
+
+  function closeAutoFitMenu() {
+    const menu = document.getElementById('autofit-dropdown-menu');
+    if (menu) menu.classList.remove('active');
+  }
+
+  // Tự động đóng menu Auto-fit khi click bên ngoài
+  document.addEventListener('click', (e) => {
+    const cluster = document.querySelector('.autofit-btn-cluster');
+    if (cluster && !cluster.contains(e.target)) {
+      closeAutoFitMenu();
+    }
+  });
+
 
   /**
    * Customizer Slide-Over Drawer Controls (Gợi ý 3)
@@ -2791,6 +3080,9 @@ const CVApp = (function () {
     addCert,
     updateCert,
     removeCert,
+    addAward,
+    updateAward,
+    removeAward,
     addLanguage,
     updateLanguage,
     removeLanguage,
@@ -2806,8 +3098,12 @@ const CVApp = (function () {
     showFloatingInspectorForTitle,
     hideFloatingInspector,
     handleFloatingAvatarUpload,
+    applySmartPagination,
     updateA4PageGauge,
     autoFitA4,
+    smartAutoFit,
+    toggleAutoFitMenu,
+    closeAutoFitMenu,
     toggleCustomizerDrawer,
     syncCustomizerDrawerInputs,
     setTypographyPreset,

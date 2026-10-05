@@ -21,9 +21,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <!-- Application Stylesheets -->
-  <link rel="stylesheet" href="assets/css/style.css?v=2.5.0">
-  <link rel="stylesheet" href="assets/css/templates.css?v=2.5.0">
-  <link rel="stylesheet" href="assets/css/print.css?v=2.5.0" media="print">
+  <link rel="stylesheet" href="assets/css/style.css?v=2.6.0">
+  <link rel="stylesheet" href="assets/css/templates.css?v=2.6.0">
+  <link rel="stylesheet" href="assets/css/print.css?v=2.6.0" media="print">
+
 </head>
 <body>
 
@@ -408,12 +409,29 @@
           </div>
         </div>
 
-        <!-- Accordion 11: Ngoại ngữ -->
+        <!-- Accordion 11: Thành Tựu & Giải Thưởng -->
+        <div class="accordion-section">
+          <div class="accordion-header">
+            <div class="accordion-header-left">
+              <i class="fa-solid fa-trophy"></i>
+              <span>11. Thành Tựu &amp; Giải Thưởng (Awards)</span>
+            </div>
+            <i class="fa-solid fa-chevron-down accordion-chevron"></i>
+          </div>
+          <div class="accordion-body">
+            <div id="awards-list-inputs" style="display:flex; flex-direction:column; gap:8px;"></div>
+            <button type="button" class="btn btn-outline btn-sm" onclick="CVApp.addAward()" style="align-self:flex-start; margin-top:4px;">
+              <i class="fa-solid fa-plus"></i> Thêm Thành Tựu
+            </button>
+          </div>
+        </div>
+
+        <!-- Accordion 12: Ngoại ngữ -->
         <div class="accordion-section">
           <div class="accordion-header">
             <div class="accordion-header-left">
               <i class="fa-solid fa-language"></i>
-              <span>11. Ngoại Ngữ</span>
+              <span>12. Ngoại Ngữ</span>
             </div>
             <i class="fa-solid fa-chevron-down accordion-chevron"></i>
           </div>
@@ -425,12 +443,12 @@
           </div>
         </div>
 
-        <!-- Accordion 12: Người tham chiếu -->
+        <!-- Accordion 13: Người tham chiếu -->
         <div class="accordion-section">
           <div class="accordion-header">
             <div class="accordion-header-left">
               <i class="fa-solid fa-user-check"></i>
-              <span>12. Người Tham Chiếu (References)</span>
+              <span>13. Người Tham Chiếu (References)</span>
             </div>
             <i class="fa-solid fa-chevron-down accordion-chevron"></i>
           </div>
@@ -442,12 +460,12 @@
           </div>
         </div>
 
-        <!-- Accordion 13: Quản lý ẩn / hiện các đề mục -->
+        <!-- Accordion 14: Quản lý ẩn / hiện các đề mục -->
         <div class="accordion-section">
           <div class="accordion-header">
             <div class="accordion-header-left">
               <i class="fa-solid fa-eye"></i>
-              <span>13. Quản Lý Ẩn / Hiện Các Mục (Căn Trang A4)</span>
+              <span>14. Quản Lý Ẩn / Hiện Các Mục (Căn Trang A4)</span>
             </div>
             <i class="fa-solid fa-chevron-down accordion-chevron"></i>
           </div>
@@ -500,16 +518,51 @@
           </button>
         </div>
 
-        <!-- Cluster 2: A4 Gauge & Auto-Fit Magic Button -->
+        <!-- Cluster 2: A4 Gauge & Auto-Fit Magic Button (⚡ Hướng B) -->
         <div class="toolbar-cluster-center">
           <div class="a4-gauge-wrap" id="a4-gauge-wrap" data-tooltip="Đo độ dài nội dung so với khổ A4 chuẩn (297mm)" title="Đo độ dài nội dung so với khổ A4 chuẩn (297mm)">
             <i class="fa-solid fa-gauge-high" style="color:var(--primary);"></i>
-            <span id="a4-fill-text">95% A4</span>
-            <span class="a4-badge badge-green" id="a4-status-badge">Chuẩn 1 trang</span>
+            <span id="a4-fill-text">185% (2 Trang)</span>
+            <span class="a4-badge badge-green" id="a4-status-badge">Chuẩn 2 trang</span>
           </div>
-          <button type="button" class="btn btn-outline btn-sm btn-magic-autofit" id="btn-autofit-a4" onclick="CVApp.autoFitA4()" data-tooltip="Tự động ép vừa khít đúng 1 trang A4" title="Tự động căn chỉnh font và lề để vừa khít 100% đúng 1 trang A4">
-            <i class="fa-solid fa-bolt" style="color:#eab308;"></i> <span>Vừa 1 trang</span>
-          </button>
+          <div class="autofit-btn-cluster">
+            <button type="button" class="btn btn-outline btn-sm btn-magic-autofit" id="btn-autofit-a4" onclick="CVApp.smartAutoFit('auto')" data-tooltip="⚡ Nút Thần Thánh: Tự động cân đối vừa khít các trang A4" title="Tự động căn chỉnh font và khoảng cách để vừa khít các trang A4">
+              <i class="fa-solid fa-bolt" style="color:#eab308;"></i> <span id="autofit-btn-label">Tự Căn Trang</span>
+            </button>
+            <button type="button" class="btn btn-outline btn-sm btn-autofit-dropdown-toggle" id="btn-autofit-dropdown" onclick="CVApp.toggleAutoFitMenu(event)" title="Tùy chọn căn trang chi tiết (1 trang, 2 trang, 3 trang)">
+              <i class="fa-solid fa-caret-down"></i>
+            </button>
+            <div class="autofit-dropdown-menu" id="autofit-dropdown-menu">
+              <button type="button" class="autofit-menu-item" onclick="CVApp.smartAutoFit('auto'); CVApp.closeAutoFitMenu();">
+                <i class="fa-solid fa-wand-magic-sparkles" style="color:#eab308;"></i>
+                <div>
+                  <strong>⚡ Tự Động Cân Đối</strong>
+                  <small>Tối ưu 1, 2 hoặc 3 trang theo dung lượng</small>
+                </div>
+              </button>
+              <button type="button" class="autofit-menu-item" onclick="CVApp.smartAutoFit(2); CVApp.closeAutoFitMenu();">
+                <i class="fa-solid fa-file-lines" style="color:var(--primary);"></i>
+                <div>
+                  <strong>⚡ Cân Đối 2 Trang (Chuẩn Hướng B)</strong>
+                  <small>Dàn đều 2 trang hoàn chỉnh, không cắt chữ</small>
+                </div>
+              </button>
+              <button type="button" class="autofit-menu-item" onclick="CVApp.smartAutoFit(1); CVApp.closeAutoFitMenu();">
+                <i class="fa-solid fa-file" style="color:#10b981;"></i>
+                <div>
+                  <strong>⚡ Ép Gọn 1 Trang</strong>
+                  <small>Thu gọn font &amp; lề vừa khít đúng 1 trang</small>
+                </div>
+              </button>
+              <button type="button" class="autofit-menu-item" onclick="CVApp.smartAutoFit(3); CVApp.closeAutoFitMenu();">
+                <i class="fa-solid fa-copy" style="color:#8b5cf6;"></i>
+                <div>
+                  <strong>⚡ Dàn Đều 3 Trang</strong>
+                  <small>Dành cho hồ sơ mở rộng nhiều thành tựu</small>
+                </div>
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Cluster 3: Live Edit Mode Toggle & Customizer & Save Custom Template -->
@@ -771,10 +824,10 @@
   <div class="toast-container no-print" id="app-toast-container"></div>
 
   <!-- Application Scripts in Dependency Order -->
-  <script src="assets/js/templates-data.js?v=2.5.0"></script>
-  <script src="assets/js/sample-data.js?v=2.5.0"></script>
-  <script src="assets/js/storage.js?v=2.5.0"></script>
-  <script src="assets/js/export-pdf.js?v=2.5.0"></script>
-  <script src="assets/js/app.js?v=2.5.0"></script>
+  <script src="assets/js/templates-data.js?v=2.6.0"></script>
+  <script src="assets/js/sample-data.js?v=2.6.0"></script>
+  <script src="assets/js/storage.js?v=2.6.0"></script>
+  <script src="assets/js/export-pdf.js?v=2.6.0"></script>
+  <script src="assets/js/app.js?v=2.6.0"></script>
 </body>
 </html>
