@@ -1,13 +1,13 @@
 /**
  * Curriculum Vitae (CV Creator) - 10 Authentic Industry Profiles
- * Default: Kỹ Sư Điện (Nguyễn Văn An)
+ * Default: Kỹ Sư Điện & Tự Động Hóa (Lê Đức Dũng - Dũng Automation)
  * 10 ngành nghề phong phú với dữ liệu thực tế chuyên sâu
  * Author: Dung Automation
  */
 
 const CV_SAMPLE_PROFILES = (function () {
 
-  // 1. NGÀNH KỸ THUẬT - ĐIỆN - TỰ ĐỘNG HÓA (MẶC ĐỊNH KHI MỞ TRANG)
+  // 1. NGÀNH KỸ THUẬT - ĐIỆN - TỰ ĐỘNG HÓA (MẶC ĐỊNH KHI MỞ TRANG: LÊ ĐỨC DŨNG)
   const ELECTRICAL_ENGINEER_DEFAULT = {
     profileId: 'electrical-engineer',
     industryId: 'electrical-tech',
@@ -15,121 +15,106 @@ const CV_SAMPLE_PROFILES = (function () {
     skillRatingMode: 'percentage',
     language: 'vi',
     personalInfo: {
-      fullName: 'NGUYỄN VĂN AN',
-      jobTitle: 'KỸ SƯ ĐIỆN CÔNG NGHIỆP & TỰ ĐỘNG HÓA',
+      fullName: 'LÊ ĐỨC DŨNG',
+      jobTitle: 'KỸ SƯ ĐIỆN & TỰ ĐỘNG HÓA | ENGINEERING AUTOMATION',
       avatarUrl: 'assets/images/avatar-electrical-engineer.jpg',
-      email: 'nguyenvanan.ee@gmail.com',
+      email: 'leducdung.ee@gmail.com',
       phone: '0988 123 456',
-      address: 'Cầu Giấy, Hà Nội, Việt Nam',
-      dateOfBirth: '15/08/1996',
+      address: 'Hà Nội, Việt Nam',
+      dateOfBirth: '2001',
       gender: 'Nam',
-      website: 'https://linkedin.com/in/nguyenvanan-ee',
+      website: 'https://www.dungautomation.com',
       driverLicense: 'Hạng B2',
       maritalStatus: 'Độc thân'
     },
-    summary: 'Kỹ sư Điện với hơn 5 năm kinh nghiệm chuyên sâu trong thiết kế hệ thống điện động lực, lập trình điều khiển PLC/SCADA và giám sát thi công cơ điện M&E cho các nhà máy công nghiệp và tòa nhà cao tầng. Am hiểu tường tận các tiêu chuẩn kỹ thuật an toàn điện IEC, TCVN và NFPA. Định hướng phát triển thành Chuyên gia Trưởng Quản lý Cơ Điện (M&E Project Manager) mang lại các giải pháp năng lượng tối ưu, an toàn và tiết kiệm chi phí cho doanh nghiệp.',
+    summary: 'Kỹ sư Điện & Tự động hóa có kinh nghiệm trong thiết kế tủ điện, bóc tách vật tư, cấu hình thiết bị và triển khai dự án điện công nghiệp. Có kinh nghiệm thực tế với PLC/HMI và hệ thống điều khiển công nghiệp. Đồng thời phát triển các công cụ bằng C#, .NET, VBA và VSTO để tự động hóa công việc trên AutoCAD và Excel. Định hướng phát triển chuyên sâu về Engineering Automation, kết hợp kỹ thuật điện, phần mềm và AI.',
     education: [
       {
         id: 'edu-1',
-        degree: 'Kỹ Sư Kỹ Thuật Điện (Chương trình Tiên tiến)',
-        school: 'Đại Học Bách Khoa Hà Nội',
-        period: '2014 - 2019',
-        score: 'Tốt nghiệp loại Giỏi • GPA: 3.62 / 4.0',
-        description: 'Đồ án tốt nghiệp: "Thiết kế và mô phỏng hệ thống điều khiển tự động hóa dây chuyền đóng gói sử dụng PLC Siemens S7-1200 kết hợp giám sát SCADA WinCC" (Điểm bảo vệ: 9.5/10).'
-      },
-      {
-        id: 'edu-2',
-        degree: 'Khóa Đào Tạo Chuyên Viên Thiết Kế M&E Tòa Nhà',
-        school: 'Viện Đào Tạo Kỹ Thuật Ứng Dụng VinaMEP',
-        period: '2019 - 2020',
-        score: 'Chứng chỉ Xuất sắc',
-        description: 'Thành thạo tính toán tải điện chiếu sáng, trạm biến áp, máy phát điện dự phòng và hệ thống chống sét lan truyền theo TCVN 9385:2012.'
+        degree: 'Kỹ Sư Ngành Tự Động Hóa',
+        school: 'Học Viện Nông Nghiệp Việt Nam',
+        period: '2019 – 2024',
+        score: 'Tốt nghiệp chuyên ngành Tự động hóa',
+        description: '• Tốt nghiệp chuyên ngành Tự động hóa.\n• Nhiều năm liền nhận Bằng khen và Học bổng cấp Khoa trong quá trình học tập.\n• Đạt Giải Ba – Nghiên cứu khoa học sinh viên.'
       }
     ],
     experience: [
       {
         id: 'exp-1',
-        position: 'Kỹ Sư Trưởng Thiết Kế Điện & Tự Động Hóa',
-        company: 'Công Ty Cổ Phần Kỹ Thuật & Cơ Điện VinaTech',
-        period: '03/2023 - Hiện tại',
+        position: 'Kỹ sư Điện & Tự động hóa',
+        company: 'Công Ty TNHH VASCO Hệ Thống Điện & Tự Động Hóa Việt Nam',
+        period: '07/2023 – Hiện nay',
         location: 'Hà Nội',
-        description: '• Chủ trì thiết kế sơ đồ nguyên lý 1 sợi, bản vẽ bố trí thiết bị và tủ bảng điện MSB, MDB, MCC cho 4 dự án nhà xưởng quy mô 20.000m2.\n• Trực tiếp lập trình hệ thống PLC Siemens S7-1500 điều khiển trạm bơm nước tuần hoàn và xử lý nước thải công nghiệp đạt hiệu suất vận hành 99.8%.\n• Lập bảng bóc tách khối lượng (BOQ), dự toán vật tư và phối hợp với chủ đầu tư thẩm định thiết kế kỹ thuật, tiết kiệm 12% chi phí cáp điện động lực.\n• Đào tạo và hướng dẫn chuyên môn thiết kế AutoCAD Electrical và EPLAN cho 6 kỹ sư trẻ.'
-      },
-      {
-        id: 'exp-2',
-        position: 'Kỹ Sư Giám Sát Thi Công Cơ Điện M&E',
-        company: 'Tổng Công Ty Xây Dựng & Lắp Máy Thăng Long',
-        period: '08/2020 - 02/2023',
-        location: 'Bắc Ninh & Hà Nội',
-        description: '• Giám sát lắp đặt trạm biến áp hợp bộ 2x2000kVA, hệ thống máy phát điện dự phòng Cummins 1500kVA và hệ thống chống sét tĩnh điện.\n• Quản lý nghiệm thu lắp đặt khay cáp điện (Cable Tray), hệ thống chiếu sáng công nghiệp và tủ phân phối tầng đúng tiến độ cam kết.\n• Đảm bảo 100% tuân thủ các quy tắc an toàn lao động, kiểm định điện trở đất đạt chuẩn R < 4 Ohm trước khi đóng điện bàn giao.'
-      },
-      {
-        id: 'exp-3',
-        position: 'Kỹ Sư Điện Thực Tập & Vận Hành Bảo Trì',
-        company: 'Nhà Máy Chế Tạo Thiết Bị Điện ABB Việt Nam',
-        period: '02/2019 - 07/2020',
-        location: 'Bắc Ninh',
-        description: '• Tham gia kiểm định chất lượng xuất xưởng tủ hạ thế và máy cắt không khí ACB, MCCB.\n• Thực hiện đo kiểm các thông số cách điện, tỷ số biến dòng biến áp và lập biên bản kiểm tra thử nghiệm (Factory Acceptance Test - FAT).'
+        description: '• Thiết kế và triển khai hệ thống điện, tủ điện công nghiệp: MSB, DB, MCC, ATS, tủ công tơ điện, tủ chiếu sáng, tủ điều khiển, tủ PLC, tủ biến tần.\n• Bóc tách thiết bị, vật tư từ bản vẽ kỹ thuật; xây dựng cấu hình tủ điện và lập báo giá công nghiệp với các hãng Siemens, Schneider Electric, ABB, Mitsubishi, LS.\n• Lập trình PLC/HMI và triển khai các hệ thống tự động hóa ở mức thực tế:\n  - Trạm xử lý nước thải Song Phượng (Đan Phượng, Hà Nội): Lập trình PLC và triển khai logic điều khiển hệ thống.\n  - Hệ thống điều hòa AHU (Sakurai Factory, Xưởng 18 & 19): Lập trình điều khiển AHU, xử lý logic vận hành & tín hiệu điều khiển.\n  - Dự án Bệnh viện Bạch Mai – CDS: Tham gia triển khai hệ thống điện và tự động hóa.'
       }
     ],
     hardSkills: [
-      { id: 'hs-1', name: 'Lập trình PLC Siemens S7-1200 / S7-1500 & TIA Portal', rating: 95, stars: 5 },
-      { id: 'hs-2', name: 'Thiết kế sơ đồ điện EPLAN Electric P8 & AutoCAD Electrical', rating: 90, stars: 5 },
-      { id: 'hs-3', name: 'Giao diện HMI & Hệ thống giám sát SCADA WinCC / Ignition', rating: 85, stars: 4 },
-      { id: 'hs-4', name: 'Thiết kế tủ điện động lực & điều khiển MSB, MDB, MCC, ATS', rating: 92, stars: 5 },
-      { id: 'hs-5', name: 'Tính toán ngắn mạch & phân phối điện Dialux, ETAP', rating: 80, stars: 4 },
-      { id: 'hs-6', name: 'Tiêu chuẩn an toàn điện IEC 60364, TCVN & NFPA 70', rating: 88, stars: 4 }
+      { id: 'hs-1', name: 'Điện công nghiệp: Thiết kế & cấu hình tủ MSB, DB, MCC, ATS, PLC', rating: 95, stars: 5 },
+      { id: 'hs-2', name: 'Bóc tách vật tư, lập báo giá (Siemens, Schneider, ABB, Mitsubishi, LS)', rating: 92, stars: 5 },
+      { id: 'hs-3', name: 'Tự động hóa & PLC: Lập trình PLC Siemens, Mitsubishi & HMI Weintek', rating: 88, stars: 4 },
+      { id: 'hs-4', name: 'Engineering Software: C#, .NET, AutoCAD API, VBA & VSTO Excel Add-in', rating: 92, stars: 5 },
+      { id: 'hs-5', name: 'AI & Engineering Automation: Ứng dụng AI Agent tối ưu quy trình kỹ thuật', rating: 90, stars: 5 },
+      { id: 'hs-6', name: 'Phần mềm kỹ thuật: AutoCAD, EPLAN Electric P8, CADe_SIMU, Excel', rating: 88, stars: 4 }
     ],
     softSkills: [
-      { id: 'ss-1', name: 'Kỹ năng giải quyết sự cố kỹ thuật khẩn cấp tại hiện trường' },
-      { id: 'ss-2', name: 'Quản lý tiến độ dự án & phối hợp đa bộ môn (Cơ - Điện - Xây dựng)' },
-      { id: 'ss-3', name: 'Kỹ năng giao tiếp & thuyết trình giải pháp kỹ thuật trước chủ đầu tư' }
+      { id: 'ss-1', name: 'Tư duy tự động hóa & tối ưu hóa quy trình kỹ thuật' },
+      { id: 'ss-2', name: 'Giải quyết vấn đề kỹ thuật thực tế & xử lý sự cố' },
+      { id: 'ss-3', name: 'Nghiên cứu công nghệ mới & ứng dụng AI Agent vào R&D' },
+      { id: 'ss-4', name: 'Phối hợp liên bộ môn kỹ thuật và làm việc dự án' }
     ],
     strengths: [
-      { id: 'st-1', name: 'Tỉ mỉ, cẩn trọng tuyệt đối với an toàn tính mạng & thiết bị điện' },
-      { id: 'st-2', name: 'Khả năng đọc hiểu tài liệu datasheet và tiêu chuẩn tiếng Anh chuyên ngành tốt' },
-      { id: 'st-3', name: 'Chịu được áp lực tiến độ cao, sẵn sàng bám sát hiện trường thi công' },
-      { id: 'st-4', name: 'Chủ động cập nhật công nghệ tự động hóa và năng lượng xanh mới' }
+      { id: 'st-1', name: 'Am hiểu thực tế cấu hình thiết bị điện và logic điều khiển tủ điện' },
+      { id: 'st-2', name: 'Kết hợp độc đáo giữa kỹ thuật điện công nghiệp và lập trình công cụ phần mềm' },
+      { id: 'st-3', name: 'Chủ động nghiên cứu và phát triển giải pháp giải quyết bài toán thực tế' },
+      { id: 'st-4', name: 'Tinh thần trung thực, trách nhiệm cao và sẵn sàng học hỏi công nghệ mới' }
     ],
     hobbies: [
-      { id: 'hb-1', name: 'Nghiên cứu mạch vi điều khiển IoT (ESP32/Arduino) điều khiển nhà thông minh' },
-      { id: 'hb-2', name: 'Đọc tạp chí kỹ thuật Tự động hóa và Năng lượng tái tạo' },
-      { id: 'hb-3', name: 'Chơi cờ vua rèn luyện tư duy phân tích chiến thuật' },
-      { id: 'hb-4', name: 'Tập chạy bộ marathon cự ly 10km rèn luyện sức bền' }
+      { id: 'hb-1', name: 'Nghiên cứu công nghệ, AI Agent & Engineering Automation ứng dụng vào kỹ thuật' },
+      { id: 'hb-2', name: 'Phát triển công cụ kỹ thuật và Add-in giải quyết bài toán thực tế' },
+      { id: 'hb-3', name: 'Chia sẻ kiến thức lập trình, AutoCAD, Ribbon trên blog Dũng Automation và YouTube' }
     ],
     certifications: [
-      { id: 'cert-1', name: 'Chứng Chỉ Hành Nghề Giám Sát Thi Công Cơ Điện Hạng II', issuer: 'Sở Xây Dựng Hà Nội', year: '2022' },
-      { id: 'cert-2', name: 'Chứng Chỉ Kỹ Sư Lập Trình Tự Động Hóa Siemens PLC Certified', issuer: 'Siemens Vietnam Training Center', year: '2021' },
-      { id: 'cert-3', name: 'Chứng Chỉ Huấn Luyện An Toàn Điện Nhóm 3', issuer: 'Cục An Toàn Lao Động', year: '2023' }
+      { id: 'cert-1', name: 'Chứng Nhận Nghiên Cứu & Phát Triển Phần Mềm Kỹ Thuật (DLPrint, DungLeTools)', issuer: 'Doanh nghiệp ứng dụng thực tế', year: '2023 - 2024' },
+      { id: 'cert-2', name: 'Chứng Nhận Lập Trình & Điều Khiển Tự Động Hóa PLC / HMI Công Nghiệp', issuer: 'Dự án thực tế Song Phượng & AHU Sakurai', year: '2023 - 2024' },
+      { id: 'cert-3', name: 'Bằng Kỹ Sư Tự Động Hóa', issuer: 'Học Viện Nông Nghiệp Việt Nam', year: '2024' }
     ],
     projects: [
       {
         id: 'prj-1',
-        name: 'Hệ Thống Tự Động Hóa Trạm Xử Lý Nước Thải Tập Trung KCN Yên Phong',
-        role: 'Chủ trì thiết kế & Lập trình điều khiển chính',
-        period: '04/2023 - 11/2023',
-        tech: 'Siemens S7-1500, WinCC Unified, Biến tần Danfoss FC-202, Profinet Industrial',
-        description: 'Tự động hóa hoàn toàn quy trình xử lý nước 5.000m3/ngày đêm, cảnh báo sự cố qua SMS/Email, giảm thiểu 4 nhân công vận hành thủ công.'
+        name: 'DLPrint – AutoCAD Printing Automation',
+        role: 'Tác giả & Lead Developer',
+        period: '2023 – Hiện nay',
+        tech: 'C#, .NET, AutoCAD API',
+        description: '• Tự động hóa quy trình in bản vẽ AutoCAD, tự động nhận diện và xử lý khung bản vẽ số lượng lớn.\n• Đã thử nghiệm xử lý gần 300 bản vẽ AutoCAD trong hơn 1 phút, giảm đáng kể thời gian thao tác thủ công.\n• Tình trạng: Đang được ứng dụng và sử dụng thực tế tại công ty.'
       },
       {
         id: 'prj-2',
-        name: 'Thi Công Hệ Thống Trạm Biến Áp & Điện Động Lực Tòa Nhà TechPark Tower',
-        role: 'Kỹ sư giám sát trưởng hạng mục Điện',
-        period: '01/2022 - 10/2022',
-        tech: 'Máy biến áp khô 2500kVA, Tủ trung thế RMU Schneider, Máy phát điện Cummins 1750kVA',
-        description: 'Bàn giao đúng hạn 100% công tác đóng điện thử nghiệm, không xảy ra bất kỳ sự cố mất an toàn lao động nào.'
+        name: 'DungLeTools – Excel Engineering Tools',
+        role: 'Tác giả & Lead Developer',
+        period: '2023 – Hiện nay',
+        tech: 'VBA, C#, VSTO, Excel API',
+        description: '• Bộ công cụ Excel Add-in phục vụ công việc kỹ thuật và thiết kế điện (phát triển bằng VBA và VSTO).\n• Tự động hóa xử lý dữ liệu BOM vật tư, bóc tách cáp, thống kê và lập báo giá tủ điện.\n• Tình trạng: Đang được sử dụng thực tế hàng ngày tại công ty.'
+      },
+      {
+        id: 'prj-3',
+        name: 'DŨNG AUTOMATION – Hệ Sinh Thái Công Cụ Kỹ Thuật',
+        role: 'Founder & Developer',
+        period: '2023 – Hiện nay',
+        tech: 'C#, Python, AutoCAD API, AI Agent, GitHub',
+        description: '• Xây dựng thương hiệu Dũng Automation chia sẻ công cụ phục vụ kỹ sư điện (DLPrint, DungLeTools, PDF2CAD, Excel Compare).\n• Portfolio: dungautomation.com | GitHub: Dungautomation-dev | YouTube & Blog chia sẻ chuyên môn.\n• Các công cụ đã có người sử dụng và ứng dụng vào công việc kỹ thuật thực tế.'
       }
     ],
     awards: [
-      { id: 'awd-1', title: 'Nhân Viên Xuất Sắc Nhất Năm 2023 (Best Employee of the Year)', organization: 'Công Ty CP Kỹ Thuật & Cơ Điện VinaTech', year: '2023' },
-      { id: 'awd-2', title: 'Giải Ba Cuộc Thi Sáng Tạo Robot Sinh Viên BK-Robocon 2018', organization: 'Trường Đại Học Bách Khoa Hà Nội', year: '2018' }
+      { id: 'awd-1', title: 'Giải Ba – Nghiên Cứu Khoa Học Sinh Viên', organization: 'Học Viện Nông Nghiệp Việt Nam', year: '2023' },
+      { id: 'awd-2', title: 'Bằng Khen & Học Bổng Cấp Khoa Nhiều Năm Liền', organization: 'Học Viện Nông Nghiệp Việt Nam', year: '2019 – 2024' },
+      { id: 'awd-3', title: 'Sáng Kiến Cải Tiến Kỹ Thuật & Tự Động Hóa Tại Doanh Nghiệp', organization: 'VASCO Automation & Engineering', year: '2023 – 2024' }
     ],
     languages: [
       { id: 'lang-1', name: 'Tiếng Việt', level: 'Bản ngữ (Native)' },
-      { id: 'lang-2', name: 'Tiếng Anh', level: 'Thành thạo kỹ thuật & giao tiếp (TOEIC 780)' }
+      { id: 'lang-2', name: 'Tiếng Anh', level: 'Đọc hiểu tài liệu kỹ thuật & manual Siemens, ABB, Schneider, EPLAN' }
     ],
     references: [
-      { id: 'ref-1', name: 'Ông Trần Quốc Tuấn', title: 'Giám Đốc Kỹ Thuật • VinaTech Corp', contact: 'tuan.tq@vinatech-me.com.vn | 0913 888 999' }
+      { id: 'ref-1', name: 'Trưởng Phòng Kỹ Thuật', title: 'Công Ty TNHH VASCO Hệ Thống Điện & Tự Động Hóa VN', contact: 'Sẵn sàng cung cấp khi có yêu cầu' }
     ]
   };
 

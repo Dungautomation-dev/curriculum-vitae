@@ -251,7 +251,13 @@ const CVApp = (function () {
 
     const saved = CV_STORAGE.loadFromLocalStorage();
     if (saved && saved.data) {
-      profile = saved.data;
+      // Auto-migrate if stored profile is the old sample placeholder "NGUYỄN VĂN AN"
+      if (saved.data.personalInfo && (saved.data.personalInfo.fullName === 'NGUYỄN VĂN AN' || !saved.data.personalInfo.fullName)) {
+        profile = CV_SAMPLE_PROFILES.getDefaultProfile();
+        CV_STORAGE.saveToLocalStorage(profile, saved.templateId || 'tpl-001', saved.skillRatingMode || 'percentage', saved.sectionsConfig, saved.themeColor, saved.customDesignConfig);
+      } else {
+        profile = saved.data;
+      }
       activeTemplate = CV_TEMPLATES_CATALOG.getTemplateById(saved.templateId) || CV_TEMPLATES_CATALOG.getDefaultTemplate();
       ratingMode = saved.skillRatingMode || 'percentage';
       sectionsConfig = saved.sectionsConfig || CV_STORAGE.DEFAULT_SECTIONS_CONFIG;

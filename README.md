@@ -54,15 +54,15 @@ Khác biệt hoàn toàn với các công cụ tạo CV thông thường chỉ �
 ---
 
 ### 3. ↔️ Thanh Kéo Giãn Độ Rộng Cột Điền Thông Tin (Interactive Resizer)
-* Thanh phân cách thông minh giữa **Cột Điền (Editor)** và **Cột Xem Trước (A4 Live Preview)** cho phép kéo chuột sang trái hoặc phải để tùy chỉnh độ rộng từ **400px đến 850px**.
-* Không gian điền form rộng rãi, thoải mái gõ nội dung dự án và kinh nghiệm dài mà không bị che khuất.
-* Tự động ghi nhớ độ rộng yêu thích của bạn vào `localStorage`. Nhấp đúp chuột để khôi phục về kích thước 530px mặc định.
+* Thanh phân cách thông minh giữa **Cột Điền (Editor)** và **Cột Xem Trước (A4 Live Preview)** cho phép kéo chuột sang trái hoặc phải để tùy chỉnh độ rộng từ **280px đến 750px**.
+* Không gian điền form linh hoạt, nhỏ gọn tiết kiệm diện tích.
+* Tự động ghi nhớ độ rộng yêu thích của bạn vào `localStorage`. Nhấp đúp chuột để khôi phục về kích thước 340px mặc định.
 
 ---
 
 ### 4. 🏢 Dữ Liệu Hồ Sơ Thực Tế Chuyên Sâu Cho 10 Ngành Nghề
 Ứng dụng tích hợp sẵn 10 bộ dữ liệu chuẩn mực thực tế, có thể chuyển đổi tức thì qua menu **"Dữ liệu ngành"** trên thanh công cụ:
-* ⚡ **Kỹ Sư & Kỹ Thuật Điện (Mặc định khi mở web)**: Nguyễn Văn An (PLC Siemens, EPLAN, SCADA, trạm biến áp, M&E...)
+* ⚡ **Kỹ Sư & Kỹ Thuật Điện (Mặc định khi mở web)**: Lê Đức Dũng (Kỹ sư Điện & Tự động hóa, VASCO, Dũng Automation, C#/.NET, AutoCAD API, VSTO, PLC/HMI...)
 * 💻 **CNTT & Lập Trình Viên**: Trần Minh Đức (Senior Fullstack Developer: React, Node.js, AWS, Docker, Microservices...)
 * 📈 **Kinh Doanh & Sales B2B**: Hoàng Thị Mai Linh (B2B Enterprise Sales Manager: Doanh thu 68 tỷ, CRM Salesforce, đàm phán hợp đồng lớn...)
 * 📢 **Marketing & Truyền Thông Số**: Lê Phương Thảo (Senior Digital Marketing Lead: Performance Ads, TikTok Viral, ROI +250%...)
