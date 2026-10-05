@@ -127,18 +127,29 @@
        ======================================================================== -->
   <main class="workspace-container">
 
+    <!-- Floating Expand Button for Left Sidebar (When Collapsed) -->
+    <button type="button" class="floating-sidebar-toggle left-toggle no-print" id="btn-expand-left" onclick="CVApp.toggleLeftSidebar()" title="Mở lại cột biên tập hồ sơ">
+      <i class="fa-solid fa-pen-to-square"></i>
+      <span>Biên Tập Hồ Sơ</span>
+    </button>
+
     <!-- ====================================================================
          LEFT PANEL: INTERACTIVE FORM EDITOR
          ==================================================================== -->
-    <aside class="editor-sidebar no-print">
+    <aside class="editor-sidebar no-print" id="editor-sidebar">
       <div class="editor-header-bar">
         <div class="editor-header-title">
           <i class="fa-solid fa-pen-to-square" style="color:var(--primary);"></i>
           <span>Biên Tập Hồ Sơ Ứng Viên</span>
         </div>
-        <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('btn-open-template-modal').click();" title="Chọn mẫu trong 100 giao diện">
-          <i class="fa-solid fa-palette"></i> Đổi Mẫu CV
-        </button>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('btn-open-template-modal').click();" title="Chọn mẫu trong 100 giao diện">
+            <i class="fa-solid fa-palette"></i> Đổi Mẫu CV
+          </button>
+          <button type="button" class="sidebar-collapse-btn" id="btn-collapse-left" onclick="CVApp.toggleLeftSidebar()" title="Thu gọn cột điền thông tin (Mở rộng vùng xem)">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+        </div>
       </div>
 
       <div class="editor-content-body">
@@ -455,6 +466,14 @@
               <i class="fa-solid fa-rotate-right"></i>
             </button>
           </div>
+
+          <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-page-layout" onclick="CVApp.togglePageLayoutMode()" title="Chuyển đổi chế độ xem: Cuộn Dọc hoặc Dàn Ngang các trang A4">
+            <i class="fa-solid fa-book-open"></i> <span id="page-layout-text">Dàn Ngang</span>
+          </button>
+
+          <button type="button" class="btn btn-outline btn-sm btn-zen-mode" id="btn-zen-mode" onclick="CVApp.toggleZenMode()" title="Chế độ Siêu Rộng: Thu gọn cả 2 thanh bên để tạo không gian chỉnh sửa siêu rộng">
+            <i class="fa-solid fa-expand"></i> <span id="zen-mode-text">Siêu Rộng</span>
+          </button>
         </div>
 
         <!-- Cluster 2: A4 Gauge & Auto-Fit Magic Button -->
@@ -502,6 +521,12 @@
       </div>
     </section>
 
+    <!-- Floating Expand Button for Right Sidebar (When Collapsed) -->
+    <button type="button" class="floating-sidebar-toggle right-toggle no-print" id="btn-expand-right" onclick="CVApp.toggleRightSidebar()" title="Mở lại danh sách mẫu bố cục">
+      <i class="fa-solid fa-shapes"></i>
+      <span>Bố Cục CV</span>
+    </button>
+
     <!-- ====================================================================
          RIGHT PANEL: QUICK TEMPLATES VERTICAL SELECTOR
          Lấp đầy khoảng trống bên phải, hỗ trợ chọn nhanh 12 bố cục độc bản
@@ -512,7 +537,12 @@
           <i class="fa-solid fa-shapes" style="color:var(--primary);"></i>
           <span>Bố Cục Độc Bản</span>
         </div>
-        <span class="badge" style="font-size:0.7rem; font-weight:700; background:var(--primary-light); color:var(--primary); padding:2px 8px; border-radius:10px;">12 Kiểu</span>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span class="badge" style="font-size:0.7rem; font-weight:700; background:var(--primary-light); color:var(--primary); padding:2px 8px; border-radius:10px;">12 Kiểu</span>
+          <button type="button" class="sidebar-collapse-btn" id="btn-collapse-right" onclick="CVApp.toggleRightSidebar()" title="Thu gọn danh sách bố cục (Mở rộng vùng xem)">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
       </div>
 
       <!-- Quick Filter Chips -->

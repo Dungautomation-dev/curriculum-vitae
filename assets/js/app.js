@@ -30,6 +30,12 @@ const CVApp = (function () {
   let historyIndex = -1;
   let isUndoRedoAction = false;
 
+  // Collapsible Sidebars, Zen Mode & Multi-Page Layout State (Requirements 1, 2, 3)
+  let isLeftSidebarCollapsed = false;
+  let isRightSidebarCollapsed = false;
+  let isZenMode = false;
+  let pageLayoutMode = 'vertical'; // 'vertical' | 'horizontal'
+
   // Pre-defined Quick Selection Lists (Tích chọn nhanh)
   const QUICK_SOFT_SKILLS = [
     'Quản lý dự án & tiến độ thi công',
@@ -66,6 +72,8 @@ const CVApp = (function () {
   function init() {
     initWorkspaceResizer();
     loadInitialState();
+    initSidebarStates();
+    initPageLayoutMode();
     initThemeColorPicker();
     applyTemplateStyles(activeTemplate);
     renderFormInputs();
@@ -2181,6 +2189,200 @@ const CVApp = (function () {
   }
 
   /**
+   * Collapsible Sidebars & Zen Mode (Requirement 3)
+   */
+  function initSidebarStates() {
+    isLeftSidebarCollapsed = localStorage.getItem('dungauto_cv_left_collapsed') === 'true';
+    isRightSidebarCollapsed = localStorage.getItem('dungauto_cv_right_collapsed') === 'true';
+    if (isLeftSidebarCollapsed) toggleLeftSidebar(true);
+    if (isRightSidebarCollapsed) toggleRightSidebar(true);
+    updateZenModeButton();
+  }
+
+  function toggleLeftSidebar(forceState) {
+    const sidebar = document.getElementById('editor-sidebar');
+    const expandBtn = document.getElementById('btn-expand-left');
+    const resizer = document.getElementById('workspace-resizer');
+    if (!sidebar) return;
+
+    if (typeof forceState === 'boolean') {
+      isLeftSidebarCollapsed = forceState;
+    } else {
+      isLeftSidebarCollapsed = !isLeftSidebarCollapsed;
+    }
+
+    if (isLeftSidebarCollapsed) {
+      sidebar.classList.add('collapsed');
+      if (expandBtn) expandBtn.classList.add('active');
+      if (resizer) resizer.classList.add('hidden-resizer');
+    } else {
+      sidebar.classList.remove('collapsed');
+      if (expandBtn) expandBtn.classList.remove('active');
+      if (resizer) resizer.classList.remove('hidden-resizer');
+    }
+
+    localStorage.setItem('dungauto_cv_left_collapsed', isLeftSidebarCollapsed);
+    updateZenModeButton();
+  }
+
+  function toggleRightSidebar(forceState) {
+    const sidebar = document.getElementById('templates-sidebar');
+    const expandBtn = document.getElementById('btn-expand-right');
+    if (!sidebar) return;
+
+    if (typeof forceState === 'boolean') {
+      isRightSidebarCollapsed = forceState;
+    } else {
+      isRightSidebarCollapsed = !isRightSidebarCollapsed;
+    }
+
+    if (isRightSidebarCollapsed) {
+      sidebar.classList.add('collapsed');
+      if (expandBtn) expandBtn.classList.add('active');
+    } else {
+      sidebar.classList.remove('collapsed');
+      if (expandBtn) expandBtn.classList.remove('active');
+    }
+
+    localStorage.setItem('dungauto_cv_right_collapsed', isRightSidebarCollapsed);
+    updateZenModeButton();
+  }
+
+  function toggleZenMode() {
+    if (!isLeftSidebarCollapsed || !isRightSidebarCollapsed) {
+      toggleLeftSidebar(true);
+      toggleRightSidebar(true);
+      isZenMode = true;
+      showToast('⚡ Đã bật Chế độ Siêu Rộng: Thu gọn 2 bên để tối đa không gian soạn thảo!', 'fa-solid fa-expand');
+    } else {
+      toggleLeftSidebar(false);
+      toggleRightSidebar(false);
+      isZenMode = false;
+      showToast('Đã khôi phục các thanh công cụ bên lề.', 'fa-solid fa-compress');
+    }
+    updateZenModeButton();
+  }
+
+  function updateZenModeButton() {
+    const btnZen = document.getElementById('btn-zen-mode');
+    const zenText = document.getElementById('zen-mode-text');
+    if (!btnZen || !zenText) return;
+
+    const bothCollapsed = isLeftSidebarCollapsed && isRightSidebarCollapsed;
+    if (bothCollapsed) {
+      btnZen.classList.add('active');
+      btnZen.innerHTML = '<i class="fa-solid fa-compress"></i> <span id="zen-mode-text">Thu Gọn Siêu Rộng</span>';
+      btnZen.title = 'Khôi phục lại 2 thanh công cụ bên lề';
+    } else {
+      btnZen.classList.remove('active');
+      btnZen.innerHTML = '<i class="fa-solid fa-expand"></i> <span id="zen-mode-text">Siêu Rộng</span>';
+      btnZen.title = 'Thu gọn cả 2 thanh bên để có không gian chỉnh sửa siêu rộng';
+    }
+  }
+
+  /**
+   * Multi-Page Layout & Page Break Dividers (Requirements 1 & 2)
+   */
+  function initPageLayoutMode() {
+    const saved = localStorage.getItem('dungauto_cv_page_layout_mode');
+    if (saved) pageLayoutMode = saved;
+    applyPageLayoutMode();
+  }
+
+  function togglePageLayoutMode() {
+    pageLayoutMode = (pageLayoutMode === 'vertical') ? 'horizontal' : 'vertical';
+    localStorage.setItem('dungauto_cv_page_layout_mode', pageLayoutMode);
+    applyPageLayoutMode();
+    renderCVPreview();
+    showToast(
+      pageLayoutMode === 'horizontal' ? '📖 Đã chuyển sang Dàn Trang Hàng Ngang (Trang 1 & 2 cạnh nhau)!' : '📑 Đã chuyển về Cuộn Dọc truyền thống!',
+      pageLayoutMode === 'horizontal' ? 'fa-solid fa-book-open' : 'fa-solid fa-file-lines'
+    );
+  }
+
+  function applyPageLayoutMode() {
+    const stageViewport = document.querySelector('.preview-container');
+    const btnToggle = document.getElementById('btn-toggle-page-layout');
+    const txt = document.getElementById('page-layout-text');
+    if (!btnToggle || !txt) return;
+
+    if (pageLayoutMode === 'horizontal') {
+      if (stageViewport) stageViewport.classList.add('stage-horizontal-layout');
+      btnToggle.classList.add('active');
+      btnToggle.innerHTML = '<i class="fa-solid fa-file-lines"></i> <span id="page-layout-text">Dàn Dọc</span>';
+      btnToggle.title = 'Chuyển về xem Cuộn Dọc truyền thống';
+    } else {
+      if (stageViewport) stageViewport.classList.remove('stage-horizontal-layout');
+      btnToggle.classList.remove('active');
+      btnToggle.innerHTML = '<i class="fa-solid fa-book-open"></i> <span id="page-layout-text">Dàn Ngang</span>';
+      btnToggle.title = 'Chuyển sang Dàn Ngang các trang cạnh nhau';
+    }
+  }
+
+  function renderPageBreakDividersAndHorizontal() {
+    const previewWrapper = document.getElementById('cv-a4-render-target');
+    const sheet = document.getElementById('cv-printable-area');
+    if (!previewWrapper || !sheet) return;
+
+    // Remove any previous dividers
+    sheet.querySelectorAll('.cv-page-break-divider').forEach(el => el.remove());
+    const oldRow = previewWrapper.querySelector('.horizontal-pages-row');
+    if (oldRow) oldRow.remove();
+
+    // Standard A4 height = 297mm = ~1122.52px at 96 DPI
+    const standardA4Height = 1122.52;
+    const scrollH = sheet.scrollHeight;
+    const totalPages = Math.ceil(scrollH / standardA4Height);
+
+    // Requirement 1: In vertical mode, render scissors cut dividers at 297mm, 594mm...
+    if (pageLayoutMode === 'vertical') {
+      sheet.style.display = 'block';
+      if (totalPages > 1) {
+        for (let p = 1; p < totalPages; p++) {
+          const divider = document.createElement('div');
+          divider.className = 'cv-page-break-divider no-print';
+          divider.style.top = `${297 * p}mm`;
+          divider.innerHTML = `
+            <div class="cv-page-break-line"></div>
+            <div class="cv-page-break-pill">
+              <i class="fa-solid fa-scissors"></i>
+              <span class="break-tag">Vạch Ngắt Trang A4</span>
+              <span>Hết Trang ${p} ➔ Bắt Đầu Trang ${p + 1} (297mm)</span>
+            </div>
+          `;
+          sheet.appendChild(divider);
+        }
+      }
+    } else {
+      // Requirement 2: In horizontal mode, render pages side-by-side
+      if (totalPages > 1) {
+        sheet.style.display = 'none'; // sheet remains in DOM for print / pdf export
+        const row = document.createElement('div');
+        row.className = 'horizontal-pages-row no-print';
+
+        for (let p = 1; p < totalPages + 1; p++) {
+          const card = document.createElement('div');
+          card.className = 'horizontal-page-card';
+          card.innerHTML = `
+            <div class="horizontal-page-header-badge">
+              <i class="fa-solid fa-file-lines" style="color:var(--primary);"></i> TRANG ${p} / ${totalPages}
+            </div>
+            <div class="horizontal-page-inner-viewport">
+              <div class="horizontal-page-clone" style="position:absolute; top:-${(p - 1) * 297}mm; left:0; width:210mm;">
+                ${sheet.outerHTML.replace('id="cv-printable-area"', `id="cv-printable-page-${p}" style="display:block;"`)}
+              </div>
+            </div>
+          `;
+          row.appendChild(card);
+        }
+        previewWrapper.appendChild(row);
+      } else {
+        sheet.style.display = 'block';
+      }
+    }
+  }
+
+  /**
    * Live A4 Page Fill Gauge & Auto-Fit 1 Page Magic Button (Gợi ý 2)
    */
   function updateA4PageGauge() {
@@ -2189,12 +2391,18 @@ const CVApp = (function () {
     const badge = document.getElementById('a4-status-badge');
     if (!sheet || !fillText || !badge) return;
 
-    // 297mm at 96 DPI = 1122.5px
-    const standardA4Height = 1122.5;
+    renderPageBreakDividersAndHorizontal();
+
+    const standardA4Height = 1122.52;
     const scrollH = sheet.scrollHeight;
     const percent = Math.round((scrollH / standardA4Height) * 100);
+    const totalPages = Math.ceil(scrollH / standardA4Height);
 
-    fillText.innerText = `${percent}% A4`;
+    if (totalPages <= 1) {
+      fillText.innerText = `${percent}% A4 (1 Trang)`;
+    } else {
+      fillText.innerText = `${percent}% A4 (${totalPages} Trang)`;
+    }
 
     if (percent <= 100) {
       badge.className = 'a4-badge badge-green';
@@ -2204,7 +2412,7 @@ const CVApp = (function () {
       badge.innerText = `Tràn nhẹ (${percent}%)`;
     } else {
       badge.className = 'a4-badge badge-red';
-      badge.innerText = 'Tràn sang trang 2';
+      badge.innerText = `Trang 1/${totalPages} (+${totalPages - 1} trang)`;
     }
   }
 
@@ -2457,17 +2665,37 @@ const CVApp = (function () {
   function showToast(message, iconClass) {
     const container = document.getElementById('app-toast-container');
     if (!container) return;
+
+    // Keep at most 2 toasts simultaneously
+    while (container.children.length > 1) {
+      container.removeChild(container.firstChild);
+    }
+
     const toast = document.createElement('div');
     toast.className = 'app-toast';
+
+    let iconWrapClass = 'info';
+    if (iconClass && (iconClass.includes('fa-bolt') || iconClass.includes('fa-star') || iconClass.includes('fa-wand'))) {
+      iconWrapClass = 'accent';
+    } else if (iconClass && (iconClass.includes('fa-check') || iconClass.includes('fa-floppy-disk'))) {
+      iconWrapClass = 'success';
+    }
+
     toast.innerHTML = `
-      <i class="${iconClass || 'fa-solid fa-circle-check'}"></i>
-      <span>${escapeHtml(message)}</span>
+      <div class="toast-icon-wrap ${iconWrapClass}">
+        <i class="${iconClass || 'fa-solid fa-circle-check'}"></i>
+      </div>
+      <div class="toast-msg-wrap">
+        <span>${escapeHtml(message)}</span>
+      </div>
+      <button type="button" class="toast-close-btn" onclick="this.closest('.app-toast').remove()" title="Đóng">&times;</button>
     `;
+
     container.appendChild(toast);
     setTimeout(() => {
-      toast.style.animation = 'fadeOut 0.3s forwards';
-      setTimeout(() => toast.remove(), 300);
-    }, 3200);
+      toast.classList.add('fade-out');
+      setTimeout(() => toast.remove(), 320);
+    }, 3400);
   }
 
   function escapeHtml(str) {
@@ -2542,7 +2770,12 @@ const CVApp = (function () {
     openSaveCustomTemplateModal,
     closeSaveCustomTemplateModal,
     saveCurrentAsCustomTemplate,
-    deleteCustomTemplate
+    deleteCustomTemplate,
+    // Collapsible Sidebars, Zen Mode & Multi-Page Layout API
+    toggleLeftSidebar,
+    toggleRightSidebar,
+    toggleZenMode,
+    togglePageLayoutMode
   };
 })();
 
