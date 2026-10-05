@@ -338,8 +338,8 @@
    -------------------------------------------------------------------------- */
 .layout-modern-sidebar#cv-printable-area,
 .layout-modern-sidebar {
-  display: grid !important;
-  grid-template-columns: 74mm 1fr !important;
+  display: grid;
+  grid-template-columns: 74mm 1fr;
   min-height: 297mm;
 }
 
@@ -420,8 +420,8 @@
    -------------------------------------------------------------------------- */
 .layout-right-sidebar#cv-printable-area,
 .layout-right-sidebar {
-  display: grid !important;
-  grid-template-columns: 1fr 74mm !important;
+  display: grid;
+  grid-template-columns: 1fr 74mm;
   min-height: 297mm;
 }
 
@@ -905,8 +905,17 @@
 }
 
 /* Font Scale CSS Variable */
-#cv-printable-area {
+#cv-printable-area,
+.cv-a4-sheet {
   zoom: var(--cv-font-scale, 1);
+}
+
+/* Horizontal Multi-Page Display Utilities */
+@media screen {
+  #cv-printable-area.cv-hidden-for-horizontal,
+  .cv-a4-sheet.cv-hidden-for-horizontal {
+    display: none !important;
+  }
 }
 
 /* 2. Spacing Presets */

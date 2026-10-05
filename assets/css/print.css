@@ -33,6 +33,9 @@
   .page-guide-indicator,
   .btn-print,
   .btn-export,
+  .horizontal-pages-row,
+  .horizontal-page-card,
+  .cv-page-break-divider,
   .no-print {
     display: none !important;
     visibility: hidden !important;

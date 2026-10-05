@@ -2585,17 +2585,22 @@ const CVApp = (function () {
     const sheet = document.getElementById('cv-printable-area');
     if (!previewWrapper || !sheet) return;
 
-    // 1. Phân trang DOM Semantic thông minh trước khi render hiển thị
-    const totalPages = applySmartPagination();
+    // Đảm bảo sheet được hiển thị để đo đạc chính xác kích thước và ngắt trang
+    sheet.classList.remove('cv-hidden-for-horizontal');
+    sheet.style.removeProperty('display');
 
     // Dọn dẹp DOM cũ
     sheet.querySelectorAll('.cv-page-break-divider').forEach(el => el.remove());
     const oldRow = previewWrapper.querySelector('.horizontal-pages-row');
     if (oldRow) oldRow.remove();
 
+    // 1. Phân trang DOM Semantic thông minh trước khi render hiển thị
+    const totalPages = applySmartPagination();
+
     // 2. Chế độ Dọc (Vertical)
     if (pageLayoutMode === 'vertical') {
-      sheet.style.display = '';
+      sheet.classList.remove('cv-hidden-for-horizontal');
+      sheet.style.removeProperty('display');
       if (totalPages > 1) {
         for (let p = 1; p < totalPages; p++) {
           const divider = document.createElement('div');
@@ -2615,7 +2620,6 @@ const CVApp = (function () {
     } else {
       // 3. Chế độ Dàn Trang Ngang (Horizontal)
       if (totalPages > 1) {
-        sheet.style.display = 'none'; // Giữ sheet trong DOM cho in ấn / xuất PDF
         const row = document.createElement('div');
         row.className = 'horizontal-pages-row no-print';
 
@@ -2628,15 +2632,28 @@ const CVApp = (function () {
             </div>
             <div class="horizontal-page-inner-viewport">
               <div class="horizontal-page-clone" style="position:absolute; top:-${(p - 1) * 297}mm; left:0; width:210mm;">
-                ${sheet.outerHTML.replace('id="cv-printable-area"', `id="cv-printable-page-${p}" style="display:block;"`)}
               </div>
             </div>
           `;
+
+          const clone = sheet.cloneNode(true);
+          clone.id = `cv-printable-page-${p}`;
+          clone.classList.remove('cv-hidden-for-horizontal');
+          clone.style.removeProperty('display');
+          clone.querySelectorAll('.cv-page-break-divider').forEach(el => el.remove());
+          clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+
+          card.querySelector('.horizontal-page-clone').appendChild(clone);
           row.appendChild(card);
         }
+
+        // Ẩn sheet gốc sau khi đã nhân bản xong
+        sheet.classList.add('cv-hidden-for-horizontal');
+        sheet.style.setProperty('display', 'none', 'important');
         previewWrapper.appendChild(row);
       } else {
-        sheet.style.display = '';
+        sheet.classList.remove('cv-hidden-for-horizontal');
+        sheet.style.removeProperty('display');
       }
     }
   }
@@ -2694,6 +2711,10 @@ const CVApp = (function () {
   function smartAutoFit(targetMode) {
     const sheet = document.getElementById('cv-printable-area');
     if (!sheet) return;
+
+    // Đảm bảo sheet được hiển thị để đo độ dài nội dung thực tế
+    sheet.classList.remove('cv-hidden-for-horizontal');
+    sheet.style.removeProperty('display');
 
     // Gỡ tạm spacer để đo độ dài nội dung thực tế
     sheet.querySelectorAll('.cv-page-break-spacer').forEach(el => el.remove());

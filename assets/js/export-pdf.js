@@ -10,8 +10,11 @@ const CV_EXPORTER = (function () {
    */
   function printCV(fullName, jobTitle) {
     const sheet = document.getElementById('cv-printable-area');
-    const wasHidden = sheet && sheet.style.display === 'none';
-    if (wasHidden) sheet.style.display = 'block';
+    const wasHidden = sheet && (sheet.classList.contains('cv-hidden-for-horizontal') || sheet.style.display === 'none');
+    if (wasHidden) {
+      sheet.classList.remove('cv-hidden-for-horizontal');
+      sheet.style.removeProperty('display');
+    }
 
     const oldTitle = document.title;
     const cleanName = (fullName || 'Ung_Vien').trim().replace(/[^a-zA-Z0-9\u00C0-\u1EF9]/g, '_');
@@ -24,7 +27,10 @@ const CV_EXPORTER = (function () {
       window.print();
       setTimeout(() => {
         document.title = oldTitle;
-        if (wasHidden && sheet) sheet.style.display = 'none';
+        if (wasHidden && sheet) {
+          sheet.classList.add('cv-hidden-for-horizontal');
+          sheet.style.setProperty('display', 'none', 'important');
+        }
       }, 1000);
     }, 200);
   }
@@ -55,8 +61,11 @@ const CV_EXPORTER = (function () {
       return;
     }
 
-    const wasHidden = element.style.display === 'none';
-    if (wasHidden) element.style.display = 'block';
+    const wasHidden = element.classList.contains('cv-hidden-for-horizontal') || element.style.display === 'none';
+    if (wasHidden) {
+      element.classList.remove('cv-hidden-for-horizontal');
+      element.style.removeProperty('display');
+    }
 
     const cleanName = (actualName || 'Ung_Vien').trim().replace(/[^a-zA-Z0-9\u00C0-\u1EF9]/g, '_');
     const fileName = `CV_${cleanName}.pdf`;
@@ -73,17 +82,26 @@ const CV_EXPORTER = (function () {
       };
 
       html2pdf().set(opt).from(element).save().then(() => {
-        if (wasHidden) element.style.display = 'none';
+        if (wasHidden) {
+          element.classList.add('cv-hidden-for-horizontal');
+          element.style.setProperty('display', 'none', 'important');
+        }
         if (callback) callback(true, fileName);
       }).catch((err) => {
         console.warn('html2pdf error, fallback to print:', err);
-        if (wasHidden) element.style.display = 'none';
+        if (wasHidden) {
+          element.classList.add('cv-hidden-for-horizontal');
+          element.style.setProperty('display', 'none', 'important');
+        }
         printCV(actualName);
         if (callback) callback(true, 'Đã mở hộp thoại in PDF trình duyệt');
       });
     } else {
       // Direct browser print fallback
-      if (wasHidden) element.style.display = 'none';
+      if (wasHidden) {
+        element.classList.add('cv-hidden-for-horizontal');
+        element.style.setProperty('display', 'none', 'important');
+      }
       printCV(actualName);
       if (callback) callback(true, 'Đã mở hộp thoại in PDF');
     }
