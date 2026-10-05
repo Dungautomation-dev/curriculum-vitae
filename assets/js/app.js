@@ -85,6 +85,7 @@ const CVApp = (function () {
     setupEventListeners();
     setupAutoSave();
     setupDirectEditEvents();
+    initFitScreenMode();
     showToast('⚡ Đã sẵn sàng! Mặc định hiển thị CV Kỹ sư Điện.', 'fa-solid fa-bolt');
   }
 
@@ -715,7 +716,7 @@ const CVApp = (function () {
 
     // 2. Build Skills HTML according to rating mode
     const hardSkillsHtml = (sectionsConfig.hardSkills !== false && (profile.hardSkills || []).length > 0) ? `
-      <div class="cv-section">
+      <div class="cv-section section-hard-skills">
         <h3 class="cv-section-title"><i class="fa-solid fa-bolt"></i> Kỹ Năng Chuyên Môn</h3>
         <div class="hard-skills-wrapper">
           ${profile.hardSkills.map(s => {
@@ -758,7 +759,7 @@ const CVApp = (function () {
     ` : '';
 
     const softSkillsHtml = (sectionsConfig.softSkills !== false && (profile.softSkills || []).length > 0) ? `
-      <div class="cv-section">
+      <div class="cv-section section-soft-skills">
         <h3 class="cv-section-title"><i class="fa-solid fa-users"></i> Kỹ Năng Mềm</h3>
         <div class="tag-pills-wrap">
           ${profile.softSkills.map(s => `<span class="tag-pill"><i class="fa-solid fa-check"></i> ${escapeHtml(s.name)}</span>`).join('')}
@@ -767,7 +768,7 @@ const CVApp = (function () {
     ` : '';
 
     const strengthsHtml = (sectionsConfig.strengths !== false && (profile.strengths || []).length > 0) ? `
-      <div class="cv-section">
+      <div class="cv-section section-strengths">
         <h3 class="cv-section-title"><i class="fa-solid fa-star"></i> Ưu Điểm Nổi Bật</h3>
         <ul style="padding-left:16px; margin:0; font-size:0.8rem; color:#334155; line-height:1.6;">
           ${profile.strengths.map(st => `<li>${escapeHtml(st.name)}</li>`).join('')}
@@ -776,7 +777,7 @@ const CVApp = (function () {
     ` : '';
 
     const hobbiesHtml = (sectionsConfig.hobbies !== false && (profile.hobbies || []).length > 0) ? `
-      <div class="cv-section">
+      <div class="cv-section section-hobbies">
         <h3 class="cv-section-title"><i class="fa-solid fa-heart"></i> Sở Thích</h3>
         <div class="tag-pills-wrap">
           ${profile.hobbies.map(h => `<span class="tag-pill">${escapeHtml(h.name)}</span>`).join('')}
@@ -785,7 +786,7 @@ const CVApp = (function () {
     ` : '';
 
     const languagesHtml = (sectionsConfig.languages !== false && (profile.languages || []).length > 0) ? `
-      <div class="cv-section">
+      <div class="cv-section section-languages">
         <h3 class="cv-section-title"><i class="fa-solid fa-language"></i> Ngôn Ngữ</h3>
         ${profile.languages.map(l => `
           <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:4px;">
@@ -797,7 +798,7 @@ const CVApp = (function () {
     ` : '';
 
     const experienceHtml = (sectionsConfig.experience !== false && (profile.experience || []).length > 0) ? `
-      <div class="cv-section">
+      <div class="cv-section section-experience">
         <h3 class="cv-section-title"><i class="fa-solid fa-briefcase"></i> Kinh Nghiệm Làm Việc</h3>
         ${profile.experience.map(exp => `
           <div class="timeline-item">
@@ -813,7 +814,7 @@ const CVApp = (function () {
     ` : '';
 
     const educationHtml = (sectionsConfig.education !== false && (profile.education || []).length > 0) ? `
-      <div class="cv-section">
+      <div class="cv-section section-education">
         <h3 class="cv-section-title"><i class="fa-solid fa-graduation-cap"></i> Trình Độ Học Vấn</h3>
         ${profile.education.map(edu => `
           <div class="timeline-item">
@@ -829,7 +830,7 @@ const CVApp = (function () {
     ` : '';
 
     const projectsHtml = (sectionsConfig.projects !== false && (profile.projects || []).length > 0) ? `
-      <div class="cv-section">
+      <div class="cv-section section-projects">
         <h3 class="cv-section-title"><i class="fa-solid fa-diagram-project"></i> Dự Án Tiêu Biểu</h3>
         ${profile.projects.map(prj => `
           <div class="cv-card-item">
@@ -843,7 +844,7 @@ const CVApp = (function () {
     ` : '';
 
     const certificationsHtml = (sectionsConfig.certifications !== false && (profile.certifications || []).length > 0) ? `
-      <div class="cv-section">
+      <div class="cv-section section-certificates">
         <h3 class="cv-section-title"><i class="fa-solid fa-certificate"></i> Chứng Chỉ Chuyên Môn</h3>
         ${profile.certifications.map(c => `
           <div class="cv-card-item">
@@ -855,7 +856,7 @@ const CVApp = (function () {
     ` : '';
 
     const awardsHtml = (sectionsConfig.awards !== false && (profile.awards || []).length > 0) ? `
-      <div class="cv-section">
+      <div class="cv-section section-awards">
         <h3 class="cv-section-title"><i class="fa-solid fa-trophy"></i> Thành Tựu &amp; Giải Thưởng</h3>
         ${profile.awards.map(awd => `
           <div class="cv-card-item">
@@ -868,7 +869,7 @@ const CVApp = (function () {
     ` : '';
 
     const referencesHtml = (sectionsConfig.references !== false && (profile.references || []).length > 0) ? `
-      <div class="cv-section">
+      <div class="cv-section section-references">
         <h3 class="cv-section-title"><i class="fa-solid fa-user-check"></i> Người Tham Chiếu</h3>
         ${profile.references.map(r => `
           <div class="cv-card-item">
@@ -881,7 +882,7 @@ const CVApp = (function () {
     ` : '';
 
     const summaryBlock = (sectionsConfig.summary !== false && profile.summary) ? `
-      <div class="cv-section">
+      <div class="cv-section section-summary">
         <h3 class="cv-section-title"><i class="fa-solid fa-user"></i> Giới Thiệu Bản Thân</h3>
         <div class="cv-summary-text">${escapeHtml(profile.summary)}</div>
       </div>
@@ -1335,7 +1336,12 @@ const CVApp = (function () {
     const stage = document.getElementById('preview-zoom-stage');
     const zoomText = document.getElementById('zoom-percentage-text');
     if (stage) {
-      stage.style.transform = `scale(${zoom})`;
+      if (isFitScreenMode && pageLayoutMode === 'vertical' && activeFitPage > 1) {
+        const a4HeightPx = 1122.52;
+        stage.style.transform = `scale(${zoom}) translateY(-${(activeFitPage - 1) * a4HeightPx}px)`;
+      } else {
+        stage.style.transform = `scale(${zoom})`;
+      }
     }
     if (zoomText) {
       zoomText.innerText = `${Math.round(zoom * 100)}%`;
@@ -1375,14 +1381,28 @@ const CVApp = (function () {
       avatarInput.addEventListener('change', handleAvatarUpload);
     }
 
-    // Zoom Buttons
+    // Zoom & Fit Buttons
     const btnZoomIn = document.getElementById('btn-zoom-in');
     const btnZoomOut = document.getElementById('btn-zoom-out');
     const btnZoomFit = document.getElementById('btn-zoom-fit');
 
-    if (btnZoomIn) btnZoomIn.addEventListener('click', () => applyZoom(Math.min(1.4, currentZoom + 0.1)));
-    if (btnZoomOut) btnZoomOut.addEventListener('click', () => applyZoom(Math.max(0.5, currentZoom - 0.1)));
-    if (btnZoomFit) btnZoomFit.addEventListener('click', () => applyZoom(0.95));
+    if (btnZoomIn) btnZoomIn.addEventListener('click', () => {
+      isFitScreenMode = false;
+      applyZoom(Math.min(1.4, currentZoom + 0.1));
+      applyFitScreenView();
+    });
+    if (btnZoomOut) btnZoomOut.addEventListener('click', () => {
+      isFitScreenMode = false;
+      applyZoom(Math.max(0.5, currentZoom - 0.1));
+      applyFitScreenView();
+    });
+    if (btnZoomFit) btnZoomFit.addEventListener('click', toggleFitScreenMode);
+
+    setupFormAutoPageSync();
+    setupWheelPageFlip();
+    window.addEventListener('resize', () => {
+      if (isFitScreenMode) applyFitScreenView();
+    });
 
     // Template Modal
     const btnOpenTemplates = document.getElementById('btn-open-template-modal');
@@ -2365,6 +2385,7 @@ const CVApp = (function () {
 
     localStorage.setItem('dungauto_cv_left_collapsed', isLeftSidebarCollapsed);
     updateZenModeButton();
+    if (isFitScreenMode) setTimeout(applyFitScreenView, 320);
   }
 
   function toggleRightSidebar(forceState) {
@@ -2388,6 +2409,7 @@ const CVApp = (function () {
 
     localStorage.setItem('dungauto_cv_right_collapsed', isRightSidebarCollapsed);
     updateZenModeButton();
+    if (isFitScreenMode) setTimeout(applyFitScreenView, 320);
   }
 
   function toggleZenMode() {
@@ -2421,6 +2443,245 @@ const CVApp = (function () {
       btnZen.setAttribute('data-tooltip', 'Chế độ Siêu Rộng (Thu gọn 2 bên)');
       btnZen.title = 'Chế độ Siêu Rộng (Thu gọn 2 bên)';
     }
+  }
+
+  /**
+   * ==========================================================================
+   * HƯỚNG 2: FIT-TO-SCREEN CANVAS ENGINE (CV LUÔN GHIM CỐ ĐỊNH TRONG TẦM MẮT)
+   * Tự động tính toán tỷ lệ zoom để trang A4 vừa khít 100% trong màn hình,
+   * điều hướng lật trang mượt mà (Trang 1 ↔ Trang 2), tự động lật theo form bên trái.
+   * ==========================================================================
+   */
+  let isFitScreenMode = true; // Mặc định kích hoạt Hướng 2
+  let activeFitPage = 1;
+  let totalCalculatedPages = 1;
+  let isWheelThrottled = false;
+
+  function calculateFitZoom() {
+    const viewport = document.getElementById('preview-stage-viewport');
+    if (!viewport) return 0.85;
+
+    const vpW = Math.max(320, viewport.clientWidth - 40);
+    const vpH = Math.max(320, viewport.clientHeight - 65); // 65px khoảng đệm an toàn
+
+    const a4W = 793.7;
+    const a4H = 1122.5;
+
+    if (pageLayoutMode === 'horizontal') {
+      const sheet = document.getElementById('cv-printable-area');
+      const isMulti = sheet && sheet.scrollHeight > a4H + 20;
+      const totalW = isMulti ? (a4W * 2 + 36) : a4W;
+      const scaleX = vpW / totalW;
+      const scaleY = vpH / a4H;
+      return Math.min(scaleX, scaleY, 1.05);
+    } else {
+      const scaleX = vpW / a4W;
+      const scaleY = vpH / a4H;
+      return Math.min(scaleX, scaleY, 1.0);
+    }
+  }
+
+  function applyFitScreenView() {
+    const stage = document.getElementById('preview-zoom-stage');
+    const btnFit = document.getElementById('btn-zoom-fit');
+    const fitLabel = document.getElementById('fit-mode-label');
+    if (!stage) return;
+
+    document.body.classList.toggle('fit-screen-mode', isFitScreenMode);
+
+    if (btnFit) {
+      btnFit.classList.toggle('active', isFitScreenMode);
+      if (fitLabel) {
+        fitLabel.innerText = isFitScreenMode ? 'Đang Ghim Vừa Hình' : 'Ghim Vừa Hình';
+      }
+      btnFit.setAttribute(
+        'data-tooltip',
+        isFitScreenMode ? 'Đang bật Ghim Vừa Màn Hình (Nhấp để cuộn tự do)' : 'Bật Ghim Vừa Màn Hình (CV cố định trong tầm mắt)'
+      );
+    }
+
+    if (isFitScreenMode) {
+      const fitZoom = calculateFitZoom();
+      currentZoom = fitZoom;
+      const zoomText = document.getElementById('zoom-percentage-text');
+      if (zoomText) zoomText.innerText = `${Math.round(currentZoom * 100)}%`;
+
+      if (pageLayoutMode === 'vertical') {
+        const a4HeightPx = 1122.52;
+        stage.style.transform = `scale(${currentZoom}) translateY(-${(activeFitPage - 1) * a4HeightPx}px)`;
+      } else {
+        stage.style.transform = `scale(${currentZoom})`;
+      }
+      renderFloatingPageNavigator();
+    } else {
+      stage.style.transform = `scale(${currentZoom})`;
+      hideFloatingPageNavigator();
+    }
+  }
+
+  function toggleFitScreenMode() {
+    isFitScreenMode = !isFitScreenMode;
+    applyFitScreenView();
+    showToast(
+      isFitScreenMode
+        ? '🎯 Đã bật chế độ Ghim Vừa Màn Hình (CV luôn cố định trong tầm mắt)!'
+        : '↕️ Đã chuyển về chế độ Cuộn Dọc tự do.',
+      isFitScreenMode ? 'fa-solid fa-arrows-to-eye' : 'fa-solid fa-arrows-up-down'
+    );
+  }
+
+  function switchFitPage(pageNum) {
+    if (pageNum < 1 || pageNum > totalCalculatedPages) return;
+    activeFitPage = pageNum;
+    applyFitScreenView();
+  }
+
+  function nextFitPage() {
+    if (activeFitPage < totalCalculatedPages) {
+      switchFitPage(activeFitPage + 1);
+    }
+  }
+
+  function prevFitPage() {
+    if (activeFitPage > 1) {
+      switchFitPage(activeFitPage - 1);
+    }
+  }
+
+  function renderFloatingPageNavigator() {
+    const nav = document.getElementById('floating-page-navigator');
+    const pillsWrap = document.getElementById('page-nav-pills-wrap');
+    const btnPrev = document.getElementById('btn-page-prev');
+    const btnNext = document.getElementById('btn-page-next');
+    if (!nav || !pillsWrap) return;
+
+    if (!isFitScreenMode || pageLayoutMode === 'horizontal' || totalCalculatedPages <= 1) {
+      nav.style.display = 'none';
+      return;
+    }
+
+    nav.style.display = 'flex';
+    pillsWrap.innerHTML = '';
+
+    for (let p = 1; p <= totalCalculatedPages; p++) {
+      const pill = document.createElement('button');
+      pill.type = 'button';
+      pill.className = `page-nav-pill ${p === activeFitPage ? 'active' : ''}`;
+      pill.innerHTML = `<i class="fa-solid fa-file"></i> Trang ${p}`;
+      pill.onclick = () => switchFitPage(p);
+      pillsWrap.appendChild(pill);
+    }
+
+    if (btnPrev) btnPrev.disabled = (activeFitPage <= 1);
+    if (btnNext) btnNext.disabled = (activeFitPage >= totalCalculatedPages);
+  }
+
+  function hideFloatingPageNavigator() {
+    const nav = document.getElementById('floating-page-navigator');
+    if (nav) nav.style.display = 'none';
+  }
+
+  /**
+   * Tự động lật trang khi người dùng nhập liệu ở form bên trái
+   */
+  function setupFormAutoPageSync() {
+    const sidebar = document.getElementById('editor-sidebar');
+    if (!sidebar) return;
+
+    sidebar.addEventListener('focusin', (e) => {
+      if (!isFitScreenMode || pageLayoutMode === 'horizontal' || totalCalculatedPages <= 1) return;
+
+      const sectionWrap = e.target.closest('.accordion-section');
+      if (!sectionWrap) return;
+
+      const secName = sectionWrap.getAttribute('data-section');
+      if (!secName) return;
+
+      const targetPage = getPageForSection(secName);
+      if (targetPage && targetPage !== activeFitPage) {
+        switchFitPage(targetPage);
+      }
+    });
+
+    sidebar.addEventListener('click', (e) => {
+      const header = e.target.closest('.accordion-header');
+      if (!header || !isFitScreenMode || pageLayoutMode === 'horizontal' || totalCalculatedPages <= 1) return;
+
+      const sectionWrap = header.closest('.accordion-section');
+      if (!sectionWrap) return;
+
+      const secName = sectionWrap.getAttribute('data-section');
+      if (!secName) return;
+
+      const targetPage = getPageForSection(secName);
+      if (targetPage && targetPage !== activeFitPage) {
+        switchFitPage(targetPage);
+      }
+    });
+  }
+
+  function getPageForSection(secName) {
+    const sheet = document.getElementById('cv-printable-area');
+    if (!sheet) return 1;
+
+    const sheetRect = sheet.getBoundingClientRect();
+    const a4HeightPx = 1122.52;
+
+    const selectorMap = {
+      'personal-info': '.cv-avatar-wrap, .cv-candidate-name, .cv-header',
+      'summary': '.section-summary, .cv-summary-text',
+      'experience': '.section-experience',
+      'projects': '.section-projects',
+      'education': '.section-education',
+      'hard-skills': '.section-hard-skills',
+      'soft-skills': '.section-soft-skills',
+      'strengths': '.section-strengths',
+      'hobbies': '.section-hobbies',
+      'certificates': '.section-certificates',
+      'awards': '.section-awards',
+      'languages': '.section-languages',
+      'references': '.section-references'
+    };
+
+    const selector = selectorMap[secName];
+    if (!selector) return 1;
+
+    const el = sheet.querySelector(selector);
+    if (!el) return 1;
+
+    const elRect = el.getBoundingClientRect();
+    const offsetTop = elRect.top - sheetRect.top;
+    const page = Math.floor(offsetTop / a4HeightPx) + 1;
+    return Math.max(1, Math.min(page, totalCalculatedPages));
+  }
+
+  /**
+   * Lăn chuột trên CV preview để lật trang mượt mà
+   */
+  function setupWheelPageFlip() {
+    const viewport = document.getElementById('preview-stage-viewport');
+    if (!viewport) return;
+
+    viewport.addEventListener('wheel', (e) => {
+      if (!isFitScreenMode || pageLayoutMode === 'horizontal' || totalCalculatedPages <= 1) return;
+      e.preventDefault();
+
+      if (isWheelThrottled) return;
+
+      if (e.deltaY > 25 && activeFitPage < totalCalculatedPages) {
+        isWheelThrottled = true;
+        nextFitPage();
+        setTimeout(() => { isWheelThrottled = false; }, 380);
+      } else if (e.deltaY < -25 && activeFitPage > 1) {
+        isWheelThrottled = true;
+        prevFitPage();
+        setTimeout(() => { isWheelThrottled = false; }, 380);
+      }
+    }, { passive: false });
+  }
+
+  function initFitScreenMode() {
+    applyFitScreenView();
   }
 
   /**
@@ -2674,6 +2935,11 @@ const CVApp = (function () {
     const scrollH = sheet.scrollHeight;
     const percent = Math.round((scrollH / a4HeightPx) * 100);
     const totalPages = Math.max(1, Math.ceil(scrollH / a4HeightPx));
+    totalCalculatedPages = totalPages;
+
+    if (isFitScreenMode) {
+      applyFitScreenView();
+    }
 
     if (totalPages === 1) {
       fillText.innerText = `${percent}% A4`;
@@ -3144,7 +3410,12 @@ const CVApp = (function () {
     toggleLeftSidebar,
     toggleRightSidebar,
     toggleZenMode,
-    togglePageLayoutMode
+    togglePageLayoutMode,
+    // Sticky Fit-Screen Mode & Page Navigation API (Option 2)
+    toggleFitScreenMode,
+    nextFitPage,
+    prevFitPage,
+    switchFitPage
   };
 })();
 

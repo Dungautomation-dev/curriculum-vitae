@@ -21,9 +21,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <!-- Application Stylesheets -->
-  <link rel="stylesheet" href="assets/css/style.css?v=2.6.1">
-  <link rel="stylesheet" href="assets/css/templates.css?v=2.6.1">
-  <link rel="stylesheet" href="assets/css/print.css?v=2.6.1" media="print">
+  <link rel="stylesheet" href="assets/css/style.css?v=2.6.2">
+  <link rel="stylesheet" href="assets/css/templates.css?v=2.6.2">
+  <link rel="stylesheet" href="assets/css/print.css?v=2.6.2" media="print">
 
 </head>
 <body>
@@ -156,7 +156,7 @@
       <div class="editor-content-body">
 
         <!-- Accordion 1: Thông tin cá nhân & Ảnh đại diện -->
-        <div class="accordion-section active">
+        <div class="accordion-section active" data-section="personal-info">
           <div class="accordion-header">
             <div class="accordion-header-left">
               <i class="fa-solid fa-user-tie"></i>
@@ -257,7 +257,7 @@
         </div>
 
         <!-- Accordion 2: Giới thiệu bản thân -->
-        <div class="accordion-section active">
+        <div class="accordion-section active" data-section="summary">
           <div class="accordion-header">
             <div class="accordion-header-left">
               <i class="fa-solid fa-align-left"></i>
@@ -274,7 +274,7 @@
         </div>
 
         <!-- Accordion 3: Trình độ học vấn -->
-        <div class="accordion-section active">
+        <div class="accordion-section active" data-section="education">
           <div class="accordion-header">
             <div class="accordion-header-left">
               <i class="fa-solid fa-graduation-cap"></i>
@@ -291,7 +291,7 @@
         </div>
 
         <!-- Accordion 4: Kinh nghiệm làm việc -->
-        <div class="accordion-section active">
+        <div class="accordion-section active" data-section="experience">
           <div class="accordion-header">
             <div class="accordion-header-left">
               <i class="fa-solid fa-briefcase"></i>
@@ -308,7 +308,7 @@
         </div>
 
         <!-- Accordion 5: Kỹ năng chuyên môn (Hard Skills) -->
-        <div class="accordion-section active">
+        <div class="accordion-section active" data-section="hard-skills">
           <div class="accordion-header">
             <div class="accordion-header-left">
               <i class="fa-solid fa-screwdriver-wrench"></i>
@@ -328,7 +328,7 @@
         </div>
 
         <!-- Accordion 6: Kỹ năng mềm (Tích chọn nhanh) -->
-        <div class="accordion-section">
+        <div class="accordion-section" data-section="soft-skills">
           <div class="accordion-header">
             <div class="accordion-header-left">
               <i class="fa-solid fa-lightbulb"></i>
@@ -345,7 +345,7 @@
         </div>
 
         <!-- Accordion 7: Ưu điểm & Thế mạnh (Tích chọn nhanh) -->
-        <div class="accordion-section">
+        <div class="accordion-section" data-section="strengths">
           <div class="accordion-header">
             <div class="accordion-header-left">
               <i class="fa-solid fa-star"></i>
@@ -362,7 +362,7 @@
         </div>
 
         <!-- Accordion 8: Sở thích (Tích chọn nhanh) -->
-        <div class="accordion-section">
+        <div class="accordion-section" data-section="hobbies">
           <div class="accordion-header">
             <div class="accordion-header-left">
               <i class="fa-solid fa-heart"></i>
@@ -376,7 +376,7 @@
         </div>
 
         <!-- Accordion 9: Chứng chỉ chuyên môn -->
-        <div class="accordion-section">
+        <div class="accordion-section" data-section="certificates">
           <div class="accordion-header">
             <div class="accordion-header-left">
               <i class="fa-solid fa-certificate"></i>
@@ -393,7 +393,7 @@
         </div>
 
         <!-- Accordion 10: Dự án tiêu biểu -->
-        <div class="accordion-section">
+        <div class="accordion-section" data-section="projects">
           <div class="accordion-header">
             <div class="accordion-header-left">
               <i class="fa-solid fa-diagram-project"></i>
@@ -410,7 +410,7 @@
         </div>
 
         <!-- Accordion 11: Thành Tựu & Giải Thưởng -->
-        <div class="accordion-section">
+        <div class="accordion-section" data-section="awards">
           <div class="accordion-header">
             <div class="accordion-header-left">
               <i class="fa-solid fa-trophy"></i>
@@ -427,7 +427,7 @@
         </div>
 
         <!-- Accordion 12: Ngoại ngữ -->
-        <div class="accordion-section">
+        <div class="accordion-section" data-section="languages">
           <div class="accordion-header">
             <div class="accordion-header-left">
               <i class="fa-solid fa-language"></i>
@@ -444,7 +444,7 @@
         </div>
 
         <!-- Accordion 13: Người tham chiếu -->
-        <div class="accordion-section">
+        <div class="accordion-section" data-section="references">
           <div class="accordion-header">
             <div class="accordion-header-left">
               <i class="fa-solid fa-user-check"></i>
@@ -461,7 +461,7 @@
         </div>
 
         <!-- Accordion 14: Quản lý ẩn / hiện các đề mục -->
-        <div class="accordion-section">
+        <div class="accordion-section" data-section="visibility">
           <div class="accordion-header">
             <div class="accordion-header-left">
               <i class="fa-solid fa-eye"></i>
@@ -493,9 +493,11 @@
         <div class="toolbar-cluster-left">
           <div class="preview-zoom-controls">
             <button type="button" class="btn btn-outline btn-sm btn-icon-only" id="btn-zoom-out" data-tooltip="Thu nhỏ (Zoom -)" title="Thu nhỏ"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
-            <span id="zoom-percentage-text" style="font-size:0.82rem; font-weight:700; width:40px; text-align:center;">95%</span>
+            <span id="zoom-percentage-text" style="font-size:0.82rem; font-weight:700; width:38px; text-align:center;">95%</span>
             <button type="button" class="btn btn-outline btn-sm btn-icon-only" id="btn-zoom-in" data-tooltip="Phóng to (Zoom +)" title="Phóng to"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
-            <button type="button" class="btn btn-outline btn-sm btn-icon-only" id="btn-zoom-fit" data-tooltip="Căn vừa vặn màn hình" title="Vừa vặn màn hình"><i class="fa-solid fa-arrows-to-eye"></i></button>
+            <button type="button" class="btn btn-outline btn-sm btn-fit-mode active" id="btn-zoom-fit" onclick="CVApp.toggleFitScreenMode()" data-tooltip="Ghim Vừa Màn Hình (CV cố định trong tầm mắt, không trôi)" title="Ghim Vừa Màn Hình (CV cố định trong tầm mắt)">
+              <i class="fa-solid fa-arrows-to-eye"></i> <span id="fit-mode-label" style="font-size:0.75rem; font-weight:700;">Ghim Vừa Hình</span>
+            </button>
           </div>
 
           <div class="history-controls" style="display:flex; gap:4px; margin-left:2px;">
@@ -594,6 +596,17 @@
           <div id="cv-a4-render-target">
             <!-- Dynamically populated by CVApp.renderCVPreview() -->
           </div>
+        </div>
+
+        <!-- Floating Sticky Page Navigator (Hướng 2: Lật trang thông minh khi ghim vừa hình) -->
+        <div class="floating-page-navigator no-print" id="floating-page-navigator" style="display:none;">
+          <button type="button" class="page-nav-arrow" id="btn-page-prev" onclick="CVApp.prevFitPage()" title="Trang trước (Lăn chuột lên)">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <div class="page-nav-pills-wrap" id="page-nav-pills-wrap"></div>
+          <button type="button" class="page-nav-arrow" id="btn-page-next" onclick="CVApp.nextFitPage()" title="Trang sau (Lăn chuột xuống)">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
         </div>
       </div>
     </section>
@@ -824,10 +837,10 @@
   <div class="toast-container no-print" id="app-toast-container"></div>
 
   <!-- Application Scripts in Dependency Order -->
-  <script src="assets/js/templates-data.js?v=2.6.1"></script>
-  <script src="assets/js/sample-data.js?v=2.6.1"></script>
-  <script src="assets/js/storage.js?v=2.6.1"></script>
-  <script src="assets/js/export-pdf.js?v=2.6.1"></script>
-  <script src="assets/js/app.js?v=2.6.1"></script>
+  <script src="assets/js/templates-data.js?v=2.6.2"></script>
+  <script src="assets/js/sample-data.js?v=2.6.2"></script>
+  <script src="assets/js/storage.js?v=2.6.2"></script>
+  <script src="assets/js/export-pdf.js?v=2.6.2"></script>
+  <script src="assets/js/app.js?v=2.6.2"></script>
 </body>
 </html>
