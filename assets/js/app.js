@@ -251,12 +251,17 @@ const CVApp = (function () {
 
     const saved = CV_STORAGE.loadFromLocalStorage();
     if (saved && saved.data) {
-      // Auto-migrate if stored profile is older version (Nguyen Van An, old phone 0988, old email, or old 1-experience structure)
+      // Auto-migrate if stored profile is older version (Nguyen Van An, old phone 0988, old email, old dob 2001, or missing ecosystem links)
       if (saved.data.personalInfo && (
         saved.data.personalInfo.fullName === 'NGUYỄN VĂN AN' ||
         !saved.data.personalInfo.fullName ||
         saved.data.personalInfo.phone === '0988 123 456' ||
         saved.data.personalInfo.email === 'leducdung.ee@gmail.com' ||
+        saved.data.personalInfo.dateOfBirth === '2001' ||
+        !saved.data.personalInfo.facebook ||
+        !saved.data.personalInfo.github ||
+        !saved.data.languages ||
+        saved.data.languages.length < 3 ||
         !saved.data.experience ||
         saved.data.experience.length < 4
       )) {
@@ -368,6 +373,10 @@ const CVApp = (function () {
     setVal('input-dob', p.dateOfBirth);
     setVal('input-gender', p.gender);
     setVal('input-website', p.website);
+    setVal('input-facebook', p.facebook);
+    setVal('input-youtube', p.youtube);
+    setVal('input-github', p.github);
+    setVal('input-blog', p.blog);
     setVal('input-license', p.driverLicense);
     setVal('input-marital', p.maritalStatus);
 
@@ -649,8 +658,12 @@ const CVApp = (function () {
     if (p.phone) contactItems.push(`<div class="cv-contact-item"><i class="fa-solid fa-phone"></i> <span>${escapeHtml(p.phone)}</span></div>`);
     if (p.email) contactItems.push(`<div class="cv-contact-item"><i class="fa-solid fa-envelope"></i> <span>${escapeHtml(p.email)}</span></div>`);
     if (p.address) contactItems.push(`<div class="cv-contact-item"><i class="fa-solid fa-location-dot"></i> <span>${escapeHtml(p.address)}</span></div>`);
-    if (p.website) contactItems.push(`<div class="cv-contact-item"><i class="fa-solid fa-globe"></i> <span>${escapeHtml(p.website.replace('https://', ''))}</span></div>`);
     if (p.dateOfBirth) contactItems.push(`<div class="cv-contact-item"><i class="fa-solid fa-cake-candles"></i> <span>${escapeHtml(p.dateOfBirth)}</span></div>`);
+    if (p.website) contactItems.push(`<div class="cv-contact-item"><i class="fa-solid fa-globe"></i> <span>${escapeHtml(p.website.replace(/^https?:\/\//, '').replace(/\/$/, ''))}</span></div>`);
+    if (p.facebook) contactItems.push(`<div class="cv-contact-item"><i class="fa-brands fa-facebook" style="color:#1877f2;"></i> <span>${escapeHtml(p.facebook.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''))}</span></div>`);
+    if (p.youtube) contactItems.push(`<div class="cv-contact-item"><i class="fa-brands fa-youtube" style="color:#ef4444;"></i> <span>${escapeHtml(p.youtube.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''))}</span></div>`);
+    if (p.github) contactItems.push(`<div class="cv-contact-item"><i class="fa-brands fa-github"></i> <span>${escapeHtml(p.github.replace(/^https?:\/\//, '').replace(/\/$/, ''))}</span></div>`);
+    if (p.blog) contactItems.push(`<div class="cv-contact-item"><i class="fa-solid fa-rss" style="color:#f59e0b;"></i> <span>${escapeHtml(p.blog.replace(/^https?:\/\//, '').replace(/\/$/, ''))}</span></div>`);
     if (p.driverLicense) contactItems.push(`<div class="cv-contact-item"><i class="fa-solid fa-id-card"></i> <span>${escapeHtml(p.driverLicense)}</span></div>`);
 
     const contactHtml = `<div class="cv-contact-list">${contactItems.join('')}</div>`;
@@ -660,7 +673,9 @@ const CVApp = (function () {
         ${p.phone ? `<span class="cv-contact-chip"><i class="fa-solid fa-phone"></i> ${escapeHtml(p.phone)}</span>` : ''}
         ${p.email ? `<span class="cv-contact-chip"><i class="fa-solid fa-envelope"></i> ${escapeHtml(p.email)}</span>` : ''}
         ${p.address ? `<span class="cv-contact-chip"><i class="fa-solid fa-location-dot"></i> ${escapeHtml(p.address)}</span>` : ''}
-        ${p.website ? `<span class="cv-contact-chip"><i class="fa-solid fa-globe"></i> ${escapeHtml(p.website.replace('https://', ''))}</span>` : ''}
+        ${p.dateOfBirth ? `<span class="cv-contact-chip"><i class="fa-solid fa-cake-candles"></i> ${escapeHtml(p.dateOfBirth)}</span>` : ''}
+        ${p.website ? `<span class="cv-contact-chip"><i class="fa-solid fa-globe"></i> ${escapeHtml(p.website.replace(/^https?:\/\//, '').replace(/\/$/, ''))}</span>` : ''}
+        ${p.github ? `<span class="cv-contact-chip"><i class="fa-brands fa-github"></i> ${escapeHtml(p.github.replace(/^https?:\/\//, '').replace(/\/$/, ''))}</span>` : ''}
       </div>
     `;
 
@@ -1287,6 +1302,10 @@ const CVApp = (function () {
     bindInput('input-dob', (val) => { profile.personalInfo.dateOfBirth = val; renderCVPreview(); });
     bindInput('input-gender', (val) => { profile.personalInfo.gender = val; renderCVPreview(); });
     bindInput('input-website', (val) => { profile.personalInfo.website = val; renderCVPreview(); });
+    bindInput('input-facebook', (val) => { profile.personalInfo.facebook = val; renderCVPreview(); });
+    bindInput('input-youtube', (val) => { profile.personalInfo.youtube = val; renderCVPreview(); });
+    bindInput('input-github', (val) => { profile.personalInfo.github = val; renderCVPreview(); });
+    bindInput('input-blog', (val) => { profile.personalInfo.blog = val; renderCVPreview(); });
     bindInput('input-license', (val) => { profile.personalInfo.driverLicense = val; renderCVPreview(); });
     bindInput('input-marital', (val) => { profile.personalInfo.maritalStatus = val; renderCVPreview(); });
     bindInput('input-summary', (val) => { profile.summary = val; renderCVPreview(); });

@@ -21,9 +21,13 @@ const CV_SAMPLE_PROFILES = (function () {
       email: 'leducdung117@gmail.com',
       phone: '0398732177',
       address: 'Hà Nội, Việt Nam',
-      dateOfBirth: '2001',
+      dateOfBirth: '11/07/2001',
       gender: 'Nam',
-      website: 'https://www.dungautomation.com',
+      website: 'https://www.dungautomation.com/',
+      facebook: 'https://www.facebook.com/leducdung.2001/',
+      youtube: 'https://www.youtube.com/@dungautomation',
+      github: 'https://github.com/Dungautomation-dev',
+      blog: 'https://dungautomation.blogspot.com/',
       driverLicense: 'Hạng B2',
       maritalStatus: 'Độc thân'
     },
@@ -135,7 +139,8 @@ const CV_SAMPLE_PROFILES = (function () {
     ],
     languages: [
       { id: 'lang-1', name: 'Tiếng Việt', level: 'Bản ngữ (Native)' },
-      { id: 'lang-2', name: 'Tiếng Anh', level: 'Đọc hiểu tài liệu kỹ thuật & manual Siemens, ABB, Schneider, EPLAN' }
+      { id: 'lang-2', name: 'Tiếng Anh', level: 'IELTS 7.0 • Đọc hiểu chuyên sâu tài liệu kỹ thuật Siemens, ABB, Schneider, EPLAN' },
+      { id: 'lang-3', name: 'Tiếng Trung', level: 'HSK 4.0 (Giao tiếp & làm việc cơ bản)' }
     ],
     references: [
       { id: 'ref-1', name: 'Trưởng Phòng Kỹ Thuật', title: 'Công Ty TNHH VASCO Hệ Thống Điện & Tự Động Hóa VN', contact: 'Sẵn sàng cung cấp khi có yêu cầu' }
