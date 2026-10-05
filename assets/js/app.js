@@ -101,7 +101,7 @@ const CVApp = (function () {
     if (savedWidth) {
       document.documentElement.style.setProperty('--editor-width', `${savedWidth}px`);
     } else {
-      document.documentElement.style.setProperty('--editor-width', '530px');
+      document.documentElement.style.setProperty('--editor-width', '420px');
     }
 
     let isDragging = false;
@@ -121,9 +121,9 @@ const CVApp = (function () {
       if (!isDragging) return;
       const deltaX = e.clientX - startX;
       let newWidth = startWidth + deltaX;
-      // Clamp between 400px and 850px
-      if (newWidth < 400) newWidth = 400;
-      if (newWidth > 850) newWidth = 850;
+      // Clamp between 340px and 750px
+      if (newWidth < 340) newWidth = 340;
+      if (newWidth > 750) newWidth = 750;
       document.documentElement.style.setProperty('--editor-width', `${newWidth}px`);
     });
 
@@ -138,11 +138,11 @@ const CVApp = (function () {
       }
     });
 
-    // Double-click to reset to default 530px
+    // Double-click to reset to default 420px
     resizer.addEventListener('dblclick', () => {
-      document.documentElement.style.setProperty('--editor-width', '530px');
-      localStorage.setItem('dungauto_cv_editor_width', '530px');
-      showToast('Đã đặt lại độ rộng cột điền về 530px mặc định!', 'fa-solid fa-arrows-left-right');
+      document.documentElement.style.setProperty('--editor-width', '420px');
+      localStorage.setItem('dungauto_cv_editor_width', '420');
+      showToast('Đã đặt lại độ rộng cột điền về 420px chuẩn!', 'fa-solid fa-arrows-left-right');
     });
   }
 
@@ -2357,7 +2357,7 @@ const CVApp = (function () {
 
     // Requirement 1: In vertical mode, render scissors cut dividers at 297mm, 594mm...
     if (pageLayoutMode === 'vertical') {
-      sheet.style.display = 'block';
+      sheet.style.display = '';
       if (totalPages > 1) {
         for (let p = 1; p < totalPages; p++) {
           const divider = document.createElement('div');
@@ -2398,7 +2398,7 @@ const CVApp = (function () {
         }
         previewWrapper.appendChild(row);
       } else {
-        sheet.style.display = 'block';
+        sheet.style.display = '';
       }
     }
   }

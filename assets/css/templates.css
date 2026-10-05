@@ -311,7 +311,7 @@
 
 /* --------------------------------------------------------------------------
    BỐ CỤC 1: CỘT TRÁI HIỆN ĐẠI (.layout-modern-sidebar)
-   Thanh bên trái có nền màu đậm (74mm) + Cột phải trắng rộng rãi
+   Thanh bên trái trang nhã (74mm) + Cột phải trắng rộng rãi
    -------------------------------------------------------------------------- */
 .layout-modern-sidebar {
   display: grid;
@@ -320,8 +320,9 @@
 }
 
 .layout-modern-sidebar .cv-sidebar {
-  background: var(--cv-primary);
-  color: #ffffff;
+  background: var(--cv-bg-soft, #f8fafc);
+  border-right: 2px solid var(--cv-border, #e2e8f0);
+  color: var(--cv-text-dark, #1e293b);
   padding: 24px 18px 24px 20px;
   display: flex;
   flex-direction: column;
@@ -330,8 +331,8 @@
 }
 
 .layout-modern-sidebar .cv-sidebar .cv-section-title {
-  color: #ffffff;
-  border-bottom-color: rgba(255, 255, 255, 0.25);
+  color: var(--cv-primary);
+  border-bottom-color: var(--cv-border, #e2e8f0);
 }
 
 .layout-modern-sidebar .cv-sidebar .cv-section-title:after {
@@ -339,25 +340,42 @@
 }
 
 .layout-modern-sidebar .cv-sidebar .cv-section-title i {
-  color: var(--cv-secondary);
+  color: var(--cv-primary);
 }
 
 .layout-modern-sidebar .cv-sidebar .cv-contact-item {
-  color: rgba(255, 255, 255, 0.95);
+  color: #334155;
 }
 
 .layout-modern-sidebar .cv-sidebar .skill-track {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.08);
 }
 
 .layout-modern-sidebar .cv-sidebar .skill-fill {
-  background: var(--cv-secondary);
+  background: var(--cv-primary);
 }
 
 .layout-modern-sidebar .cv-sidebar .tag-pill {
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.25);
+  background: #ffffff;
+  color: var(--cv-text-dark, #1e293b);
+  border: 1px solid var(--cv-border, #e2e8f0);
+}
+
+.cv-sidebar .cv-card-item {
+  background: #ffffff !important;
+  border: 1px solid var(--cv-border) !important;
+}
+
+.cv-sidebar .cv-card-title {
+  color: #0f172a !important;
+}
+
+.cv-sidebar .cv-card-meta {
+  color: var(--cv-primary) !important;
+}
+
+.cv-sidebar .cv-card-desc {
+  color: #475569 !important;
 }
 
 .layout-modern-sidebar .cv-main {
