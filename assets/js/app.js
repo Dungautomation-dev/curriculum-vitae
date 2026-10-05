@@ -54,6 +54,7 @@ const CVApp = (function () {
     applyTemplateStyles(activeTemplate);
     renderFormInputs();
     renderCVPreview();
+    renderQuickTemplatesSidebar();
     setupEventListeners();
     setupAutoSave();
     showToast('⚡ Đã sẵn sàng! Mặc định hiển thị CV Kỹ sư Điện.', 'fa-solid fa-bolt');
@@ -262,10 +263,12 @@ const CVApp = (function () {
     const dot = document.getElementById('header-theme-color-dot');
     if (dot) dot.style.background = prim;
 
-    // Update active template button in header
+    // Update active template button in header (Compact single-line)
     const activePill = document.getElementById('active-template-name');
     if (activePill) {
-      activePill.innerHTML = `<i class="fa-solid fa-palette" style="color:${tpl.colors.secondary};"></i> <strong>${tpl.id.toUpperCase()}</strong>: ${tpl.name}`;
+      let displayName = tpl.name.split('•')[0].split('-')[0].trim();
+      if (displayName.length > 22) displayName = displayName.substring(0, 20) + '...';
+      activePill.innerHTML = `<i class="fa-solid fa-palette" style="color:${tpl.colors.secondary};"></i> <strong>${tpl.id.toUpperCase()}</strong>: ${escapeHtml(displayName)}`;
     }
   }
 
@@ -285,6 +288,7 @@ const CVApp = (function () {
     applyTemplateStyles(activeTemplate);
     renderFormInputs();
     renderCVPreview();
+    renderQuickTemplatesSidebar();
     triggerAutoSave();
 
     // Sync dropdown
@@ -1684,6 +1688,7 @@ const CVApp = (function () {
     }
 
     renderCVPreview();
+    renderQuickTemplatesSidebar();
     triggerAutoSave();
 
     // Close Modal
@@ -1691,6 +1696,72 @@ const CVApp = (function () {
     if (modalOverlay) modalOverlay.classList.remove('active');
 
     showToast(`Đã áp dụng mẫu: ${tpl.name}!`, 'fa-solid fa-wand-magic-sparkles');
+  }
+
+  /* ==========================================================================
+     RIGHT SIDEBAR QUICK TEMPLATES RENDERER
+     ========================================================================== */
+  let activeQuickFilter = 'all';
+
+  function filterQuickTemplates(category) {
+    activeQuickFilter = category;
+    document.querySelectorAll('.quick-filter-chip').forEach(el => {
+      el.classList.toggle('active', el.id === `qfilter-${category}`);
+    });
+    renderQuickTemplatesSidebar();
+  }
+
+  function renderQuickTemplatesSidebar() {
+    const container = document.getElementById('templates-quick-list');
+    if (!container) return;
+
+    let list = CV_TEMPLATES_CATALOG.TEMPLATES;
+    if (activeQuickFilter === 'sidebar') {
+      list = list.filter(t => t.styleId === 'modern-sidebar' || t.styleId === 'right-sidebar' || t.styleId === 'split-contrast');
+    } else if (activeQuickFilter === 'minimal') {
+      list = list.filter(t => t.styleId === 'minimal-clean' || t.styleId === 'executive-bold' || t.styleId === 'framed-luxury' || t.styleId === 'compact-3col');
+    } else if (activeQuickFilter === 'cards') {
+      list = list.filter(t => t.styleId === 'header-banner' || t.styleId === 'bento-cards' || t.styleId === 'timeline-focus' || t.styleId === 'editorial-magazine' || t.styleId === 'technical-grid');
+    }
+
+    const archetypeIcons = {
+      'modern-sidebar': 'fa-solid fa-table-columns',
+      'right-sidebar': 'fa-solid fa-table-columns fa-flip-horizontal',
+      'header-banner': 'fa-solid fa-window-maximize',
+      'minimal-clean': 'fa-solid fa-bars-staggered',
+      'timeline-focus': 'fa-solid fa-timeline',
+      'bento-cards': 'fa-solid fa-table-cells-large',
+      'executive-bold': 'fa-solid fa-award',
+      'compact-3col': 'fa-solid fa-grip-vertical',
+      'editorial-magazine': 'fa-solid fa-newspaper',
+      'split-contrast': 'fa-solid fa-puzzle-piece',
+      'technical-grid': 'fa-solid fa-microchip',
+      'framed-luxury': 'fa-solid fa-square-full'
+    };
+
+    container.innerHTML = list.map(tpl => {
+      const isSelected = (activeTemplate && activeTemplate.id === tpl.id);
+      const iconClass = archetypeIcons[tpl.styleId] || 'fa-solid fa-file-lines';
+      return `
+        <div class="quick-tpl-card ${isSelected ? 'active' : ''}" 
+             onclick="CVApp.applySelectedTemplate('${tpl.id}', false)" 
+             title="Bấm để đổi ngay sang bố cục ${escapeHtml(tpl.name)}">
+          <div class="quick-tpl-icon-box">
+            <i class="${iconClass}"></i>
+          </div>
+          <div class="quick-tpl-info">
+            <div class="quick-tpl-name">${tpl.id.toUpperCase()}: ${escapeHtml(tpl.name.split('-')[0].trim())}</div>
+            <div class="quick-tpl-style">
+              <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:${tpl.colors.primary};"></span>
+              <span>${escapeHtml(tpl.styleName.split('(')[0].trim())}</span>
+            </div>
+          </div>
+          <div class="quick-tpl-active-check">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+        </div>
+      `;
+    }).join('');
   }
 
   /* Autosave & Toast Engine */
@@ -1744,6 +1815,8 @@ const CVApp = (function () {
     renderTemplatesCatalogModal,
     setModalFilter,
     applySelectedTemplate,
+    renderQuickTemplatesSidebar,
+    filterQuickTemplates,
     addEducation,
     updateEducation,
     removeEducation,

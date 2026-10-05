@@ -169,11 +169,11 @@
 
             <div class="form-row-2">
               <div class="form-group">
-                <label class="form-label">Họ và tên *</label>
+                <label class="form-label"><i class="fa-solid fa-user"></i> Họ và tên *</label>
                 <input type="text" id="input-fullname" class="form-input" placeholder="VD: NGUYỄN VĂN AN">
               </div>
               <div class="form-group">
-                <label class="form-label">Vị trí ứng tuyển *</label>
+                <label class="form-label"><i class="fa-solid fa-briefcase"></i> Vị trí ứng tuyển *</label>
                 <input type="text" id="input-jobtitle" class="form-input" placeholder="VD: KỸ SƯ ĐIỆN CÔNG NGHIỆP">
               </div>
             </div>
@@ -196,15 +196,15 @@
 
             <div class="form-row-3">
               <div class="form-group">
-                <label class="form-label">Ngày sinh</label>
+                <label class="form-label"><i class="fa-solid fa-cake-candles"></i> Ngày sinh</label>
                 <input type="text" id="input-dob" class="form-input" placeholder="DD/MM/YYYY">
               </div>
               <div class="form-group">
-                <label class="form-label">Giới tính</label>
+                <label class="form-label"><i class="fa-solid fa-venus-mars"></i> Giới tính</label>
                 <input type="text" id="input-gender" class="form-input" placeholder="Nam/Nữ">
               </div>
               <div class="form-group">
-                <label class="form-label">Bằng lái xe</label>
+                <label class="form-label"><i class="fa-solid fa-id-card"></i> Bằng lái xe</label>
                 <input type="text" id="input-license" class="form-input" placeholder="Hạng B2...">
               </div>
             </div>
@@ -215,7 +215,7 @@
                 <input type="text" id="input-website" class="form-input" placeholder="linkedin.com/in/...">
               </div>
               <div class="form-group">
-                <label class="form-label">Tình trạng hôn nhân</label>
+                <label class="form-label"><i class="fa-solid fa-heart"></i> Tình trạng hôn nhân</label>
                 <input type="text" id="input-marital" class="form-input" placeholder="Độc thân...">
               </div>
             </div>
@@ -467,6 +467,40 @@
         </div>
       </div>
     </section>
+
+    <!-- ====================================================================
+         RIGHT PANEL: QUICK TEMPLATES VERTICAL SELECTOR
+         Lấp đầy khoảng trống bên phải, hỗ trợ chọn nhanh 12 bố cục độc bản
+         ==================================================================== -->
+    <aside class="templates-sidebar no-print" id="templates-sidebar">
+      <div class="templates-sidebar-header">
+        <div class="templates-sidebar-title">
+          <i class="fa-solid fa-shapes" style="color:var(--primary);"></i>
+          <span>Bố Cục Độc Bản</span>
+        </div>
+        <span class="badge" style="font-size:0.7rem; font-weight:700; background:var(--primary-light); color:var(--primary); padding:2px 8px; border-radius:10px;">12 Kiểu</span>
+      </div>
+
+      <!-- Quick Filter Chips -->
+      <div class="templates-sidebar-filters">
+        <button type="button" class="quick-filter-chip active" id="qfilter-all" onclick="CVApp.filterQuickTemplates('all')">Tất Cả</button>
+        <button type="button" class="quick-filter-chip" id="qfilter-sidebar" onclick="CVApp.filterQuickTemplates('sidebar')">Sidebar</button>
+        <button type="button" class="quick-filter-chip" id="qfilter-minimal" onclick="CVApp.filterQuickTemplates('minimal')">ATS / Tối Giản</button>
+        <button type="button" class="quick-filter-chip" id="qfilter-cards" onclick="CVApp.filterQuickTemplates('cards')">Bento &amp; Khối</button>
+      </div>
+
+      <!-- Quick Templates Vertical Scroll List -->
+      <div class="templates-quick-list" id="templates-quick-list">
+        <!-- Dynamically populated by CVApp.renderQuickTemplatesSidebar() -->
+      </div>
+
+      <!-- Bottom full catalog trigger -->
+      <div class="templates-sidebar-footer">
+        <button type="button" class="btn btn-outline btn-sm" style="width:100%; font-weight:700;" onclick="document.getElementById('btn-open-template-modal').click();" title="Mở danh mục chi tiết 100 mẫu đa ngành nghề">
+          <i class="fa-solid fa-expand"></i> Mở Kho 100 Mẫu Chi Tiết
+        </button>
+      </div>
+    </aside>
 
   </main>
 
