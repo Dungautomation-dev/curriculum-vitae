@@ -1,11 +1,13 @@
 /**
- * Curriculum Vitae (CV Creator) - 100 Templates Styling Engine
- * Hệ thống CSS Variables & Bố cục động cho 10 Nhóm ngành và 10 Kiểu dáng
+ * Curriculum Vitae (CV Creator) - 12 Unique Presentation Archetypes & Styling Engine
+ * Hoàn toàn không trùng lặp phong cách: 12 cấu trúc layout độc bản
+ * Đảm bảo 100% chữ cách đều viền và lề giấy (tối thiểu 20px - 26px), không chạm viền
  * Author: Dung Automation
  */
 
 :root {
   --cv-primary: #1e40af;
+  --cv-primary-light: rgba(30, 64, 175, 0.1);
   --cv-secondary: #f59e0b;
   --cv-text-dark: #1e293b;
   --cv-text-muted: #64748b;
@@ -17,7 +19,7 @@
 }
 
 /* ==========================================================================
-   A4 SHEET GEOMETRY (Mô phỏng tờ giấy A4 tỷ lệ chuẩn 210mm x 297mm)
+   A4 SHEET GEOMETRY (Tờ giấy A4 chuẩn tuyển dụng quốc tế: 210mm x 297mm)
    ========================================================================== */
 .cv-a4-sheet {
   width: 210mm;
@@ -29,13 +31,13 @@
   position: relative;
   font-family: var(--cv-font-body);
   color: var(--cv-text-dark);
-  line-height: 1.5;
+  line-height: 1.55;
   box-sizing: border-box;
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s ease;
 }
 
-/* Base Headings */
+/* Base Headings & Titles */
 .cv-a4-sheet h1, .cv-a4-sheet h2, .cv-a4-sheet h3, .cv-a4-sheet h4 {
   font-family: var(--cv-font-heading);
   margin: 0;
@@ -43,15 +45,25 @@
   letter-spacing: -0.01em;
 }
 
+.cv-section {
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.cv-section:last-child {
+  margin-bottom: 0;
+}
+
 .cv-section-title {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 1.05rem;
+  font-size: 1.02rem;
   font-weight: 800;
   text-transform: uppercase;
   color: var(--cv-primary);
   letter-spacing: 0.5px;
+  margin-top: 4px;
   margin-bottom: 12px;
   padding-bottom: 5px;
   border-bottom: 2px solid var(--cv-border);
@@ -68,66 +80,39 @@
   position: absolute;
   bottom: -2px;
   left: 0;
-  width: 36px;
+  width: 32px;
   height: 2px;
   background: var(--cv-primary);
 }
 
-/* ==========================================================================
-   LAYOUT ARCHETYPE 1: MODERN LEFT SIDEBAR (Cột Trái Hiện Đại - Mặc định)
-   ========================================================================== */
-.layout-modern-sidebar {
-  display: grid;
-  grid-template-columns: 72mm 1fr;
-  min-height: 297mm;
+/* Candidate Name & Title Header */
+.cv-candidate-name {
+  font-size: 1.9rem;
+  font-weight: 900;
+  color: var(--cv-primary);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
 }
 
-.layout-modern-sidebar .cv-sidebar {
-  background: var(--cv-primary);
-  color: #ffffff;
-  padding: 24px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.layout-modern-sidebar .cv-sidebar .cv-section-title {
-  color: #ffffff;
-  border-bottom-color: rgba(255, 255, 255, 0.2);
-}
-
-.layout-modern-sidebar .cv-sidebar .cv-section-title:after {
-  background: var(--cv-secondary);
-}
-
-.layout-modern-sidebar .cv-sidebar .cv-section-title i {
+.cv-candidate-title {
+  font-size: 0.95rem;
+  font-weight: 700;
   color: var(--cv-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
 }
 
-.layout-modern-sidebar .cv-main {
-  padding: 26px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  background: #ffffff;
+.cv-summary-text {
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: #334155;
+  text-align: justify;
 }
 
-/* Avatar Frame in Modern Sidebar */
-.layout-modern-sidebar .cv-avatar-wrap {
-  text-align: center;
-  margin-bottom: 8px;
-}
-
-.layout-modern-sidebar .cv-avatar-img {
-  width: 105px;
-  height: 105px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 4px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-/* Contact Details in Sidebar */
+/* Contact List & Items */
 .cv-contact-list {
   display: flex;
   flex-direction: column;
@@ -147,296 +132,38 @@
   color: var(--cv-secondary);
   font-size: 0.85rem;
   text-align: center;
+  flex-shrink: 0;
 }
 
-.layout-modern-sidebar .cv-contact-item {
-  color: rgba(255, 255, 255, 0.92);
-}
-
-/* Header in Main Column */
-.cv-header-block {
-  margin-bottom: 6px;
-}
-
-.cv-candidate-name {
-  font-size: 1.85rem;
-  font-weight: 800;
-  color: var(--cv-primary);
-  line-height: 1.15;
-  text-transform: uppercase;
-}
-
-.cv-candidate-title {
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--cv-secondary);
-  margin-top: 4px;
-}
-
-.cv-summary-text {
-  font-size: 0.85rem;
-  color: #334155;
-  text-align: justify;
-  line-height: 1.55;
-  margin-top: 8px;
-}
-
-/* ==========================================================================
-   LAYOUT ARCHETYPE 2: RIGHT SIDEBAR (Cột Phải Tinh Tế)
-   ========================================================================== */
-.layout-right-sidebar {
-  display: grid;
-  grid-template-columns: 1fr 72mm;
-  min-height: 297mm;
-}
-
-.layout-right-sidebar .cv-main {
-  padding: 26px 24px;
+.cv-contact-chips-row {
   display: flex;
-  flex-direction: column;
-  gap: 20px;
-  background: #ffffff;
-}
-
-.layout-right-sidebar .cv-sidebar {
-  background: var(--cv-bg-soft);
-  border-left: 2px solid var(--cv-border);
-  padding: 24px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  color: var(--cv-text-dark);
-}
-
-.layout-right-sidebar .cv-avatar-wrap {
-  text-align: center;
-  margin-bottom: 8px;
-}
-
-.layout-right-sidebar .cv-avatar-img {
-  width: 105px;
-  height: 105px;
-  border-radius: 16px;
-  object-fit: cover;
-  border: 3px solid var(--cv-primary);
-}
-
-/* ==========================================================================
-   LAYOUT ARCHETYPE 3: CLASSIC 2-COLUMN ATS (Hai Cột Cân Xứng Cổ Điển)
-   ========================================================================== */
-.layout-classic-two-col {
-  padding: 26px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.layout-classic-two-col .cv-top-header {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid var(--cv-primary);
-}
-
-.layout-classic-two-col .cv-avatar-img {
-  width: 95px;
-  height: 95px;
-  border-radius: 8px;
-  object-fit: cover;
-  border: 2px solid var(--cv-border);
-}
-
-.layout-classic-two-col .cv-columns-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 22px;
-}
-
-/* ==========================================================================
-   LAYOUT ARCHETYPE 4: HEADER BANNER GRID (Header Băng Ngang Lớn)
-   ========================================================================== */
-.layout-header-banner .cv-banner-header {
-  background: var(--cv-primary);
-  color: #ffffff;
-  padding: 26px 24px;
-  display: flex;
-  align-items: center;
-  gap: 22px;
-}
-
-.layout-header-banner .cv-banner-header .cv-candidate-name {
-  color: #ffffff;
-}
-
-.layout-header-banner .cv-banner-header .cv-candidate-title {
-  color: var(--cv-secondary);
-}
-
-.layout-header-banner .cv-banner-header .cv-avatar-img {
-  width: 95px;
-  height: 95px;
-  border-radius: 50%;
-  border: 3px solid #ffffff;
-}
-
-.layout-header-banner .cv-body-content {
-  padding: 24px;
-  display: grid;
-  grid-template-columns: 1fr 75mm;
-  gap: 22px;
-}
-
-/* ==========================================================================
-   LAYOUT ARCHETYPE 5: SWISS MINIMALISM (Tối Giản Thụy Sĩ Siêu Sạch)
-   ========================================================================== */
-.layout-minimal-clean {
-  padding: 30px 28px;
-  background: #ffffff;
-  color: #0f172a;
-}
-
-.layout-minimal-clean .cv-section-title {
-  border-bottom: 1px solid #000000;
-  color: #000000;
-  font-weight: 900;
-}
-
-.layout-minimal-clean .cv-section-title:after {
-  display: none;
-}
-
-.layout-minimal-clean .cv-candidate-name {
-  font-size: 2.1rem;
-  color: #000000;
-  font-weight: 900;
-  letter-spacing: -0.03em;
-}
-
-.layout-minimal-clean .cv-content-split {
-  display: grid;
-  grid-template-columns: 1fr 70mm;
-  gap: 26px;
-  margin-top: 20px;
-}
-
-/* ==========================================================================
-   LAYOUT ARCHETYPE 6: TIMELINE FOCUS (Trục Thời Gian Trực Quan)
-   ========================================================================== */
-.layout-timeline-focus {
-  padding: 26px 24px;
-}
-
-.layout-timeline-focus .cv-timeline-wrapper {
-  position: relative;
-  padding-left: 18px;
-  border-left: 2px solid var(--cv-primary);
-  margin-left: 8px;
-}
-
-.layout-timeline-focus .cv-timeline-wrapper .timeline-item:before {
-  content: '';
-  position: absolute;
-  left: -24px;
-  top: 4px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--cv-secondary);
-  border: 2px solid #ffffff;
-  box-shadow: 0 0 0 2px var(--cv-primary);
-}
-
-/* ==========================================================================
-   LAYOUT ARCHETYPE 7: EXECUTIVE BOLD (Đẳng Cấp Lãnh Đạo / Quản Lý)
-   ========================================================================== */
-.layout-executive-bold {
-  padding: 26px 24px;
-  border-top: 8px solid var(--cv-primary);
-  border-bottom: 8px solid var(--cv-secondary);
-}
-
-.layout-executive-bold .cv-candidate-name {
-  font-size: 2.2rem;
-  font-weight: 900;
-  letter-spacing: 1px;
-}
-
-.layout-executive-bold .cv-body-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  margin-top: 18px;
-}
-
-/* ==========================================================================
-   LAYOUT ARCHETYPE 8: COMPACT GRID (Tối Ưu Gọn Gàng 1 Trang A4)
-   ========================================================================== */
-.layout-compact-grid {
-  padding: 18px 20px;
+  flex-wrap: wrap;
+  gap: 8px 14px;
   font-size: 0.82rem;
 }
 
-.layout-compact-grid .cv-section {
-  margin-bottom: 12px;
-}
-
-.layout-compact-grid .cv-section-title {
-  margin-bottom: 8px;
-  font-size: 0.95rem;
-}
-
-.layout-compact-grid .cv-grid-columns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-/* ==========================================================================
-   LAYOUT ARCHETYPE 9: INFOGRAPHIC BADGES (Đồ Họa & Huy Hiệu Trực Quan)
-   ========================================================================== */
-.layout-infographic-badges {
-  padding: 24px;
-}
-
-.layout-infographic-badges .skill-badge-pill {
+.cv-contact-chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: var(--cv-bg-soft);
-  color: var(--cv-primary);
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-weight: 700;
-  border: 1px solid var(--cv-border);
 }
 
-/* ==========================================================================
-   LAYOUT ARCHETYPE 10: CREATIVE COLOR SPLIT (Khối Màu Tương Phản)
-   ========================================================================== */
-.layout-creative-split .cv-diagonal-header {
-  background: linear-gradient(135deg, var(--cv-primary) 0%, var(--cv-primary) 65%, var(--cv-secondary) 100%);
-  color: #ffffff;
-  padding: 26px 24px;
-  position: relative;
+/* Avatar Components */
+.cv-avatar-wrap {
+  text-align: center;
+  margin-bottom: 12px;
 }
 
-.layout-creative-split .cv-diagonal-header .cv-candidate-name {
-  color: #ffffff;
+.cv-avatar-img {
+  width: 105px;
+  height: 105px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
 }
 
-.layout-creative-split .cv-split-body {
-  padding: 24px;
-  display: grid;
-  grid-template-columns: 1fr 75mm;
-  gap: 22px;
-}
-
-/* ==========================================================================
-   ITEM COMPONENTS: EXPERIENCE & EDUCATION BLOCKS
-   ========================================================================== */
+/* Timeline & Card Items */
 .timeline-item {
   position: relative;
   margin-bottom: 14px;
@@ -450,149 +177,44 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 3px;
+  gap: 10px;
+  margin-bottom: 2px;
 }
 
 .timeline-title {
-  font-size: 0.92rem;
   font-weight: 700;
-  color: var(--cv-text-dark);
+  font-size: 0.88rem;
+  color: #0f172a;
 }
 
 .timeline-period {
   font-size: 0.76rem;
-  font-weight: 600;
-  color: var(--cv-text-muted);
-  background: var(--cv-bg-soft);
-  padding: 2px 8px;
-  border-radius: 10px;
+  font-weight: 700;
+  color: var(--cv-primary);
+  white-space: nowrap;
 }
 
 .timeline-subtitle {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  color: var(--cv-primary);
+  color: #475569;
   margin-bottom: 4px;
 }
 
 .timeline-desc {
   font-size: 0.8rem;
-  color: #475569;
-  line-height: 1.5;
+  color: #334155;
+  line-height: 1.55;
   white-space: pre-line;
 }
 
-/* ==========================================================================
-   SKILL RATINGS: 3 MODES (PERCENTAGE %, STARS ⭐, DOTS •)
-   ========================================================================== */
-.skills-list-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.skill-item-row {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  font-size: 0.82rem;
-}
-
-.skill-info-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: 600;
-}
-
-/* Mode 1: Percentage Progress Bar */
-.skill-bar-track {
-  width: 100%;
-  height: 6px;
-  background: rgba(0, 0, 0, 0.08);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.layout-modern-sidebar .cv-sidebar .skill-bar-track {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.skill-bar-fill {
-  height: 100%;
-  background: var(--cv-secondary);
-  border-radius: 4px;
-  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Mode 2: Stars Rating ⭐ */
-.skill-stars-meter {
-  display: inline-flex;
-  gap: 3px;
-  color: var(--cv-secondary);
-  font-size: 0.78rem;
-}
-
-.skill-stars-meter .star-empty {
-  opacity: 0.3;
-}
-
-/* Mode 3: Dots Meter */
-.skill-dots-meter {
-  display: inline-flex;
-  gap: 4px;
-}
-
-.skill-dot-node {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.15);
-}
-
-.layout-modern-sidebar .cv-sidebar .skill-dot-node {
-  background: rgba(255, 255, 255, 0.25);
-}
-
-.skill-dot-node.active {
-  background: var(--cv-secondary);
-}
-
-/* ==========================================================================
-   TAG CHIPS: SOFT SKILLS, STRENGTHS, HOBBIES, LANGUAGES
-   ========================================================================== */
-.cv-tags-cloud {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.cv-tag-chip {
-  font-size: 0.76rem;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 14px;
-  background: var(--cv-bg-soft);
-  color: var(--cv-primary);
-  border: 1px solid var(--cv-border);
-}
-
-.layout-modern-sidebar .cv-sidebar .cv-tag-chip {
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.25);
-}
-
-/* Projects & Certifications Cards */
+/* Card item component */
 .cv-card-item {
-  background: var(--cv-card-bg);
+  background: var(--cv-bg-soft);
   border: 1px solid var(--cv-border);
-  border-left: 3px solid var(--cv-primary);
-  border-radius: 6px;
-  padding: 8px 12px;
-  margin-bottom: 8px;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
 }
 
 .cv-card-item:last-child {
@@ -600,19 +222,538 @@
 }
 
 .cv-card-title {
-  font-size: 0.88rem;
   font-weight: 700;
-  color: var(--cv-text-dark);
+  font-size: 0.86rem;
+  color: #0f172a;
+  margin-bottom: 2px;
 }
 
 .cv-card-meta {
-  font-size: 0.75rem;
-  color: var(--cv-text-muted);
+  font-size: 0.76rem;
+  color: var(--cv-primary);
+  font-weight: 600;
   margin-bottom: 4px;
 }
 
 .cv-card-desc {
   font-size: 0.78rem;
   color: #475569;
-  line-height: 1.45;
+  line-height: 1.5;
+}
+
+/* Skill Progress Bars & Meters */
+.skill-item-bar {
+  margin-bottom: 9px;
+}
+
+.skill-info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.79rem;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+.skill-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.skill-fill {
+  height: 100%;
+  background: var(--cv-primary);
+  border-radius: 4px;
+}
+
+/* Rating Stars & Dots */
+.skill-stars-container, .skill-dots-container {
+  display: inline-flex;
+  gap: 3px;
+  font-size: 0.75rem;
+  color: #cbd5e1;
+}
+
+.skill-stars-container .star-filled {
+  color: var(--cv-secondary);
+}
+
+.skill-dots-container .dot-filled {
+  color: var(--cv-primary);
+}
+
+/* Tag Pills */
+.tag-pills-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 14px;
+  background: var(--cv-bg-soft);
+  color: var(--cv-text-dark);
+  border: 1px solid var(--cv-border);
+}
+
+
+/* ==========================================================================
+   12 PHONG CÁCH BỐ CỤC ĐỘC BẢN (KHẮC PHỤC HOÀN TOÀN TRÙNG LẶP & SÁT VIỀN)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   BỐ CỤC 1: CỘT TRÁI HIỆN ĐẠI (.layout-modern-sidebar)
+   Thanh bên trái có nền màu đậm (74mm) + Cột phải trắng rộng rãi
+   -------------------------------------------------------------------------- */
+.layout-modern-sidebar {
+  display: grid;
+  grid-template-columns: 74mm 1fr;
+  min-height: 297mm;
+}
+
+.layout-modern-sidebar .cv-sidebar {
+  background: var(--cv-primary);
+  color: #ffffff;
+  padding: 28px 20px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  box-sizing: border-box;
+}
+
+.layout-modern-sidebar .cv-sidebar .cv-section-title {
+  color: #ffffff;
+  border-bottom-color: rgba(255, 255, 255, 0.25);
+}
+
+.layout-modern-sidebar .cv-sidebar .cv-section-title:after {
+  background: var(--cv-secondary);
+}
+
+.layout-modern-sidebar .cv-sidebar .cv-section-title i {
+  color: var(--cv-secondary);
+}
+
+.layout-modern-sidebar .cv-sidebar .cv-contact-item {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.layout-modern-sidebar .cv-sidebar .skill-track {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.layout-modern-sidebar .cv-sidebar .skill-fill {
+  background: var(--cv-secondary);
+}
+
+.layout-modern-sidebar .cv-sidebar .tag-pill {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.layout-modern-sidebar .cv-main {
+  padding: 28px 28px 28px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+/* --------------------------------------------------------------------------
+   BỐ CỤC 2: CỘT PHẢI TINH TẾ (.layout-right-sidebar)
+   Cột chính bên trái + Thanh phụ dịu nhẹ bên phải (74mm)
+   -------------------------------------------------------------------------- */
+.layout-right-sidebar {
+  display: grid;
+  grid-template-columns: 1fr 74mm;
+  min-height: 297mm;
+}
+
+.layout-right-sidebar .cv-main {
+  padding: 28px 26px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.layout-right-sidebar .cv-sidebar {
+  background: var(--cv-bg-soft);
+  border-left: 2px solid var(--cv-border);
+  padding: 28px 22px 28px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  box-sizing: border-box;
+}
+
+/* --------------------------------------------------------------------------
+   BỐ CỤC 3: HEADER BANNER TOÀN CHIỀU RỘNG (.layout-header-banner)
+   Banner trên cùng tràn viền + Thân chia 2 cột tỷ lệ 60/40
+   -------------------------------------------------------------------------- */
+.layout-header-banner .cv-banner-header {
+  background: var(--cv-primary);
+  color: #ffffff;
+  padding: 28px 30px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  box-sizing: border-box;
+}
+
+.layout-header-banner .cv-banner-header .cv-candidate-name {
+  color: #ffffff;
+}
+
+.layout-header-banner .cv-banner-header .cv-candidate-title {
+  color: var(--cv-secondary);
+}
+
+.layout-header-banner .cv-banner-header .cv-contact-chips-row {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.layout-header-banner .cv-banner-header .cv-contact-chip i {
+  color: var(--cv-secondary);
+}
+
+.layout-header-banner .cv-body-content {
+  padding: 26px 28px;
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 26px;
+  box-sizing: border-box;
+}
+
+/* --------------------------------------------------------------------------
+   BỐ CỤC 4: TỐI GIẢN THỤY SĨ CHUẨN ATS (.layout-minimal-clean)
+   Không viền khối, đường nét hairline thanh thoát, khoảng thở 30mm
+   -------------------------------------------------------------------------- */
+.layout-minimal-clean {
+  padding: 28mm 22mm;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.layout-minimal-clean .cv-minimal-header {
+  border-bottom: 2px solid var(--cv-primary);
+  padding-bottom: 16px;
+  margin-bottom: 22px;
+}
+
+.layout-minimal-clean .cv-section-title {
+  border-bottom: 1px solid #94a3b8;
+  color: #0f172a;
+}
+
+.layout-minimal-clean .cv-section-title:after {
+  background: var(--cv-primary);
+  width: 24px;
+}
+
+.layout-minimal-clean .cv-columns-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 28px;
+}
+
+/* --------------------------------------------------------------------------
+   BỐ CỤC 5: TRỤC THỜI GIAN TRỰC QUAN (.layout-timeline-focus)
+   Trục thời gian thẳng đứng liên kết sự nghiệp & học vấn
+   -------------------------------------------------------------------------- */
+.layout-timeline-focus {
+  padding: 24mm 20mm;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.layout-timeline-focus .cv-top-bar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-bottom: 18px;
+  margin-bottom: 20px;
+  border-bottom: 2px dashed var(--cv-border);
+}
+
+.layout-timeline-focus .cv-timeline-wrapper {
+  position: relative;
+  padding-left: 20px;
+  border-left: 2px solid var(--cv-primary);
+  margin-left: 8px;
+}
+
+.layout-timeline-focus .timeline-item:before {
+  content: '';
+  position: absolute;
+  left: -26px;
+  top: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--cv-secondary);
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 2px var(--cv-primary);
+}
+
+.layout-timeline-focus .cv-two-col-body {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 26px;
+}
+
+/* --------------------------------------------------------------------------
+   BỐ CỤC 6: THẺ KHỐI BENTO HIỆN ĐẠI (.layout-bento-cards)
+   Mỗi phân mục là một thẻ card bo góc độc lập phong cách Bento UI
+   -------------------------------------------------------------------------- */
+.layout-bento-cards {
+  padding: 22mm 18mm;
+  background: #f8fafc;
+  box-sizing: border-box;
+}
+
+.layout-bento-cards .bento-card {
+  background: #ffffff;
+  border: 1px solid var(--cv-border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  margin-bottom: 14px;
+}
+
+.layout-bento-cards .bento-hero-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: linear-gradient(135deg, #ffffff 0%, var(--cv-bg-soft) 100%);
+  border-left: 4px solid var(--cv-primary);
+}
+
+.layout-bento-cards .bento-grid-2col {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 16px;
+}
+
+/* --------------------------------------------------------------------------
+   BỐ CỤC 7: ĐẲNG CẤP QUẢN LÝ & LÃNH ĐẠO (.layout-executive-bold)
+   Khung viền đôi trang trọng, tiêu đề căn giữa quý phái, phong cách Serif
+   -------------------------------------------------------------------------- */
+.layout-executive-bold {
+  padding: 16mm 14mm;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.layout-executive-bold .executive-inner-border {
+  border: 2px solid var(--cv-primary);
+  outline: 1px solid var(--cv-border);
+  outline-offset: -5px;
+  padding: 22px 24px;
+  box-sizing: border-box;
+  min-height: calc(297mm - 32mm);
+}
+
+.layout-executive-bold .executive-centered-header {
+  text-align: center;
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--cv-border);
+}
+
+.layout-executive-bold .cv-candidate-name {
+  font-family: 'Times New Roman', Times, serif;
+  letter-spacing: 2px;
+  font-size: 2.1rem;
+}
+
+.layout-executive-bold .executive-columns {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 24px;
+}
+
+/* --------------------------------------------------------------------------
+   BỐ CỤC 8: 3 CỘT CÔ ĐỌNG THÔNG TIN (.layout-compact-3col)
+   Header nhỏ gọn + 3 cột dọc thông tin song song
+   -------------------------------------------------------------------------- */
+.layout-compact-3col {
+  padding: 18mm 14mm;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.layout-compact-3col .compact-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--cv-primary);
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.layout-compact-3col .compact-3col-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr 1fr;
+  gap: 16px;
+}
+
+.layout-compact-3col .cv-section-title {
+  font-size: 0.92rem;
+  margin-bottom: 9px;
+}
+
+/* --------------------------------------------------------------------------
+   BỐ CỤC 9: TẠP CHÍ SÁNG TẠO (.layout-editorial-magazine)
+   Typography phá cách, hộp trích dẫn mục tiêu toát lên cá tính
+   -------------------------------------------------------------------------- */
+.layout-editorial-magazine {
+  padding: 22mm 18mm;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.layout-editorial-magazine .editorial-header {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 24px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.layout-editorial-magazine .cv-candidate-name {
+  font-size: 2.3rem;
+  border-bottom: 4px solid var(--cv-primary);
+  display: inline-block;
+  padding-bottom: 4px;
+}
+
+.layout-editorial-magazine .editorial-pullquote {
+  background: var(--cv-bg-soft);
+  border-left: 4px solid var(--cv-primary);
+  padding: 12px 18px;
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+  margin-bottom: 18px;
+  font-size: 0.86rem;
+  color: #1e293b;
+}
+
+.layout-editorial-magazine .editorial-columns {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 26px;
+}
+
+/* --------------------------------------------------------------------------
+   BỐ CỤC 10: CHIA ĐÔI TƯƠNG PHẢN 50/50 (.layout-split-contrast)
+   Khắc phục dứt điểm lỗi sát mép ở template tpl-010!
+   Cột trái nền nhẹ (42%) có padding 28px 22px + Cột phải trắng (58%) padding 28px 24px
+   -------------------------------------------------------------------------- */
+.layout-split-contrast {
+  display: grid;
+  grid-template-columns: 42% 58%;
+  min-height: 297mm;
+  box-sizing: border-box;
+}
+
+.layout-split-contrast .split-col-left {
+  background: var(--cv-bg-soft);
+  border-right: 2px solid var(--cv-border);
+  padding: 28px 22px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.layout-split-contrast .split-col-right {
+  background: #ffffff;
+  padding: 28px 26px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+/* --------------------------------------------------------------------------
+   BỐ CỤC 11: BẢN VẼ KỸ THUẬT & HUY HIỆU (.layout-technical-grid)
+   Đường nét công nghệ, huy hiệu kỹ thuật cho Kỹ sư & Lập trình viên
+   -------------------------------------------------------------------------- */
+.layout-technical-grid {
+  padding: 22mm 18mm;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.layout-technical-grid .technical-header-box {
+  border: 1px solid var(--cv-primary);
+  background: var(--cv-bg-soft);
+  padding: 16px 20px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+
+.layout-technical-grid .tech-spec-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  color: var(--cv-primary);
+  border: 1px solid var(--cv-primary);
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.layout-technical-grid .tech-columns {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 24px;
+}
+
+/* --------------------------------------------------------------------------
+   BỐ CỤC 12: KHUNG VIỀN SANG TRỌNG (.layout-framed-luxury)
+   Chỉ viền đôi hoàng gia, bố cục thanh nhã cách mép giấy 20mm
+   -------------------------------------------------------------------------- */
+.layout-framed-luxury {
+  padding: 16mm 14mm;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.layout-framed-luxury .luxury-frame-box {
+  border: 3px double var(--cv-primary);
+  padding: 22px 24px;
+  box-sizing: border-box;
+  min-height: calc(297mm - 32mm);
+}
+
+.layout-framed-luxury .luxury-header {
+  text-align: center;
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+  border-bottom: 1px dashed var(--cv-secondary);
+}
+
+.layout-framed-luxury .luxury-columns {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
 }

@@ -27,7 +27,7 @@ const CV_STORAGE = (function () {
   /**
    * Save current profile data to LocalStorage
    */
-  function saveToLocalStorage(profileData, templateId, sectionsConfig, ratingMode) {
+  function saveToLocalStorage(profileData, templateId, ratingMode, sectionsConfig, themeColor) {
     try {
       const payload = {
         app: 'DungAutomation_CV_Builder',
@@ -36,6 +36,7 @@ const CV_STORAGE = (function () {
         templateId: templateId || 'tpl-001',
         skillRatingMode: ratingMode || 'percentage',
         sectionsConfig: sectionsConfig || DEFAULT_SECTIONS_CONFIG,
+        themeColor: themeColor || '#1e40af',
         data: profileData
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
@@ -66,7 +67,7 @@ const CV_STORAGE = (function () {
   /**
    * Export profile data as .dungauto file
    */
-  function exportDungAutoFile(profileData, templateId, sectionsConfig, ratingMode) {
+  function exportDungAutoFile(profileData, templateId, ratingMode, sectionsConfig, themeColor) {
     try {
       const fullNameClean = (profileData.personalInfo && profileData.personalInfo.fullName)
         ? profileData.personalInfo.fullName.trim().replace(/[^a-zA-Z0-9\u00C0-\u1EF9]/g, '_')
@@ -83,6 +84,7 @@ const CV_STORAGE = (function () {
         templateId: templateId || 'tpl-001',
         skillRatingMode: ratingMode || 'percentage',
         sectionsConfig: sectionsConfig || DEFAULT_SECTIONS_CONFIG,
+        themeColor: themeColor || '#1e40af',
         data: profileData
       };
 
@@ -120,6 +122,7 @@ const CV_STORAGE = (function () {
         templateId: parsed.templateId || 'tpl-001',
         skillRatingMode: parsed.skillRatingMode || 'percentage',
         sectionsConfig: parsed.sectionsConfig || DEFAULT_SECTIONS_CONFIG,
+        themeColor: parsed.themeColor || null,
         exportDate: parsed.exportDate || null
       };
     } catch (err) {
@@ -128,6 +131,27 @@ const CV_STORAGE = (function () {
         error: 'Tệp .dungauto bị lỗi cú pháp hoặc không tương thích: ' + err.message
       };
     }
+  }
+
+  /**
+   * Import file from input event
+   */
+  function importDungAutoFile(file, callback) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const content = e.target.result;
+      const result = parseDungAutoFile(content);
+      if (result.success) {
+        callback(result, null);
+      } else {
+        callback(null, result.error);
+      }
+    };
+    reader.onerror = function () {
+      callback(null, 'Không thể đọc nội dung tệp tin tải lên.');
+    };
+    reader.readAsText(file, 'utf-8');
   }
 
   /**
@@ -148,6 +172,7 @@ const CV_STORAGE = (function () {
     loadFromLocalStorage,
     exportDungAutoFile,
     parseDungAutoFile,
+    importDungAutoFile,
     resetToDefault
   };
 })();

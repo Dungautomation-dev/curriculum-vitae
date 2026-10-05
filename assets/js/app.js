@@ -1,6 +1,7 @@
 /**
  * Curriculum Vitae (CV Creator) - Core Application Controller
- * Xử lý dữ liệu động, liên kết Form & Preview A4, 100 Template Switcher, Xuất / Nạp .dungauto
+ * Xử lý dữ liệu động, 12 Kiến trúc Bố cục Độc bản, Bảng màu Chủ đạo tự do,
+ * Nạp hồ sơ chuẩn 10 Ngành nghề, Resizer cột kéo thả, Xuất / Nạp .dungauto
  * Author: Dung Automation
  */
 
@@ -8,6 +9,7 @@ const CVApp = (function () {
   // Global State
   let profile = null;
   let activeTemplate = null;
+  let activeThemeColor = '#1e40af';
   let ratingMode = 'percentage'; // 'percentage' | 'stars' | 'dots'
   let sectionsConfig = {};
   let currentZoom = 0.95;
@@ -21,38 +23,191 @@ const CVApp = (function () {
     'Quản lý thời gian & phân bổ nhân lực',
     'Tư duy phản biện & giải quyết vấn đề',
     'Đàm phán & làm việc với chủ đầu tư',
-    'Kỹ năng viết báo cáo kỹ thuật chuyên nghiệp'
+    'Kỹ năng viết báo cáo chuyên nghiệp'
   ];
 
   const QUICK_STRENGTHS = [
-    'Tỉ mỉ, cẩn trọng tuyệt đối với an toàn điện',
-    'Khả năng đọc hiểu tài liệu tiếng Anh chuyên ngành',
-    'Chịu được áp lực tiến độ cao & bám sát hiện trường',
-    'Chủ động cập nhật công nghệ mới & ham học hỏi',
-    'Tinh thần trách nhiệm và tính kỷ luật cao',
-    'Tư duy logic và khả năng phân tích hệ thống tốt'
+    'Tỉ mỉ, cẩn trọng tuyệt đối với an toàn tính mạng & thiết bị',
+    'Khả năng đọc hiểu tài liệu tiếng Anh chuyên ngành tốt',
+    'Chịu được áp lực tiến độ cao, sẵn sàng bám sát hiện trường',
+    'Chủ động cập nhật công nghệ mới & tinh thần ham học hỏi',
+    'Tinh thần trách nhiệm cao và cam kết hoàn thành mục tiêu',
+    'Tư duy logic, giải quyết bài toán hóc búa nhanh nhạy'
   ];
 
   const QUICK_HOBBIES = [
-    'Nghiên cứu mạch vi điều khiển IoT & Smart Home',
+    'Nghiên cứu mạch vi điều khiển IoT & Nhà thông minh',
     'Đọc tạp chí Kỹ thuật Tự động hóa & Năng lượng mới',
-    'Chơi cờ vua rèn luyện tư duy chiến thuật',
-    'Chạy bộ marathon rèn luyện sức bền',
-    'Chụp ảnh phong cảnh & du lịch khám phá',
-    'Đóng góp cho cộng đồng kỹ thuật mã nguồn mở'
+    'Chơi cờ vua rèn luyện tư duy phân tích chiến thuật',
+    'Tập chạy bộ marathon cự ly 10km rèn luyện sức bền',
+    'Chụp ảnh phong cảnh & du lịch trải nghiệm',
+    'Đóng góp cho cộng đồng mã nguồn mở trên GitHub'
   ];
 
   /**
    * Initialize Application
    */
   function init() {
+    initWorkspaceResizer();
     loadInitialState();
+    initThemeColorPicker();
     applyTemplateStyles(activeTemplate);
     renderFormInputs();
     renderCVPreview();
     setupEventListeners();
     setupAutoSave();
     showToast('⚡ Đã sẵn sàng! Mặc định hiển thị CV Kỹ sư Điện.', 'fa-solid fa-bolt');
+  }
+
+  /**
+   * Draggable Workspace Resizer Handle
+   */
+  function initWorkspaceResizer() {
+    const resizer = document.getElementById('workspace-resizer');
+    const sidebar = document.querySelector('.editor-sidebar');
+    if (!resizer || !sidebar) return;
+
+    // Restore saved width
+    const savedWidth = localStorage.getItem('dungauto_cv_editor_width');
+    if (savedWidth) {
+      document.documentElement.style.setProperty('--editor-width', `${savedWidth}px`);
+    } else {
+      document.documentElement.style.setProperty('--editor-width', '530px');
+    }
+
+    let isDragging = false;
+    let startX = 0;
+    let startWidth = 0;
+
+    resizer.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      startX = e.clientX;
+      startWidth = sidebar.getBoundingClientRect().width;
+      resizer.classList.add('is-dragging');
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const deltaX = e.clientX - startX;
+      let newWidth = startWidth + deltaX;
+      // Clamp between 400px and 850px
+      if (newWidth < 400) newWidth = 400;
+      if (newWidth > 850) newWidth = 850;
+      document.documentElement.style.setProperty('--editor-width', `${newWidth}px`);
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (isDragging) {
+        isDragging = false;
+        resizer.classList.remove('is-dragging');
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        const curWidth = sidebar.getBoundingClientRect().width;
+        localStorage.setItem('dungauto_cv_editor_width', Math.round(curWidth));
+      }
+    });
+
+    // Double-click to reset to default 530px
+    resizer.addEventListener('dblclick', () => {
+      document.documentElement.style.setProperty('--editor-width', '530px');
+      localStorage.setItem('dungauto_cv_editor_width', '530px');
+      showToast('Đã đặt lại độ rộng cột điền về 530px mặc định!', 'fa-solid fa-arrows-left-right');
+    });
+  }
+
+  /**
+   * Theme Color Picker Engine
+   */
+  function initThemeColorPicker() {
+    const toggleBtn = document.getElementById('btn-toggle-theme-color');
+    const dropdown = document.getElementById('theme-color-dropdown');
+    const presetsGrid = document.getElementById('color-presets-grid');
+    const customInput = document.getElementById('input-custom-theme-color');
+
+    if (!toggleBtn || !dropdown || !presetsGrid) return;
+
+    // Render 12 Color Preset Circles
+    presetsGrid.innerHTML = CV_TEMPLATES_CATALOG.THEME_COLORS.map(c => `
+      <div class="color-preset-circle ${c.hex.toLowerCase() === activeThemeColor.toLowerCase() ? 'active' : ''}" 
+           style="background:${c.hex};" 
+           title="${c.name}" 
+           onclick="CVApp.setPrimaryThemeColor('${c.hex}', '${c.secondary}')"></div>
+    `).join('');
+
+    toggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!dropdown.contains(e.target) && !toggleBtn.contains(e.target)) {
+        dropdown.classList.remove('active');
+      }
+    });
+
+    if (customInput) {
+      customInput.value = activeThemeColor;
+    }
+  }
+
+  /**
+   * Set and Apply Primary Theme Color
+   */
+  function setPrimaryThemeColor(hex, optSecondary) {
+    activeThemeColor = hex;
+    const root = document.documentElement;
+
+    root.style.setProperty('--cv-primary', hex);
+    root.style.setProperty('--cv-primary-light', hexToRgba(hex, 0.12));
+    root.style.setProperty('--cv-bg-soft', hexToRgba(hex, 0.06));
+    root.style.setProperty('--cv-border', hexToRgba(hex, 0.22));
+
+    if (optSecondary) {
+      root.style.setProperty('--cv-secondary', optSecondary);
+    }
+
+    if (activeTemplate && activeTemplate.colors) {
+      activeTemplate.colors.primary = hex;
+      if (optSecondary) activeTemplate.colors.secondary = optSecondary;
+    }
+
+    // Update Header Dot
+    const dot = document.getElementById('header-theme-color-dot');
+    if (dot) dot.style.background = hex;
+
+    // Update Custom Color Input
+    const customInput = document.getElementById('input-custom-theme-color');
+    if (customInput) customInput.value = hex;
+
+    // Close Dropdown
+    const dropdown = document.getElementById('theme-color-dropdown');
+    if (dropdown) dropdown.classList.remove('active');
+
+    // Update Presets Active State
+    document.querySelectorAll('.color-preset-circle').forEach(el => {
+      const bg = el.style.backgroundColor;
+      el.classList.remove('active');
+    });
+
+    renderCVPreview();
+    triggerAutoSave();
+    showToast(`Đã áp dụng màu chủ đạo mới: ${hex}`, 'fa-solid fa-palette');
+  }
+
+  function setCustomThemeColor(hex) {
+    setPrimaryThemeColor(hex);
+  }
+
+  function hexToRgba(hex, alpha) {
+    let c = hex.replace('#', '');
+    if (c.length === 3) c = c.split('').map(x => x + x).join('');
+    const num = parseInt(c, 16);
+    const r = (num >> 16) & 255;
+    const g = (num >> 8) & 255;
+    const b = num & 255;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   }
 
   /**
@@ -65,11 +220,27 @@ const CVApp = (function () {
       activeTemplate = CV_TEMPLATES_CATALOG.getTemplateById(saved.templateId) || CV_TEMPLATES_CATALOG.getDefaultTemplate();
       ratingMode = saved.skillRatingMode || 'percentage';
       sectionsConfig = saved.sectionsConfig || CV_STORAGE.DEFAULT_SECTIONS_CONFIG;
+      if (saved.themeColor) {
+        activeThemeColor = saved.themeColor;
+      } else if (activeTemplate && activeTemplate.colors) {
+        activeThemeColor = activeTemplate.colors.primary;
+      }
     } else {
       profile = CV_SAMPLE_PROFILES.getDefaultProfile();
       activeTemplate = CV_TEMPLATES_CATALOG.getDefaultTemplate();
       ratingMode = profile.skillRatingMode || 'percentage';
       sectionsConfig = Object.assign({}, CV_STORAGE.DEFAULT_SECTIONS_CONFIG);
+      activeThemeColor = activeTemplate.colors.primary;
+    }
+
+    // Sync rating mode select
+    const modeSelect = document.getElementById('select-rating-mode');
+    if (modeSelect) modeSelect.value = ratingMode;
+
+    // Sync industry profile select
+    const indSelect = document.getElementById('select-industry-profile');
+    if (indSelect && profile && profile.industryId) {
+      indSelect.value = profile.industryId;
     }
   }
 
@@ -79,10 +250,17 @@ const CVApp = (function () {
   function applyTemplateStyles(tpl) {
     if (!tpl) return;
     const root = document.documentElement;
-    root.style.setProperty('--cv-primary', tpl.colors.primary);
+    const prim = activeThemeColor || tpl.colors.primary;
+
+    root.style.setProperty('--cv-primary', prim);
+    root.style.setProperty('--cv-primary-light', hexToRgba(prim, 0.12));
     root.style.setProperty('--cv-secondary', tpl.colors.secondary);
-    root.style.setProperty('--cv-text-dark', tpl.colors.textDark);
-    root.style.setProperty('--cv-bg-soft', tpl.colors.bgSoft);
+    root.style.setProperty('--cv-text-dark', tpl.colors.textDark || '#1e293b');
+    root.style.setProperty('--cv-bg-soft', hexToRgba(prim, 0.06));
+    root.style.setProperty('--cv-border', hexToRgba(prim, 0.2));
+
+    const dot = document.getElementById('header-theme-color-dot');
+    if (dot) dot.style.background = prim;
 
     // Update active template button in header
     const activePill = document.getElementById('active-template-name');
@@ -92,10 +270,35 @@ const CVApp = (function () {
   }
 
   /**
+   * Load Industry Sample Profile
+   */
+  function loadIndustryProfile(indId) {
+    const newProfile = CV_SAMPLE_PROFILES.getProfileByIndustry(indId);
+    if (!newProfile) return;
+
+    // Find template corresponding to industry
+    const matchingTpl = CV_TEMPLATES_CATALOG.getTemplatesByIndustry(indId)[0] || activeTemplate;
+    activeTemplate = matchingTpl;
+    activeThemeColor = matchingTpl.colors.primary;
+
+    profile = newProfile;
+    applyTemplateStyles(activeTemplate);
+    renderFormInputs();
+    renderCVPreview();
+    triggerAutoSave();
+
+    // Sync dropdown
+    const indSelect = document.getElementById('select-industry-profile');
+    if (indSelect) indSelect.value = indId;
+
+    const indName = (CV_SAMPLE_PROFILES.INDUSTRY_META.find(m => m.id === indId) || {}).name || indId;
+    showToast(`Đã nạp hồ sơ mẫu thực tế: ${indName}!`, 'fa-solid fa-user-check');
+  }
+
+  /**
    * Render All Inputs into the Editor Sidebar
    */
   function renderFormInputs() {
-    // 1. Personal Info
     const p = profile.personalInfo || {};
     setVal('input-fullname', p.fullName);
     setVal('input-jobtitle', p.jobTitle);
@@ -113,10 +316,8 @@ const CVApp = (function () {
       avatarImg.src = p.avatarUrl;
     }
 
-    // 2. Summary
     setVal('input-summary', profile.summary || '');
 
-    // 3. Repeatables
     renderEducationInputs();
     renderExperienceInputs();
     renderHardSkillsInputs();
@@ -127,8 +328,6 @@ const CVApp = (function () {
     renderProjectsInputs();
     renderLanguagesInputs();
     renderReferencesInputs();
-
-    // 4. Section Visibility Toggles
     renderSectionsVisibilityToggles();
   }
 
@@ -137,9 +336,7 @@ const CVApp = (function () {
     if (el) el.value = val || '';
   }
 
-  /* ==========================================================================
-     REPEATABLE ITEMS FORM RENDERERS
-     ========================================================================== */
+  /* Repeatable form items renderers */
   function renderEducationInputs() {
     const container = document.getElementById('education-list-inputs');
     if (!container) return;
@@ -164,12 +361,12 @@ const CVApp = (function () {
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Xếp loại / Điểm số</label>
-          <input type="text" class="form-input" value="${escapeHtml(edu.score)}" oninput="CVApp.updateEducation('${edu.id}', 'score', this.value)">
+          <label class="form-label">Xếp loại / GPA</label>
+          <input type="text" class="form-input" value="${escapeHtml(edu.score || '')}" oninput="CVApp.updateEducation('${edu.id}', 'score', this.value)">
         </div>
         <div class="form-group">
-          <label class="form-label">Mô tả / Đồ án</label>
-          <textarea class="form-textarea" rows="2" oninput="CVApp.updateEducation('${edu.id}', 'description', this.value)">${escapeHtml(edu.description)}</textarea>
+          <label class="form-label">Mô tả / Đồ án tốt nghiệp</label>
+          <textarea class="form-textarea" rows="2" oninput="CVApp.updateEducation('${edu.id}', 'description', this.value)">${escapeHtml(edu.description || '')}</textarea>
         </div>
       </div>
     `).join('');
@@ -185,7 +382,7 @@ const CVApp = (function () {
           <button type="button" class="btn-remove-item" onclick="CVApp.removeExperience('${exp.id}')" title="Xóa"><i class="fa-solid fa-trash-can"></i></button>
         </div>
         <div class="form-group">
-          <label class="form-label">Vị trí / Chức vụ</label>
+          <label class="form-label">Chức danh / Vị trí</label>
           <input type="text" class="form-input" value="${escapeHtml(exp.position)}" oninput="CVApp.updateExperience('${exp.id}', 'position', this.value)">
         </div>
         <div class="form-row-2">
@@ -199,90 +396,83 @@ const CVApp = (function () {
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Mô tả công việc & Thành tích</label>
-          <textarea class="form-textarea" rows="3" oninput="CVApp.updateExperience('${exp.id}', 'description', this.value)">${escapeHtml(exp.description)}</textarea>
+          <label class="form-label">Mô tả trách nhiệm & thành tích (Gạch đầu dòng)</label>
+          <textarea class="form-textarea" rows="4" oninput="CVApp.updateExperience('${exp.id}', 'description', this.value)">${escapeHtml(exp.description || '')}</textarea>
         </div>
       </div>
     `).join('');
   }
 
   function renderHardSkillsInputs() {
-    const container = document.getElementById('hardskills-list-inputs');
+    const container = document.getElementById('hard-skills-list-inputs');
     if (!container) return;
-    container.innerHTML = (profile.hardSkills || []).map((hs, idx) => `
-      <div class="repeatable-item-card" style="padding:10px;" data-id="${hs.id}">
-        <div class="form-row-2" style="align-items:center;">
-          <input type="text" class="form-input" value="${escapeHtml(hs.name)}" placeholder="Tên kỹ năng chuyên môn..." oninput="CVApp.updateHardSkill('${hs.id}', 'name', this.value)">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <input type="range" min="10" max="100" step="5" value="${hs.rating || 80}" style="flex:1;" oninput="CVApp.updateHardSkill('${hs.id}', 'rating', this.value); this.nextElementSibling.textContent=this.value+'%';">
-            <span style="font-size:0.75rem; font-weight:700; width:34px;">${hs.rating || 80}%</span>
-            <button type="button" class="btn-remove-item" onclick="CVApp.removeHardSkill('${hs.id}')"><i class="fa-solid fa-xmark"></i></button>
+    container.innerHTML = (profile.hardSkills || []).map((skill, idx) => `
+      <div class="repeatable-item-card" style="padding:10px 14px; margin-bottom:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+          <input type="text" class="form-input" style="flex:1;" value="${escapeHtml(skill.name)}" oninput="CVApp.updateHardSkill('${skill.id}', 'name', this.value)">
+          <div style="display:flex; align-items:center; gap:6px; width:130px;">
+            <input type="range" min="30" max="100" value="${skill.rating || 80}" style="flex:1;" oninput="CVApp.updateHardSkill('${skill.id}', 'rating', this.value); this.nextElementSibling.innerText=this.value+'%'">
+            <span style="font-size:0.75rem; font-weight:700; width:35px; text-align:right;">${skill.rating || 80}%</span>
           </div>
+          <button type="button" class="btn-remove-item" onclick="CVApp.removeHardSkill('${skill.id}')" title="Xóa"><i class="fa-solid fa-trash-can"></i></button>
         </div>
       </div>
     `).join('');
   }
 
   function renderSoftSkillsCheckboxes() {
-    const container = document.getElementById('softskills-quick-select');
+    const container = document.getElementById('quick-soft-skills-container');
     if (!container) return;
-    const currentList = (profile.softSkills || []).map(s => s.name);
-    container.innerHTML = QUICK_SOFT_SKILLS.map(item => {
-      const isChecked = currentList.includes(item);
+    const currentSkills = (profile.softSkills || []).map(s => s.name);
+    container.innerHTML = QUICK_SOFT_SKILLS.map(skill => {
+      const isChecked = currentSkills.includes(skill);
       return `
-        <label class="checkbox-pill-label ${isChecked ? 'checked' : ''}">
-          <input type="checkbox" value="${escapeHtml(item)}" ${isChecked ? 'checked' : ''} onchange="CVApp.toggleSoftSkill('${escapeHtml(item)}', this.checked)">
-          <span>${item}</span>
-        </label>
+        <button type="button" class="quick-pill ${isChecked ? 'active' : ''}" onclick="CVApp.toggleSoftSkillPill('${escapeHtml(skill)}')">
+          <i class="fa-solid ${isChecked ? 'fa-check' : 'fa-plus'}"></i> ${escapeHtml(skill)}
+        </button>
       `;
     }).join('');
   }
 
   function renderStrengthsCheckboxes() {
-    const container = document.getElementById('strengths-quick-select');
+    const container = document.getElementById('quick-strengths-container');
     if (!container) return;
-    const currentList = (profile.strengths || []).map(s => s.name);
-    container.innerHTML = QUICK_STRENGTHS.map(item => {
-      const isChecked = currentList.includes(item);
+    const currentStrengths = (profile.strengths || []).map(s => s.name);
+    container.innerHTML = QUICK_STRENGTHS.map(st => {
+      const isChecked = currentStrengths.includes(st);
       return `
-        <label class="checkbox-pill-label ${isChecked ? 'checked' : ''}">
-          <input type="checkbox" value="${escapeHtml(item)}" ${isChecked ? 'checked' : ''} onchange="CVApp.toggleStrength('${escapeHtml(item)}', this.checked)">
-          <span>${item}</span>
-        </label>
+        <button type="button" class="quick-pill ${isChecked ? 'active' : ''}" onclick="CVApp.toggleStrengthPill('${escapeHtml(st)}')">
+          <i class="fa-solid ${isChecked ? 'fa-check' : 'fa-plus'}"></i> ${escapeHtml(st)}
+        </button>
       `;
     }).join('');
   }
 
   function renderHobbiesCheckboxes() {
-    const container = document.getElementById('hobbies-quick-select');
+    const container = document.getElementById('quick-hobbies-container');
     if (!container) return;
-    const currentList = (profile.hobbies || []).map(h => h.name);
-    container.innerHTML = QUICK_HOBBIES.map(item => {
-      const isChecked = currentList.includes(item);
+    const currentHobbies = (profile.hobbies || []).map(h => h.name);
+    container.innerHTML = QUICK_HOBBIES.map(hb => {
+      const isChecked = currentHobbies.includes(hb);
       return `
-        <label class="checkbox-pill-label ${isChecked ? 'checked' : ''}">
-          <input type="checkbox" value="${escapeHtml(item)}" ${isChecked ? 'checked' : ''} onchange="CVApp.toggleHobby('${escapeHtml(item)}', this.checked)">
-          <span>${item}</span>
-        </label>
+        <button type="button" class="quick-pill ${isChecked ? 'active' : ''}" onclick="CVApp.toggleHobbyPill('${escapeHtml(hb)}')">
+          <i class="fa-solid ${isChecked ? 'fa-check' : 'fa-plus'}"></i> ${escapeHtml(hb)}
+        </button>
       `;
     }).join('');
   }
 
   function renderCertificatesInputs() {
-    const container = document.getElementById('certs-list-inputs');
+    const container = document.getElementById('certificates-list-inputs');
     if (!container) return;
     container.innerHTML = (profile.certifications || []).map((c, idx) => `
-      <div class="repeatable-item-card" data-id="${c.id}">
-        <div class="repeatable-card-header">
-          <span class="repeatable-card-index"><i class="fa-solid fa-certificate"></i> Chứng chỉ #${idx + 1}</span>
-          <button type="button" class="btn-remove-item" onclick="CVApp.removeCert('${c.id}')"><i class="fa-solid fa-trash-can"></i></button>
-        </div>
-        <div class="form-group">
-          <input type="text" class="form-input" placeholder="Tên chứng chỉ..." value="${escapeHtml(c.name)}" oninput="CVApp.updateCert('${c.id}', 'name', this.value)">
-        </div>
+      <div class="repeatable-item-card" style="padding:10px 14px; margin-bottom:8px;">
         <div class="form-row-2">
-          <input type="text" class="form-input" placeholder="Tổ chức cấp..." value="${escapeHtml(c.issuer)}" oninput="CVApp.updateCert('${c.id}', 'issuer', this.value)">
-          <input type="text" class="form-input" placeholder="Năm cấp..." value="${escapeHtml(c.year)}" oninput="CVApp.updateCert('${c.id}', 'year', this.value)">
+          <input type="text" class="form-input" placeholder="Tên chứng chỉ" value="${escapeHtml(c.name)}" oninput="CVApp.updateCert('${c.id}', 'name', this.value)">
+          <div style="display:flex; gap:6px;">
+            <input type="text" class="form-input" placeholder="Tổ chức cấp & Năm" value="${escapeHtml(c.issuer || '')}" oninput="CVApp.updateCert('${c.id}', 'issuer', this.value)">
+            <button type="button" class="btn-remove-item" onclick="CVApp.removeCert('${c.id}')"><i class="fa-solid fa-trash-can"></i></button>
+          </div>
         </div>
       </div>
     `).join('');
@@ -298,17 +488,26 @@ const CVApp = (function () {
           <button type="button" class="btn-remove-item" onclick="CVApp.removeProject('${p.id}')"><i class="fa-solid fa-trash-can"></i></button>
         </div>
         <div class="form-group">
-          <input type="text" class="form-input" placeholder="Tên dự án..." value="${escapeHtml(p.name)}" oninput="CVApp.updateProject('${p.id}', 'name', this.value)">
+          <label class="form-label">Tên dự án</label>
+          <input type="text" class="form-input" value="${escapeHtml(p.name)}" oninput="CVApp.updateProject('${p.id}', 'name', this.value)">
         </div>
         <div class="form-row-2">
-          <input type="text" class="form-input" placeholder="Vai trò..." value="${escapeHtml(p.role)}" oninput="CVApp.updateProject('${p.id}', 'role', this.value)">
-          <input type="text" class="form-input" placeholder="Thời gian..." value="${escapeHtml(p.period)}" oninput="CVApp.updateProject('${p.id}', 'period', this.value)">
+          <div class="form-group">
+            <label class="form-label">Vai trò</label>
+            <input type="text" class="form-input" value="${escapeHtml(p.role)}" oninput="CVApp.updateProject('${p.id}', 'role', this.value)">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Thời gian</label>
+            <input type="text" class="form-input" value="${escapeHtml(p.period)}" oninput="CVApp.updateProject('${p.id}', 'period', this.value)">
+          </div>
         </div>
         <div class="form-group">
-          <input type="text" class="form-input" placeholder="Công nghệ / Tiêu chuẩn áp dụng..." value="${escapeHtml(p.tech)}" oninput="CVApp.updateProject('${p.id}', 'tech', this.value)">
+          <label class="form-label">Công nghệ / Quy mô</label>
+          <input type="text" class="form-input" value="${escapeHtml(p.tech || '')}" oninput="CVApp.updateProject('${p.id}', 'tech', this.value)">
         </div>
         <div class="form-group">
-          <textarea class="form-textarea" rows="2" placeholder="Mô tả kết quả đạt được..." oninput="CVApp.updateProject('${p.id}', 'description', this.value)">${escapeHtml(p.description)}</textarea>
+          <label class="form-label">Mô tả kết quả đạt được</label>
+          <textarea class="form-textarea" rows="2" oninput="CVApp.updateProject('${p.id}', 'description', this.value)">${escapeHtml(p.description || '')}</textarea>
         </div>
       </div>
     `).join('');
@@ -317,14 +516,12 @@ const CVApp = (function () {
   function renderLanguagesInputs() {
     const container = document.getElementById('languages-list-inputs');
     if (!container) return;
-    container.innerHTML = (profile.languages || []).map((l, idx) => `
-      <div class="repeatable-item-card" style="padding:10px;" data-id="${l.id}">
-        <div class="form-row-2">
-          <input type="text" class="form-input" placeholder="Ngôn ngữ (VD: Tiếng Anh)" value="${escapeHtml(l.name)}" oninput="CVApp.updateLanguage('${l.id}', 'name', this.value)">
-          <div style="display:flex; gap:6px;">
-            <input type="text" class="form-input" placeholder="Trình độ (VD: Thành thạo)" value="${escapeHtml(l.level)}" oninput="CVApp.updateLanguage('${l.id}', 'level', this.value)">
-            <button type="button" class="btn-remove-item" onclick="CVApp.removeLanguage('${l.id}')"><i class="fa-solid fa-xmark"></i></button>
-          </div>
+    container.innerHTML = (profile.languages || []).map(lang => `
+      <div class="repeatable-item-card" style="padding:10px 14px; margin-bottom:8px;">
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="text" class="form-input" style="flex:1;" value="${escapeHtml(lang.name)}" oninput="CVApp.updateLanguage('${lang.id}', 'name', this.value)">
+          <input type="text" class="form-input" style="flex:1;" value="${escapeHtml(lang.level)}" oninput="CVApp.updateLanguage('${lang.id}', 'level', this.value)">
+          <button type="button" class="btn-remove-item" onclick="CVApp.removeLanguage('${lang.id}')"><i class="fa-solid fa-trash-can"></i></button>
         </div>
       </div>
     `).join('');
@@ -333,18 +530,15 @@ const CVApp = (function () {
   function renderReferencesInputs() {
     const container = document.getElementById('references-list-inputs');
     if (!container) return;
-    container.innerHTML = (profile.references || []).map((r, idx) => `
-      <div class="repeatable-item-card" data-id="${r.id}">
-        <div class="repeatable-card-header">
-          <span class="repeatable-card-index"><i class="fa-solid fa-user-check"></i> Người tham chiếu #${idx + 1}</span>
-          <button type="button" class="btn-remove-item" onclick="CVApp.removeReference('${r.id}')"><i class="fa-solid fa-trash-can"></i></button>
-        </div>
+    container.innerHTML = (profile.references || []).map(r => `
+      <div class="repeatable-item-card" style="padding:10px 14px; margin-bottom:8px;">
         <div class="form-row-2">
-          <input type="text" class="form-input" placeholder="Họ và tên..." value="${escapeHtml(r.name)}" oninput="CVApp.updateReference('${r.id}', 'name', this.value)">
-          <input type="text" class="form-input" placeholder="Chức vụ, cơ quan..." value="${escapeHtml(r.title)}" oninput="CVApp.updateReference('${r.id}', 'title', this.value)">
+          <input type="text" class="form-input" placeholder="Họ tên người tham chiếu" value="${escapeHtml(r.name)}" oninput="CVApp.updateReference('${r.id}', 'name', this.value)">
+          <input type="text" class="form-input" placeholder="Chức vụ & Đơn vị" value="${escapeHtml(r.title)}" oninput="CVApp.updateReference('${r.id}', 'title', this.value)">
         </div>
-        <div class="form-group">
-          <input type="text" class="form-input" placeholder="Thông tin liên hệ (Email, SĐT)..." value="${escapeHtml(r.contact)}" oninput="CVApp.updateReference('${r.id}', 'contact', this.value)">
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <input type="text" class="form-input" style="flex:1;" placeholder="Email / SĐT" value="${escapeHtml(r.contact)}" oninput="CVApp.updateReference('${r.id}', 'contact', this.value)">
+          <button type="button" class="btn-remove-item" onclick="CVApp.removeReference('${r.id}')"><i class="fa-solid fa-trash-can"></i></button>
         </div>
       </div>
     `).join('');
@@ -353,101 +547,112 @@ const CVApp = (function () {
   function renderSectionsVisibilityToggles() {
     const container = document.getElementById('sections-visibility-toggles');
     if (!container) return;
-    const sectionsMeta = [
-      { key: 'summary', name: 'Mục tiêu / Giới thiệu' },
-      { key: 'education', name: 'Trình độ học vấn' },
+    const sections = [
+      { key: 'summary', name: 'Giới thiệu bản thân' },
       { key: 'experience', name: 'Kinh nghiệm làm việc' },
+      { key: 'education', name: 'Trình độ học vấn' },
       { key: 'hardSkills', name: 'Kỹ năng chuyên môn' },
       { key: 'softSkills', name: 'Kỹ năng mềm' },
-      { key: 'strengths', name: 'Ưu điểm & Thế mạnh' },
-      { key: 'hobbies', name: 'Sở thích' },
-      { key: 'certifications', name: 'Chứng chỉ' },
+      { key: 'strengths', name: 'Ưu điểm nổi bật' },
+      { key: 'hobbies', name: 'Sở thích cá nhân' },
       { key: 'projects', name: 'Dự án tiêu biểu' },
-      { key: 'awards', name: 'Giải thưởng' },
-      { key: 'languages', name: 'Ngoại ngữ' },
-      { key: 'references', name: 'Người tham chiếu' }
+      { key: 'certifications', name: 'Chứng chỉ chuyên môn' },
+      { key: 'languages', name: 'Trình độ ngoại ngữ' },
+      { key: 'references', name: 'Người tham chiếu' },
+      { key: 'awards', name: 'Giải thưởng & Thành tích' }
     ];
 
-    container.innerHTML = sectionsMeta.map(sec => `
-      <label class="checkbox-pill-label ${sectionsConfig[sec.key] !== false ? 'checked' : ''}">
-        <input type="checkbox" ${sectionsConfig[sec.key] !== false ? 'checked' : ''} onchange="CVApp.toggleSectionVisibility('${sec.key}', this.checked)">
-        <span>${sec.name}</span>
+    container.innerHTML = sections.map(s => `
+      <label class="checkbox-pill">
+        <input type="checkbox" ${sectionsConfig[s.key] !== false ? 'checked' : ''} onchange="CVApp.toggleSectionVisibility('${s.key}', this.checked)">
+        <span>${escapeHtml(s.name)}</span>
       </label>
     `).join('');
   }
 
-  /* ==========================================================================
-     A4 LIVE PREVIEW RENDERING ENGINE
-     ========================================================================== */
+  /**
+   * ==========================================================================
+   * RENDER REAL-TIME CV PREVIEW (12 UNIQUE PRESENTATION ARCHETYPES)
+   * Tuyệt đối không trùng lặp phong cách & Đảm bảo 100% chữ không chạm viền
+   * ==========================================================================
+   */
   function renderCVPreview() {
     const previewWrapper = document.getElementById('cv-a4-render-target');
-    if (!previewWrapper) return;
+    if (!previewWrapper || !profile) return;
 
-    const p = profile.personalInfo || {};
     const tpl = activeTemplate || CV_TEMPLATES_CATALOG.getDefaultTemplate();
     const styleClass = `layout-${tpl.styleId}`;
+    const p = profile.personalInfo || {};
 
-    // Render Skill Rating Indicator according to active rating mode
-    const renderSkillRating = (rating, stars) => {
-      const val = parseInt(rating, 10) || 80;
-      if (ratingMode === 'stars') {
-        const starCount = Math.min(5, Math.max(1, Math.round(val / 20)));
-        let starHtml = '';
-        for (let i = 1; i <= 5; i++) {
-          starHtml += `<i class="fa-solid fa-star ${i <= starCount ? '' : 'star-empty'}"></i>`;
-        }
-        return `<div class="skill-stars-meter">${starHtml}</div>`;
-      } else if (ratingMode === 'dots') {
-        const dotCount = Math.min(5, Math.max(1, Math.round(val / 20)));
-        let dotHtml = '';
-        for (let i = 1; i <= 5; i++) {
-          dotHtml += `<span class="skill-dot-node ${i <= dotCount ? 'active' : ''}"></span>`;
-        }
-        return `<div class="skill-dots-meter">${dotHtml}</div>`;
-      } else {
-        // Percentage bar mode
-        return `
-          <div class="skill-bar-track">
-            <div class="skill-bar-fill" style="width: ${val}%;"></div>
-          </div>
-        `;
-      }
-    };
+    // 1. Build Contact HTML
+    const contactItems = [];
+    if (p.phone) contactItems.push(`<div class="cv-contact-item"><i class="fa-solid fa-phone"></i> <span>${escapeHtml(p.phone)}</span></div>`);
+    if (p.email) contactItems.push(`<div class="cv-contact-item"><i class="fa-solid fa-envelope"></i> <span>${escapeHtml(p.email)}</span></div>`);
+    if (p.address) contactItems.push(`<div class="cv-contact-item"><i class="fa-solid fa-location-dot"></i> <span>${escapeHtml(p.address)}</span></div>`);
+    if (p.website) contactItems.push(`<div class="cv-contact-item"><i class="fa-solid fa-globe"></i> <span>${escapeHtml(p.website.replace('https://', ''))}</span></div>`);
+    if (p.dateOfBirth) contactItems.push(`<div class="cv-contact-item"><i class="fa-solid fa-cake-candles"></i> <span>${escapeHtml(p.dateOfBirth)}</span></div>`);
+    if (p.driverLicense) contactItems.push(`<div class="cv-contact-item"><i class="fa-solid fa-id-card"></i> <span>${escapeHtml(p.driverLicense)}</span></div>`);
 
-    // Sub-components
-    const contactHtml = `
-      <div class="cv-contact-list">
-        ${p.phone ? `<div class="cv-contact-item"><i class="fa-solid fa-phone"></i> <span>${escapeHtml(p.phone)}</span></div>` : ''}
-        ${p.email ? `<div class="cv-contact-item"><i class="fa-solid fa-envelope"></i> <span>${escapeHtml(p.email)}</span></div>` : ''}
-        ${p.address ? `<div class="cv-contact-item"><i class="fa-solid fa-location-dot"></i> <span>${escapeHtml(p.address)}</span></div>` : ''}
-        ${p.dateOfBirth ? `<div class="cv-contact-item"><i class="fa-solid fa-cake-candles"></i> <span>${escapeHtml(p.dateOfBirth)}</span></div>` : ''}
-        ${p.website ? `<div class="cv-contact-item"><i class="fa-solid fa-globe"></i> <span>${escapeHtml(p.website.replace('https://', ''))}</span></div>` : ''}
-        ${p.driverLicense ? `<div class="cv-contact-item"><i class="fa-solid fa-id-card"></i> <span>${escapeHtml(p.driverLicense)}</span></div>` : ''}
+    const contactHtml = `<div class="cv-contact-list">${contactItems.join('')}</div>`;
+
+    const contactChipsHtml = `
+      <div class="cv-contact-chips-row">
+        ${p.phone ? `<span class="cv-contact-chip"><i class="fa-solid fa-phone"></i> ${escapeHtml(p.phone)}</span>` : ''}
+        ${p.email ? `<span class="cv-contact-chip"><i class="fa-solid fa-envelope"></i> ${escapeHtml(p.email)}</span>` : ''}
+        ${p.address ? `<span class="cv-contact-chip"><i class="fa-solid fa-location-dot"></i> ${escapeHtml(p.address)}</span>` : ''}
+        ${p.website ? `<span class="cv-contact-chip"><i class="fa-solid fa-globe"></i> ${escapeHtml(p.website.replace('https://', ''))}</span>` : ''}
       </div>
     `;
 
+    // 2. Build Skills HTML according to rating mode
     const hardSkillsHtml = (sectionsConfig.hardSkills !== false && (profile.hardSkills || []).length > 0) ? `
       <div class="cv-section">
-        <h3 class="cv-section-title"><i class="fa-solid fa-screwdriver-wrench"></i> Kỹ Năng Chuyên Môn</h3>
-        <div class="skills-list-container">
-          ${profile.hardSkills.map(s => `
-            <div class="skill-item-row">
-              <div class="skill-info-meta">
-                <span>${escapeHtml(s.name)}</span>
-                ${ratingMode === 'percentage' ? `<span style="font-size:0.75rem; color:var(--cv-secondary);">${s.rating || 80}%</span>` : ''}
-              </div>
-              ${renderSkillRating(s.rating, s.stars)}
-            </div>
-          `).join('')}
+        <h3 class="cv-section-title"><i class="fa-solid fa-bolt"></i> Kỹ Năng Chuyên Môn</h3>
+        <div class="hard-skills-wrapper">
+          ${profile.hardSkills.map(s => {
+            const num = parseInt(s.rating, 10) || 80;
+            const starCount = Math.round((num / 100) * 5);
+            if (ratingMode === 'stars') {
+              return `
+                <div class="skill-item-bar" style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-size:0.79rem; font-weight:600;">${escapeHtml(s.name)}</span>
+                  <div class="skill-stars-container">
+                    ${[1,2,3,4,5].map(i => `<i class="fa-solid fa-star ${i <= starCount ? 'star-filled' : ''}"></i>`).join('')}
+                  </div>
+                </div>
+              `;
+            } else if (ratingMode === 'dots') {
+              return `
+                <div class="skill-item-bar" style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-size:0.79rem; font-weight:600;">${escapeHtml(s.name)}</span>
+                  <div class="skill-dots-container">
+                    ${[1,2,3,4,5].map(i => `<i class="fa-solid fa-circle ${i <= starCount ? 'dot-filled' : ''}"></i>`).join('')}
+                  </div>
+                </div>
+              `;
+            } else {
+              return `
+                <div class="skill-item-bar">
+                  <div class="skill-info-row">
+                    <span>${escapeHtml(s.name)}</span>
+                    <span>${num}%</span>
+                  </div>
+                  <div class="skill-track">
+                    <div class="skill-fill" style="width:${num}%;"></div>
+                  </div>
+                </div>
+              `;
+            }
+          }).join('')}
         </div>
       </div>
     ` : '';
 
     const softSkillsHtml = (sectionsConfig.softSkills !== false && (profile.softSkills || []).length > 0) ? `
       <div class="cv-section">
-        <h3 class="cv-section-title"><i class="fa-solid fa-lightbulb"></i> Kỹ Năng Mềm</h3>
-        <div class="cv-tags-cloud">
-          ${profile.softSkills.map(s => `<span class="cv-tag-chip">${escapeHtml(s.name)}</span>`).join('')}
+        <h3 class="cv-section-title"><i class="fa-solid fa-users"></i> Kỹ Năng Mềm</h3>
+        <div class="tag-pills-wrap">
+          ${profile.softSkills.map(s => `<span class="tag-pill"><i class="fa-solid fa-check"></i> ${escapeHtml(s.name)}</span>`).join('')}
         </div>
       </div>
     ` : '';
@@ -455,17 +660,17 @@ const CVApp = (function () {
     const strengthsHtml = (sectionsConfig.strengths !== false && (profile.strengths || []).length > 0) ? `
       <div class="cv-section">
         <h3 class="cv-section-title"><i class="fa-solid fa-star"></i> Ưu Điểm Nổi Bật</h3>
-        <div class="cv-tags-cloud">
-          ${profile.strengths.map(s => `<span class="cv-tag-chip">${escapeHtml(s.name)}</span>`).join('')}
-        </div>
+        <ul style="padding-left:16px; margin:0; font-size:0.8rem; color:#334155; line-height:1.6;">
+          ${profile.strengths.map(st => `<li>${escapeHtml(st.name)}</li>`).join('')}
+        </ul>
       </div>
     ` : '';
 
     const hobbiesHtml = (sectionsConfig.hobbies !== false && (profile.hobbies || []).length > 0) ? `
       <div class="cv-section">
         <h3 class="cv-section-title"><i class="fa-solid fa-heart"></i> Sở Thích</h3>
-        <div class="cv-tags-cloud">
-          ${profile.hobbies.map(h => `<span class="cv-tag-chip">${escapeHtml(h.name)}</span>`).join('')}
+        <div class="tag-pills-wrap">
+          ${profile.hobbies.map(h => `<span class="tag-pill">${escapeHtml(h.name)}</span>`).join('')}
         </div>
       </div>
     ` : '';
@@ -473,14 +678,12 @@ const CVApp = (function () {
     const languagesHtml = (sectionsConfig.languages !== false && (profile.languages || []).length > 0) ? `
       <div class="cv-section">
         <h3 class="cv-section-title"><i class="fa-solid fa-language"></i> Ngôn Ngữ</h3>
-        <div style="display:flex; flex-direction:column; gap:6px;">
-          ${profile.languages.map(l => `
-            <div style="font-size:0.8rem; display:flex; justify-content:space-between;">
-              <strong>${escapeHtml(l.name)}</strong>
-              <span style="color:var(--cv-text-muted);">${escapeHtml(l.level)}</span>
-            </div>
-          `).join('')}
-        </div>
+        ${profile.languages.map(l => `
+          <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:4px;">
+            <span style="font-weight:700;">${escapeHtml(l.name)}</span>
+            <span style="color:#64748b;">${escapeHtml(l.level)}</span>
+          </div>
+        `).join('')}
       </div>
     ` : '';
 
@@ -555,21 +758,90 @@ const CVApp = (function () {
       </div>
     ` : '';
 
-    // Build Entire A4 Structure according to Layout Style
-    if (tpl.styleId === 'classic-two-col') {
+    const summaryBlock = (sectionsConfig.summary !== false && profile.summary) ? `
+      <div class="cv-section">
+        <h3 class="cv-section-title"><i class="fa-solid fa-user"></i> Giới Thiệu Bản Thân</h3>
+        <div class="cv-summary-text">${escapeHtml(profile.summary)}</div>
+      </div>
+    ` : '';
+
+    const avatarHtml = p.avatarUrl ? `<img src="${p.avatarUrl}" alt="Avatar" class="cv-avatar-img">` : '';
+
+    // ========================================================================
+    // 12 DISTINCT ARCHETYPES RENDERING LOGIC (MATCHING TEMPLATES.CSS EXACTLY)
+    // ========================================================================
+
+    if (tpl.styleId === 'right-sidebar') {
+      // 2. CỘT PHẢI TINH TẾ
       previewWrapper.innerHTML = `
         <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
-          <div class="cv-top-header">
-            ${p.avatarUrl ? `<img src="${p.avatarUrl}" alt="Avatar" class="cv-avatar-img">` : ''}
+          <div class="cv-main">
+            <div>
+              <h1 class="cv-candidate-name">${escapeHtml(p.fullName)}</h1>
+              <div class="cv-candidate-title">${escapeHtml(p.jobTitle)}</div>
+            </div>
+            ${summaryBlock}
+            ${experienceHtml}
+            ${educationHtml}
+            ${projectsHtml}
+          </div>
+          <div class="cv-sidebar">
+            <div class="cv-avatar-wrap">${avatarHtml}</div>
+            <div class="cv-section">
+              <h3 class="cv-section-title"><i class="fa-solid fa-address-book"></i> Liên Hệ</h3>
+              ${contactHtml}
+            </div>
+            ${hardSkillsHtml}
+            ${softSkillsHtml}
+            ${certificationsHtml}
+            ${strengthsHtml}
+            ${hobbiesHtml}
+            ${languagesHtml}
+            ${referencesHtml}
+          </div>
+        </div>
+      `;
+    } else if (tpl.styleId === 'header-banner') {
+      // 3. HEADER BANNER TOÀN CHIỀU RỘNG
+      previewWrapper.innerHTML = `
+        <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
+          <div class="cv-banner-header">
+            ${avatarHtml}
             <div style="flex:1;">
               <h1 class="cv-candidate-name">${escapeHtml(p.fullName)}</h1>
               <div class="cv-candidate-title">${escapeHtml(p.jobTitle)}</div>
-              ${contactHtml}
+              ${contactChipsHtml}
             </div>
           </div>
-          ${sectionsConfig.summary !== false && profile.summary ? `
-            <div class="cv-summary-text">${escapeHtml(profile.summary)}</div>
-          ` : ''}
+          <div class="cv-body-content">
+            <div>
+              ${summaryBlock}
+              ${experienceHtml}
+              ${projectsHtml}
+            </div>
+            <div>
+              ${educationHtml}
+              ${hardSkillsHtml}
+              ${softSkillsHtml}
+              ${certificationsHtml}
+              ${strengthsHtml}
+              ${hobbiesHtml}
+              ${languagesHtml}
+              ${referencesHtml}
+            </div>
+          </div>
+        </div>
+      `;
+    } else if (tpl.styleId === 'minimal-clean') {
+      // 4. TỐI GIẢN THỤY SĨ CHUẨN ATS
+      previewWrapper.innerHTML = `
+        <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
+          <div class="cv-minimal-header">
+            <h1 class="cv-candidate-name">${escapeHtml(p.fullName)}</h1>
+            <div class="cv-candidate-title">${escapeHtml(p.jobTitle)}</div>
+            ${contactChipsHtml}
+          </div>
+          ${summaryBlock}
           <div class="cv-columns-grid">
             <div>
               ${experienceHtml}
@@ -581,65 +853,163 @@ const CVApp = (function () {
               ${softSkillsHtml}
               ${certificationsHtml}
               ${strengthsHtml}
-              ${hobbiesHtml}
               ${languagesHtml}
               ${referencesHtml}
             </div>
           </div>
         </div>
       `;
-    } else if (tpl.styleId === 'right-sidebar') {
+    } else if (tpl.styleId === 'timeline-focus') {
+      // 5. TRỤC THỜI GIAN TRỰC QUAN
       previewWrapper.innerHTML = `
         <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
-          <div class="cv-main">
-            <div class="cv-header-block">
-              <h1 class="cv-candidate-name">${escapeHtml(p.fullName)}</h1>
-              <div class="cv-candidate-title">${escapeHtml(p.jobTitle)}</div>
-              ${sectionsConfig.summary !== false && profile.summary ? `
-                <div class="cv-summary-text">${escapeHtml(profile.summary)}</div>
-              ` : ''}
-            </div>
-            ${experienceHtml}
-            ${educationHtml}
-            ${projectsHtml}
-            ${referencesHtml}
-          </div>
-          <div class="cv-sidebar">
-            <div class="cv-avatar-wrap">
-              ${p.avatarUrl ? `<img src="${p.avatarUrl}" alt="Avatar" class="cv-avatar-img">` : ''}
-            </div>
-            <div class="cv-section">
-              <h3 class="cv-section-title"><i class="fa-solid fa-address-book"></i> Liên Hệ</h3>
-              ${contactHtml}
-            </div>
-            ${hardSkillsHtml}
-            ${softSkillsHtml}
-            ${certificationsHtml}
-            ${strengthsHtml}
-            ${hobbiesHtml}
-            ${languagesHtml}
-          </div>
-        </div>
-      `;
-    } else if (tpl.styleId === 'header-banner') {
-      previewWrapper.innerHTML = `
-        <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
-          <div class="cv-banner-header">
-            ${p.avatarUrl ? `<img src="${p.avatarUrl}" alt="Avatar" class="cv-avatar-img">` : ''}
+          <div class="cv-top-bar">
+            ${avatarHtml}
             <div style="flex:1;">
               <h1 class="cv-candidate-name">${escapeHtml(p.fullName)}</h1>
               <div class="cv-candidate-title">${escapeHtml(p.jobTitle)}</div>
-              <div style="margin-top:8px;">${contactHtml}</div>
+              ${contactChipsHtml}
             </div>
           </div>
-          <div class="cv-body-content">
+          ${summaryBlock}
+          <div class="cv-two-col-body">
             <div>
-              ${sectionsConfig.summary !== false && profile.summary ? `
-                <div class="cv-section">
-                  <h3 class="cv-section-title"><i class="fa-solid fa-user"></i> Giới Thiệu</h3>
-                  <div class="cv-summary-text">${escapeHtml(profile.summary)}</div>
+              <div class="cv-section">
+                <h3 class="cv-section-title"><i class="fa-solid fa-timeline"></i> Lộ Trình Sự Nghiệp</h3>
+                <div class="cv-timeline-wrapper">
+                  ${(profile.experience || []).map(exp => `
+                    <div class="timeline-item">
+                      <div class="timeline-header">
+                        <span class="timeline-title">${escapeHtml(exp.position)}</span>
+                        <span class="timeline-period">${escapeHtml(exp.period)}</span>
+                      </div>
+                      <div class="timeline-subtitle">${escapeHtml(exp.company)}</div>
+                      <div class="timeline-desc">${escapeHtml(exp.description)}</div>
+                    </div>
+                  `).join('')}
                 </div>
-              ` : ''}
+              </div>
+              ${projectsHtml}
+            </div>
+            <div>
+              ${educationHtml}
+              ${hardSkillsHtml}
+              ${softSkillsHtml}
+              ${certificationsHtml}
+              ${languagesHtml}
+            </div>
+          </div>
+        </div>
+      `;
+    } else if (tpl.styleId === 'bento-cards') {
+      // 6. THẺ KHỐI BENTO HIỆN ĐẠI
+      previewWrapper.innerHTML = `
+        <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
+          <div class="bento-card bento-hero-card">
+            ${avatarHtml}
+            <div style="flex:1;">
+              <h1 class="cv-candidate-name">${escapeHtml(p.fullName)}</h1>
+              <div class="cv-candidate-title">${escapeHtml(p.jobTitle)}</div>
+              ${contactChipsHtml}
+            </div>
+          </div>
+          ${summaryBlock ? `<div class="bento-card">${summaryBlock}</div>` : ''}
+          <div class="bento-grid-2col">
+            <div>
+              <div class="bento-card">${experienceHtml}</div>
+              <div class="bento-card">${projectsHtml}</div>
+            </div>
+            <div>
+              <div class="bento-card">${educationHtml}</div>
+              <div class="bento-card">${hardSkillsHtml}</div>
+              <div class="bento-card">${softSkillsHtml}${certificationsHtml}${languagesHtml}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    } else if (tpl.styleId === 'executive-bold') {
+      // 7. ĐẲNG CẤP QUẢN LÝ & LÃNH ĐẠO (SERIF)
+      previewWrapper.innerHTML = `
+        <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
+          <div class="executive-inner-border">
+            <div class="executive-centered-header">
+              <h1 class="cv-candidate-name">${escapeHtml(p.fullName)}</h1>
+              <div class="cv-candidate-title" style="letter-spacing:2px;">${escapeHtml(p.jobTitle)}</div>
+              <div style="display:flex; justify-content:center; gap:16px; margin-top:6px;">
+                ${contactChipsHtml}
+              </div>
+            </div>
+            ${summaryBlock}
+            <div class="executive-columns">
+              <div>
+                ${experienceHtml}
+                ${projectsHtml}
+              </div>
+              <div>
+                ${educationHtml}
+                ${hardSkillsHtml}
+                ${certificationsHtml}
+                ${languagesHtml}
+                ${referencesHtml}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    } else if (tpl.styleId === 'compact-3col') {
+      // 8. 3 CỘT CÔ ĐỌNG THÔNG TIN
+      previewWrapper.innerHTML = `
+        <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
+          <div class="compact-header">
+            <div>
+              <h1 class="cv-candidate-name" style="font-size:1.6rem;">${escapeHtml(p.fullName)}</h1>
+              <div class="cv-candidate-title" style="margin-bottom:0;">${escapeHtml(p.jobTitle)}</div>
+            </div>
+            ${contactChipsHtml}
+          </div>
+          ${summaryBlock}
+          <div class="compact-3col-grid">
+            <div>
+              <div class="cv-avatar-wrap">${avatarHtml}</div>
+              <div class="cv-section">
+                <h3 class="cv-section-title"><i class="fa-solid fa-address-book"></i> Liên Hệ</h3>
+                ${contactHtml}
+              </div>
+              ${educationHtml}
+              ${languagesHtml}
+            </div>
+            <div>
+              ${experienceHtml}
+            </div>
+            <div>
+              ${hardSkillsHtml}
+              ${projectsHtml}
+              ${certificationsHtml}
+              ${strengthsHtml}
+            </div>
+          </div>
+        </div>
+      `;
+    } else if (tpl.styleId === 'editorial-magazine') {
+      // 9. TẠP CHÍ SÁNG TẠO
+      previewWrapper.innerHTML = `
+        <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
+          <div class="editorial-header">
+            ${avatarHtml}
+            <div>
+              <h1 class="cv-candidate-name">${escapeHtml(p.fullName)}</h1>
+              <div class="cv-candidate-title">${escapeHtml(p.jobTitle)}</div>
+              ${contactChipsHtml}
+            </div>
+          </div>
+          ${profile.summary ? `
+            <div class="editorial-pullquote">
+              <i class="fa-solid fa-quote-left" style="color:var(--cv-primary); margin-right:6px;"></i>
+              ${escapeHtml(profile.summary)}
+            </div>
+          ` : ''}
+          <div class="editorial-columns">
+            <div>
               ${experienceHtml}
               ${projectsHtml}
             </div>
@@ -650,20 +1020,102 @@ const CVApp = (function () {
               ${certificationsHtml}
               ${strengthsHtml}
               ${hobbiesHtml}
+            </div>
+          </div>
+        </div>
+      `;
+    } else if (tpl.styleId === 'split-contrast') {
+      // 10. CHIA ĐÔI TƯƠNG PHẢN 50/50 (SỬA DỨT ĐIỂM LỖI CHẠM MÉP)
+      previewWrapper.innerHTML = `
+        <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
+          <div class="split-col-left">
+            <div class="cv-avatar-wrap">${avatarHtml}</div>
+            <div class="cv-section">
+              <h3 class="cv-section-title"><i class="fa-solid fa-address-book"></i> Liên Hệ</h3>
+              ${contactHtml}
+            </div>
+            ${hardSkillsHtml}
+            ${softSkillsHtml}
+            ${strengthsHtml}
+            ${hobbiesHtml}
+            ${languagesHtml}
+          </div>
+          <div class="split-col-right">
+            <div>
+              <h1 class="cv-candidate-name">${escapeHtml(p.fullName)}</h1>
+              <div class="cv-candidate-title">${escapeHtml(p.jobTitle)}</div>
+            </div>
+            ${summaryBlock}
+            ${experienceHtml}
+            ${educationHtml}
+            ${projectsHtml}
+            ${certificationsHtml}
+            ${referencesHtml}
+          </div>
+        </div>
+      `;
+    } else if (tpl.styleId === 'technical-grid') {
+      // 11. BẢN VẼ KỸ THUẬT & HUY HIỆU
+      previewWrapper.innerHTML = `
+        <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
+          <div class="technical-header-box">
+            ${avatarHtml}
+            <div style="flex:1;">
+              <h1 class="cv-candidate-name">${escapeHtml(p.fullName)}</h1>
+              <div class="cv-candidate-title">${escapeHtml(p.jobTitle)}</div>
+              ${contactChipsHtml}
+            </div>
+          </div>
+          ${summaryBlock}
+          <div class="tech-columns">
+            <div>
+              ${experienceHtml}
+              ${projectsHtml}
+            </div>
+            <div>
+              ${educationHtml}
+              ${hardSkillsHtml}
+              ${softSkillsHtml}
+              ${certificationsHtml}
               ${languagesHtml}
               ${referencesHtml}
             </div>
           </div>
         </div>
       `;
+    } else if (tpl.styleId === 'framed-luxury') {
+      // 12. KHUNG VIỀN SANG TRỌNG CỔ ĐIỂN
+      previewWrapper.innerHTML = `
+        <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
+          <div class="luxury-frame-box">
+            <div class="luxury-header">
+              <h1 class="cv-candidate-name">${escapeHtml(p.fullName)}</h1>
+              <div class="cv-candidate-title">${escapeHtml(p.jobTitle)}</div>
+              ${contactChipsHtml}
+            </div>
+            ${summaryBlock}
+            <div class="luxury-columns">
+              <div>
+                ${experienceHtml}
+                ${projectsHtml}
+              </div>
+              <div>
+                ${educationHtml}
+                ${hardSkillsHtml}
+                ${certificationsHtml}
+                ${strengthsHtml}
+                ${languagesHtml}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
     } else {
-      // Default: Modern Sidebar (and other variants with 2 main zones)
+      // 1. CỘT TRÁI HIỆN ĐẠI (DEFAULT: MODERN LEFT SIDEBAR)
       previewWrapper.innerHTML = `
         <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
           <div class="cv-sidebar">
-            <div class="cv-avatar-wrap">
-              ${p.avatarUrl ? `<img src="${p.avatarUrl}" alt="Avatar" class="cv-avatar-img">` : ''}
-            </div>
+            <div class="cv-avatar-wrap">${avatarHtml}</div>
             <div class="cv-section">
               <h3 class="cv-section-title"><i class="fa-solid fa-address-book"></i> Liên Hệ</h3>
               ${contactHtml}
@@ -675,13 +1127,11 @@ const CVApp = (function () {
             ${languagesHtml}
           </div>
           <div class="cv-main">
-            <div class="cv-header-block">
+            <div>
               <h1 class="cv-candidate-name">${escapeHtml(p.fullName)}</h1>
               <div class="cv-candidate-title">${escapeHtml(p.jobTitle)}</div>
-              ${sectionsConfig.summary !== false && profile.summary ? `
-                <div class="cv-summary-text">${escapeHtml(profile.summary)}</div>
-              ` : ''}
             </div>
+            ${summaryBlock}
             ${experienceHtml}
             ${educationHtml}
             ${projectsHtml}
@@ -695,19 +1145,30 @@ const CVApp = (function () {
     applyZoom(currentZoom);
   }
 
-  /* ==========================================================================
-     EVENT LISTENERS & INTERACTIVE ACTIONS
-     ========================================================================== */
+  /* Zoom Controller */
+  function applyZoom(zoom) {
+    currentZoom = zoom;
+    const stage = document.getElementById('preview-zoom-stage');
+    const zoomText = document.getElementById('zoom-percentage-text');
+    if (stage) {
+      stage.style.transform = `scale(${zoom})`;
+    }
+    if (zoomText) {
+      zoomText.innerText = `${Math.round(zoom * 100)}%`;
+    }
+  }
+
+  /* Event Handlers Setup */
   function setupEventListeners() {
-    // Accordion Toggle Handlers
+    // Accordion Headers
     document.querySelectorAll('.accordion-header').forEach(header => {
       header.addEventListener('click', () => {
-        const section = header.closest('.accordion-section');
-        section.classList.toggle('active');
+        const sec = header.closest('.accordion-section');
+        sec.classList.toggle('active');
       });
     });
 
-    // Form inputs binding
+    // Form inputs bindings
     bindInput('input-fullname', (val) => { profile.personalInfo.fullName = val; renderCVPreview(); });
     bindInput('input-jobtitle', (val) => { profile.personalInfo.jobTitle = val; renderCVPreview(); });
     bindInput('input-email', (val) => { profile.personalInfo.email = val; renderCVPreview(); });
@@ -720,13 +1181,13 @@ const CVApp = (function () {
     bindInput('input-marital', (val) => { profile.personalInfo.maritalStatus = val; renderCVPreview(); });
     bindInput('input-summary', (val) => { profile.summary = val; renderCVPreview(); });
 
-    // Avatar Upload Handler
+    // Avatar Upload
     const avatarInput = document.getElementById('input-avatar-file');
     if (avatarInput) {
       avatarInput.addEventListener('change', handleAvatarUpload);
     }
 
-    // Zoom Controls
+    // Zoom Buttons
     const btnZoomIn = document.getElementById('btn-zoom-in');
     const btnZoomOut = document.getElementById('btn-zoom-out');
     const btnZoomFit = document.getElementById('btn-zoom-fit');
@@ -735,7 +1196,7 @@ const CVApp = (function () {
     if (btnZoomOut) btnZoomOut.addEventListener('click', () => applyZoom(Math.max(0.5, currentZoom - 0.1)));
     if (btnZoomFit) btnZoomFit.addEventListener('click', () => applyZoom(0.95));
 
-    // Template Selector Modal Buttons
+    // Template Modal
     const btnOpenTemplates = document.getElementById('btn-open-template-modal');
     const btnCloseModal = document.getElementById('btn-close-template-modal');
     const modalOverlay = document.getElementById('template-modal-overlay');
@@ -749,132 +1210,112 @@ const CVApp = (function () {
 
     if (btnCloseModal && modalOverlay) {
       btnCloseModal.addEventListener('click', () => modalOverlay.classList.remove('active'));
+    }
+
+    if (modalOverlay) {
       modalOverlay.addEventListener('click', (e) => {
         if (e.target === modalOverlay) modalOverlay.classList.remove('active');
       });
     }
 
     // Export .dungauto Button
-    const btnExportDungAuto = document.getElementById('btn-export-dungauto');
-    if (btnExportDungAuto) {
-      btnExportDungAuto.addEventListener('click', () => {
-        const res = CV_STORAGE.exportDungAutoFile(profile, activeTemplate.id, sectionsConfig, ratingMode);
-        if (res.success) {
-          showToast(`💾 Đã xuất tệp hồ sơ thành công: ${res.fileName}`, 'fa-solid fa-file-export');
-        }
+    const btnExportDungauto = document.getElementById('btn-export-dungauto');
+    if (btnExportDungauto) {
+      btnExportDungauto.addEventListener('click', () => {
+        CV_STORAGE.exportDungAutoFile(profile, activeTemplate ? activeTemplate.id : 'tpl-001', ratingMode, sectionsConfig, activeThemeColor);
+        showToast('Đã lưu toàn bộ hồ sơ ra tệp .dungauto!', 'fa-solid fa-floppy-disk');
       });
     }
 
-    // Import .dungauto Button & Input
-    const fileImportInput = document.getElementById('file-import-dungauto');
-    if (fileImportInput) {
-      fileImportInput.addEventListener('change', handleDungAutoImport);
+    // Import .dungauto Button
+    const fileImportDungauto = document.getElementById('file-import-dungauto');
+    if (fileImportDungauto) {
+      fileImportDungauto.addEventListener('change', handleImportDungAuto);
     }
 
-    // Print & PDF Export Buttons
-    const btnPrint = document.getElementById('btn-print-cv');
+    // Print Button
+    const btnPrintCV = document.getElementById('btn-print-cv');
+    if (btnPrintCV) {
+      btnPrintCV.addEventListener('click', () => {
+        CV_EXPORTER.printA4();
+      });
+    }
+
+    // Download PDF Button
     const btnDownloadPDF = document.getElementById('btn-download-pdf');
-
-    if (btnPrint) {
-      btnPrint.addEventListener('click', () => {
-        CV_EXPORTER.printCV(profile.personalInfo.fullName, profile.personalInfo.jobTitle);
-      });
-    }
-
     if (btnDownloadPDF) {
       btnDownloadPDF.addEventListener('click', () => {
-        showToast('⏳ Đang kết xuất tài liệu PDF chất lượng cao...', 'fa-solid fa-spinner fa-spin');
-        CV_EXPORTER.downloadPDF('cv-printable-area', profile.personalInfo.fullName, (ok, msg) => {
-          if (ok) showToast(`✅ ${msg}`, 'fa-solid fa-circle-check');
-        });
+        const candidateName = (profile.personalInfo && profile.personalInfo.fullName) ? profile.personalInfo.fullName : 'UngVien';
+        CV_EXPORTER.downloadPDF(candidateName);
       });
     }
   }
 
   function bindInput(id, callback) {
     const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('input', (e) => {
-        callback(e.target.value);
-        triggerAutoSave();
-      });
-    }
-  }
-
-  function applyZoom(scale) {
-    currentZoom = scale;
-    const stage = document.getElementById('preview-zoom-stage');
-    const zoomText = document.getElementById('zoom-percentage-text');
-    if (stage) {
-      stage.style.transform = `scale(${currentZoom})`;
-    }
-    if (zoomText) {
-      zoomText.textContent = `${Math.round(currentZoom * 100)}%`;
-    }
+    if (!el) return;
+    el.addEventListener('input', (e) => {
+      callback(e.target.value);
+      triggerAutoSave();
+    });
   }
 
   function handleAvatarUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      alert('Vui lòng chọn tệp hình ảnh (JPG, PNG, WebP).');
-      return;
-    }
-
     const reader = new FileReader();
-    reader.onload = function (evt) {
-      const base64 = evt.target.result;
-      profile.personalInfo.avatarUrl = base64;
-      const display = document.getElementById('avatar-preview-display');
-      if (display) display.src = base64;
+    reader.onload = function (event) {
+      const dataUrl = event.target.result;
+      profile.personalInfo.avatarUrl = dataUrl;
+      const avatarPreview = document.getElementById('avatar-preview-display');
+      if (avatarPreview) avatarPreview.src = dataUrl;
       renderCVPreview();
       triggerAutoSave();
-      showToast('📸 Đã cập nhật ảnh đại diện mới!', 'fa-solid fa-camera');
+      showToast('Đã cập nhật ảnh đại diện mới!', 'fa-solid fa-camera');
     };
     reader.readAsDataURL(file);
   }
 
-  function handleDungAutoImport(e) {
+  function handleImportDungAuto(e) {
     const file = e.target.files[0];
     if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function (evt) {
-      const content = evt.target.result;
-      const res = CV_STORAGE.parseDungAutoFile(content);
-      if (res.success) {
-        profile = res.data;
-        if (res.templateId) {
-          activeTemplate = CV_TEMPLATES_CATALOG.getTemplateById(res.templateId) || activeTemplate;
-          applyTemplateStyles(activeTemplate);
-        }
-        if (res.skillRatingMode) ratingMode = res.skillRatingMode;
-        if (res.sectionsConfig) sectionsConfig = res.sectionsConfig;
-
-        renderFormInputs();
-        renderCVPreview();
-        triggerAutoSave();
-        showToast('🎉 Nạp hồ sơ .dungauto thành công!', 'fa-solid fa-circle-check');
-      } else {
-        alert(res.error);
+    CV_STORAGE.importDungAutoFile(file, (importedData, err) => {
+      if (err) {
+        showToast(`Lỗi nạp file: ${err}`, 'fa-solid fa-triangle-exclamation');
+        return;
       }
-    };
-    reader.readAsText(file);
-    e.target.value = ''; // Reset input
+      profile = importedData.data;
+      activeTemplate = CV_TEMPLATES_CATALOG.getTemplateById(importedData.selectedTemplateId) || CV_TEMPLATES_CATALOG.getDefaultTemplate();
+      ratingMode = importedData.ratingMode || 'percentage';
+      sectionsConfig = importedData.visibility || Object.assign({}, CV_STORAGE.DEFAULT_SECTIONS_CONFIG);
+      if (importedData.themeColor) {
+        activeThemeColor = importedData.themeColor;
+      } else if (activeTemplate && activeTemplate.colors) {
+        activeThemeColor = activeTemplate.colors.primary;
+      }
+
+      applyTemplateStyles(activeTemplate);
+      renderFormInputs();
+      renderCVPreview();
+      triggerAutoSave();
+
+      const modeSelect = document.getElementById('select-rating-mode');
+      if (modeSelect) modeSelect.value = ratingMode;
+
+      showToast(`Đã nạp thành công hồ sơ từ file: ${file.name}!`, 'fa-solid fa-circle-check');
+      e.target.value = '';
+    });
   }
 
-  /* ==========================================================================
-     REPEATABLE ITEMS ACTIONS (ADD / UPDATE / REMOVE)
-     ========================================================================== */
+  /* Repeatable items CRUD methods */
   function addEducation() {
     profile.education = profile.education || [];
     profile.education.push({
       id: 'edu-' + Date.now(),
-      degree: 'Cử nhân / Kỹ sư...',
-      school: 'Trường Đại học...',
+      degree: 'Bằng cấp / Khóa học mới...',
+      school: 'Tên trường học...',
       period: '2020 - 2024',
-      score: 'Tốt nghiệp loại Khá/Giỏi',
+      score: 'Khá / Giỏi',
       description: ''
     });
     renderEducationInputs();
@@ -902,11 +1343,11 @@ const CVApp = (function () {
     profile.experience = profile.experience || [];
     profile.experience.push({
       id: 'exp-' + Date.now(),
-      position: 'Vị trí công việc...',
+      position: 'Vị trí công việc mới...',
       company: 'Tên công ty...',
-      period: '2023 - Hiện tại',
+      period: '2022 - Hiện tại',
       location: 'Hà Nội',
-      description: '• Mô tả nhiệm vụ chính và thành tích đạt được...'
+      description: '• Trách nhiệm và kết quả nổi bật...'
     });
     renderExperienceInputs();
     renderCVPreview();
@@ -933,8 +1374,8 @@ const CVApp = (function () {
     profile.hardSkills = profile.hardSkills || [];
     profile.hardSkills.push({
       id: 'hs-' + Date.now(),
-      name: 'Kỹ năng mới',
-      rating: 85,
+      name: 'Kỹ năng chuyên môn mới...',
+      rating: 80,
       stars: 4
     });
     renderHardSkillsInputs();
@@ -945,7 +1386,10 @@ const CVApp = (function () {
   function updateHardSkill(id, field, val) {
     const item = (profile.hardSkills || []).find(s => s.id === id);
     if (item) {
-      item[field] = (field === 'rating') ? parseInt(val, 10) : val;
+      item[field] = val;
+      if (field === 'rating') {
+        item.stars = Math.round((parseInt(val, 10) / 100) * 5);
+      }
       renderCVPreview();
       triggerAutoSave();
     }
@@ -958,42 +1402,39 @@ const CVApp = (function () {
     triggerAutoSave();
   }
 
-  function toggleSoftSkill(name, isChecked) {
+  function toggleSoftSkillPill(skillName) {
     profile.softSkills = profile.softSkills || [];
-    if (isChecked) {
-      if (!profile.softSkills.some(s => s.name === name)) {
-        profile.softSkills.push({ id: 'ss-' + Date.now(), name });
-      }
+    const idx = profile.softSkills.findIndex(s => s.name === skillName);
+    if (idx >= 0) {
+      profile.softSkills.splice(idx, 1);
     } else {
-      profile.softSkills = profile.softSkills.filter(s => s.name !== name);
+      profile.softSkills.push({ id: 'ss-' + Date.now(), name: skillName });
     }
     renderSoftSkillsCheckboxes();
     renderCVPreview();
     triggerAutoSave();
   }
 
-  function toggleStrength(name, isChecked) {
+  function toggleStrengthPill(strengthText) {
     profile.strengths = profile.strengths || [];
-    if (isChecked) {
-      if (!profile.strengths.some(s => s.name === name)) {
-        profile.strengths.push({ id: 'st-' + Date.now(), name });
-      }
+    const idx = profile.strengths.findIndex(s => s.name === strengthText);
+    if (idx >= 0) {
+      profile.strengths.splice(idx, 1);
     } else {
-      profile.strengths = profile.strengths.filter(s => s.name !== name);
+      profile.strengths.push({ id: 'st-' + Date.now(), name: strengthText });
     }
     renderStrengthsCheckboxes();
     renderCVPreview();
     triggerAutoSave();
   }
 
-  function toggleHobby(name, isChecked) {
+  function toggleHobbyPill(hobbyText) {
     profile.hobbies = profile.hobbies || [];
-    if (isChecked) {
-      if (!profile.hobbies.some(h => h.name === name)) {
-        profile.hobbies.push({ id: 'hb-' + Date.now(), name });
-      }
+    const idx = profile.hobbies.findIndex(h => h.name === hobbyText);
+    if (idx >= 0) {
+      profile.hobbies.splice(idx, 1);
     } else {
-      profile.hobbies = profile.hobbies.filter(h => h.name !== name);
+      profile.hobbies.push({ id: 'hb-' + Date.now(), name: hobbyText });
     }
     renderHobbiesCheckboxes();
     renderCVPreview();
@@ -1005,10 +1446,10 @@ const CVApp = (function () {
     profile.projects.push({
       id: 'prj-' + Date.now(),
       name: 'Tên dự án mới...',
-      role: 'Kỹ sư phụ trách',
-      period: '2024',
-      tech: '',
-      description: 'Mô tả ngắn gọn về kết quả của dự án...'
+      role: 'Vai trò đảm nhận',
+      period: '2023 - 2024',
+      tech: 'Công nghệ / Vật tư',
+      description: 'Mô tả kết quả đạt được của dự án...'
     });
     renderProjectsInputs();
     renderCVPreview();
@@ -1133,10 +1574,13 @@ const CVApp = (function () {
     showToast(`Đã chuyển cách đánh giá kỹ năng sang: ${mode === 'stars' ? 'Dấu sao ⭐' : mode === 'dots' ? 'Chấm tròn •' : 'Phần trăm %'}`, 'fa-solid fa-sliders');
   }
 
-  /* ==========================================================================
-     100 TEMPLATES MODAL RENDERER & SWITCHER
-     ========================================================================== */
-  let activeModalIndustryFilter = 'all';
+  /**
+   * ==========================================================================
+   * 100 TEMPLATES MODAL RENDERER & SWITCHER
+   * Phân loại theo 12 Kiến Trúc Bố Cục Độc Bản và 10 Ngành Nghề
+   * ==========================================================================
+   */
+  let activeModalFilter = 'all';
 
   function renderTemplatesCatalogModal() {
     const tabsContainer = document.getElementById('modal-industry-tabs');
@@ -1144,71 +1588,101 @@ const CVApp = (function () {
 
     if (!tabsContainer || !gridContainer) return;
 
-    // Render 10 Industry Filter Buttons
-    tabsContainer.innerHTML = `
-      <button type="button" class="industry-tab-btn ${activeModalIndustryFilter === 'all' ? 'active' : ''}" onclick="CVApp.filterTemplatesModal('all')">
-        <i class="fa-solid fa-layer-group"></i> Tất Cả (100 Mẫu)
-      </button>
-      ${CV_TEMPLATES_CATALOG.INDUSTRIES.map(ind => `
-        <button type="button" class="industry-tab-btn ${activeModalIndustryFilter === ind.id ? 'active' : ''}" onclick="CVApp.filterTemplatesModal('${ind.id}')">
-          <i class="${ind.icon}"></i> ${ind.name.split('&')[0].trim()}
-        </button>
-      `).join('')}
-    `;
+    // Render Filter Tabs
+    const tabs = [
+      { id: 'all', name: 'Tất Cả (12 Bố Cục Độc Bản)', icon: 'fa-solid fa-layer-group' },
+      ...CV_TEMPLATES_CATALOG.INDUSTRIES
+    ];
 
-    // Filter templates list
-    let list = CV_TEMPLATES_CATALOG.TEMPLATES;
-    if (activeModalIndustryFilter !== 'all') {
-      list = list.filter(t => t.industryId === activeModalIndustryFilter);
-    }
+    tabsContainer.innerHTML = tabs.map(tab => `
+      <div class="industry-tab-btn ${activeModalFilter === tab.id ? 'active' : ''}" onclick="CVApp.setModalFilter('${tab.id}')">
+        <i class="${tab.icon}"></i> ${escapeHtml(tab.name.split('(')[0].trim())}
+      </div>
+    `).join('');
 
-    // Search query filter
+    // Search query
     const searchInput = document.getElementById('modal-template-search');
-    if (searchInput && searchInput.value.trim()) {
-      const q = searchInput.value.trim().toLowerCase();
-      list = list.filter(t => t.name.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q) || t.id.toLowerCase().includes(q));
+    const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+
+    // Filter templates
+    let list = CV_TEMPLATES_CATALOG.TEMPLATES;
+    if (activeModalFilter !== 'all') {
+      list = list.filter(t => t.industryId === activeModalFilter);
+    }
+    if (query) {
+      list = list.filter(t => 
+        t.name.toLowerCase().includes(query) ||
+        t.desc.toLowerCase().includes(query) ||
+        t.styleName.toLowerCase().includes(query) ||
+        t.industryName.toLowerCase().includes(query)
+      );
     }
 
-    gridContainer.innerHTML = list.map(t => {
-      const isSelected = (t.id === activeTemplate.id);
+    if (list.length === 0) {
+      gridContainer.innerHTML = `
+        <div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--gray-500);">
+          <i class="fa-solid fa-magnifying-glass" style="font-size:2rem; margin-bottom:10px; color:var(--gray-400);"></i>
+          <p>Không tìm thấy mẫu CV nào phù hợp với từ khóa của bạn.</p>
+        </div>
+      `;
+      return;
+    }
+
+    gridContainer.innerHTML = list.map(tpl => {
+      const isSelected = (activeTemplate && activeTemplate.id === tpl.id);
       return `
-        <div class="template-card ${isSelected ? 'active' : ''}" onclick="CVApp.selectTemplate('${t.id}')">
-          <span class="template-active-badge"><i class="fa-solid fa-check"></i> Đang Chọn</span>
-          <div class="template-card-preview-thumb" style="--theme-thumb-primary:${t.colors.primary}; --theme-thumb-secondary:${t.colors.secondary};">
-            <div class="mini-thumb-sidebar">
-              <div class="mini-thumb-avatar"></div>
-              <div class="mini-thumb-line" style="background:rgba(255,255,255,0.7);"></div>
-              <div class="mini-thumb-line" style="background:rgba(255,255,255,0.5); width:70%;"></div>
-            </div>
-            <div class="mini-thumb-main">
-              <div class="mini-thumb-line title"></div>
-              <div class="mini-thumb-line sub"></div>
-              <div class="mini-thumb-line" style="margin-top:6px;"></div>
-              <div class="mini-thumb-line" style="width:80%;"></div>
-              <div class="mini-thumb-line" style="width:90%;"></div>
-            </div>
+        <div class="template-card ${isSelected ? 'active' : ''}" data-id="${tpl.id}">
+          <div class="template-card-header">
+            <span class="template-card-badge">${tpl.badge || 'Độc Bản'}</span>
+            <span style="font-size:0.75rem; font-weight:700; color:var(--gray-400);">${tpl.id.toUpperCase()}</span>
           </div>
-          <div class="template-card-name">${escapeHtml(t.name)}</div>
-          <div class="template-card-industry"><i class="fa-solid fa-briefcase"></i> ${t.industryName.split('&')[0].trim()}</div>
-          <div class="template-card-colors">
-            <span class="color-dot" style="background:${t.colors.primary};" title="Màu chính"></span>
-            <span class="color-dot" style="background:${t.colors.secondary};" title="Màu nhấn"></span>
+          <div class="template-card-title">${escapeHtml(tpl.name)}</div>
+          <div class="template-card-desc">${escapeHtml(tpl.desc)}</div>
+          <div style="font-size:0.75rem; color:var(--primary); font-weight:600; margin-bottom:10px;">
+            <i class="fa-solid fa-shapes"></i> Bố cục: ${escapeHtml(tpl.styleName)}
+          </div>
+          <div class="template-card-footer" style="flex-direction:column; gap:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+              <div class="template-color-preview">
+                <div class="color-swatch-dot" style="background:${tpl.colors.primary};" title="Màu chính"></div>
+                <div class="color-swatch-dot" style="background:${tpl.colors.secondary};" title="Màu phụ"></div>
+              </div>
+              <button type="button" class="btn btn-outline btn-sm" onclick="CVApp.applySelectedTemplate('${tpl.id}', false)">
+                ${isSelected ? '<i class="fa-solid fa-check"></i> Đang Chọn' : 'Áp Dụng Mẫu'}
+              </button>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" style="width:100%; font-size:0.75rem;" onclick="CVApp.applySelectedTemplate('${tpl.id}', true)" title="Áp dụng mẫu này và nạp luôn nội dung thực tế của ngành nghề này">
+              <i class="fa-solid fa-file-signature"></i> Áp Dụng & Nạp Dữ Liệu Ngành Này
+            </button>
           </div>
         </div>
       `;
     }).join('');
   }
 
-  function filterTemplatesModal(industryId) {
-    activeModalIndustryFilter = industryId;
+  function setModalFilter(filterId) {
+    activeModalFilter = filterId;
     renderTemplatesCatalogModal();
   }
 
-  function selectTemplate(tplId) {
-    const tpl = CV_TEMPLATES_CATALOG.getTemplateById(tplId);
+  function applySelectedTemplate(templateId, loadIndustryData) {
+    const tpl = CV_TEMPLATES_CATALOG.getTemplateById(templateId);
     if (!tpl) return;
+
     activeTemplate = tpl;
-    applyTemplateStyles(activeTemplate);
+    activeThemeColor = tpl.colors.primary;
+    applyTemplateStyles(tpl);
+
+    if (loadIndustryData && tpl.industryId) {
+      const newProfile = CV_SAMPLE_PROFILES.getProfileByIndustry(tpl.industryId);
+      if (newProfile) {
+        profile = newProfile;
+        renderFormInputs();
+        const indSelect = document.getElementById('select-industry-profile');
+        if (indSelect) indSelect.value = tpl.industryId;
+      }
+    }
+
     renderCVPreview();
     triggerAutoSave();
 
@@ -1216,55 +1690,37 @@ const CVApp = (function () {
     const modalOverlay = document.getElementById('template-modal-overlay');
     if (modalOverlay) modalOverlay.classList.remove('active');
 
-    showToast(`🎨 Đã áp dụng mẫu: ${tpl.name}!`, 'fa-solid fa-wand-magic-sparkles');
+    showToast(`Đã áp dụng mẫu: ${tpl.name}!`, 'fa-solid fa-wand-magic-sparkles');
   }
 
-  /* ==========================================================================
-     AUTOSAVE & TOAST SYSTEM
-     ========================================================================== */
+  /* Autosave & Toast Engine */
   let autoSaveTimer = null;
   function triggerAutoSave() {
     clearTimeout(autoSaveTimer);
     autoSaveTimer = setTimeout(() => {
-      CV_STORAGE.saveToLocalStorage(profile, activeTemplate.id, sectionsConfig, ratingMode);
-    }, 600);
+      CV_STORAGE.saveToLocalStorage(profile, activeTemplate ? activeTemplate.id : 'tpl-001', ratingMode, sectionsConfig, activeThemeColor);
+    }, 400);
   }
 
   function setupAutoSave() {
-    setInterval(() => {
-      CV_STORAGE.saveToLocalStorage(profile, activeTemplate.id, sectionsConfig, ratingMode);
-    }, 30000); // Autosave every 30s
+    // Initial sync
+    triggerAutoSave();
   }
 
-  function showToast(message, icon = 'fa-solid fa-bell') {
+  function showToast(message, iconClass) {
     const container = document.getElementById('app-toast-container');
     if (!container) return;
-    const item = document.createElement('div');
-    item.className = 'toast-item';
-    item.innerHTML = `<i class="${icon}"></i> <span>${escapeHtml(message)}</span>`;
-    container.appendChild(item);
-
+    const toast = document.createElement('div');
+    toast.className = 'app-toast';
+    toast.innerHTML = `
+      <i class="${iconClass || 'fa-solid fa-circle-check'}"></i>
+      <span>${escapeHtml(message)}</span>
+    `;
+    container.appendChild(toast);
     setTimeout(() => {
-      item.classList.add('fade-out');
-      setTimeout(() => item.remove(), 400);
+      toast.style.animation = 'fadeOut 0.3s forwards';
+      setTimeout(() => toast.remove(), 300);
     }, 3200);
-  }
-
-  function loadSampleProfile(type) {
-    if (confirm('Bạn có chắc chắn muốn nạp dữ liệu mẫu mới? Các thông tin bạn đã chỉnh sửa sẽ được thay thế bằng hồ sơ mẫu chuẩn.')) {
-      if (type === 'electrical') {
-        profile = CV_SAMPLE_PROFILES.getDefaultProfile();
-        activeTemplate = CV_TEMPLATES_CATALOG.getDefaultTemplate();
-      } else if (type === 'it') {
-        profile = CV_SAMPLE_PROFILES.getProfileByIndustry('it-software');
-        activeTemplate = CV_TEMPLATES_CATALOG.getTemplateById('tpl-011');
-      }
-      applyTemplateStyles(activeTemplate);
-      renderFormInputs();
-      renderCVPreview();
-      triggerAutoSave();
-      showToast('⚡ Đã nạp thành công dữ liệu mẫu!', 'fa-solid fa-rotate-right');
-    }
   }
 
   function escapeHtml(str) {
@@ -1277,8 +1733,17 @@ const CVApp = (function () {
       .replace(/'/g, '&#039;');
   }
 
+  // Public API
   return {
     init,
+    renderCVPreview,
+    setRatingMode,
+    setPrimaryThemeColor,
+    setCustomThemeColor,
+    loadIndustryProfile,
+    renderTemplatesCatalogModal,
+    setModalFilter,
+    applySelectedTemplate,
     addEducation,
     updateEducation,
     removeEducation,
@@ -1288,9 +1753,9 @@ const CVApp = (function () {
     addHardSkill,
     updateHardSkill,
     removeHardSkill,
-    toggleSoftSkill,
-    toggleStrength,
-    toggleHobby,
+    toggleSoftSkillPill,
+    toggleStrengthPill,
+    toggleHobbyPill,
     addProject,
     updateProject,
     removeProject,
@@ -1303,13 +1768,11 @@ const CVApp = (function () {
     addReference,
     updateReference,
     removeReference,
-    toggleSectionVisibility,
-    setRatingMode,
-    filterTemplatesModal,
-    selectTemplate,
-    renderTemplatesCatalogModal,
-    loadSampleProfile
+    toggleSectionVisibility
   };
 })();
 
-document.addEventListener('DOMContentLoaded', CVApp.init);
+// Auto-run on DOM Ready
+document.addEventListener('DOMContentLoaded', () => {
+  CVApp.init();
+});

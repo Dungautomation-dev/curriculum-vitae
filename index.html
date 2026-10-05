@@ -60,14 +60,44 @@
         </select>
       </div>
 
-      <!-- Quick Sample Profiles Dropdown -->
-      <button type="button" class="btn btn-outline btn-sm" onclick="CVApp.loadSampleProfile('electrical')" title="Nạp hồ sơ chuẩn Kỹ sư Điện">
-        <i class="fa-solid fa-bolt" style="color:var(--accent);"></i> CV Kỹ Sư Điện
-      </button>
+      <!-- Theme Color Picker Dropdown -->
+      <div class="theme-color-picker-wrap">
+        <button type="button" class="theme-color-btn" id="btn-toggle-theme-color" title="Đổi màu chủ đạo cho CV">
+          <span class="theme-color-dot" id="header-theme-color-dot" style="background:#1e40af;"></span>
+          <span id="header-theme-color-name">Màu Chủ Đạo</span>
+          <i class="fa-solid fa-chevron-down" style="font-size:0.7rem; color:var(--gray-500);"></i>
+        </button>
+        <div class="theme-color-dropdown" id="theme-color-dropdown">
+          <div class="theme-color-dropdown-title">
+            <span>CHỌN MÀU CHỦ ĐẠO</span>
+            <span style="font-size:0.7rem; color:var(--gray-400);">12 Màu Chuẩn</span>
+          </div>
+          <div class="color-presets-grid" id="color-presets-grid">
+            <!-- Dynamically populated -->
+          </div>
+          <div class="custom-color-row">
+            <input type="color" id="input-custom-theme-color" value="#1e40af" onchange="CVApp.setCustomThemeColor(this.value)">
+            <label for="input-custom-theme-color" style="cursor:pointer; flex:1;">Tùy chọn mã màu riêng...</label>
+          </div>
+        </div>
+      </div>
 
-      <button type="button" class="btn btn-outline btn-sm" onclick="CVApp.loadSampleProfile('it')" title="Nạp hồ sơ lập trình viên IT">
-        <i class="fa-solid fa-code" style="color:var(--primary);"></i> CV CNTT
-      </button>
+      <!-- 10 Industry Sample Profiles Switcher -->
+      <div style="display:flex; align-items:center; gap:6px;">
+        <span style="font-size:0.76rem; font-weight:700; color:var(--gray-500);"><i class="fa-solid fa-user-tie"></i> Dữ liệu ngành:</span>
+        <select id="select-industry-profile" class="form-select btn-sm" style="width:auto; font-weight:700; max-width:185px;" onchange="CVApp.loadIndustryProfile(this.value)" title="Chọn để nạp dữ liệu mẫu thực tế của ngành nghề tương ứng">
+          <option value="electrical-tech">⚡ Kỹ Sư Điện (Mặc định)</option>
+          <option value="it-software">💻 CNTT & Lập Trình Viên</option>
+          <option value="business-sales">📈 Kinh Doanh & Sales B2B</option>
+          <option value="marketing-media">📢 Marketing & Tăng Trưởng</option>
+          <option value="finance-accounting">💰 Tài Chính & Kế Toán</option>
+          <option value="medical-health">🏥 Y Tế & Bác Sĩ</option>
+          <option value="education-training">🎓 Giáo Dục & Giảng Viên</option>
+          <option value="design-creative">🎨 Thiết Kế & UI/UX</option>
+          <option value="hospitality-service">🛎️ Khách Sạn & Du Lịch</option>
+          <option value="hr-administration">🤝 Nhân Sự & HRBP</option>
+        </select>
+      </div>
 
       <!-- Import / Export .dungauto File -->
       <div style="display:flex; gap:6px;">
@@ -398,6 +428,9 @@
 
       </div>
     </aside>
+ 
+    <!-- Draggable Workspace Resizer Divider -->
+    <div class="workspace-resizer no-print" id="workspace-resizer" title="Kéo chuột sang trái/phải để thay đổi độ rộng cột điền (Nhấp đúp chuột để đặt lại 530px)"></div>
 
     <!-- ====================================================================
          RIGHT PANEL: REAL-TIME A4 LIVE PREVIEW STAGE
