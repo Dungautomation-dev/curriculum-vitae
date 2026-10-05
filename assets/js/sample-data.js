@@ -18,8 +18,8 @@ const CV_SAMPLE_PROFILES = (function () {
       fullName: 'LÊ ĐỨC DŨNG',
       jobTitle: 'KỸ SƯ ĐIỆN & TỰ ĐỘNG HÓA | ENGINEERING AUTOMATION',
       avatarUrl: 'assets/images/avatar-electrical-engineer.jpg',
-      email: 'leducdung.ee@gmail.com',
-      phone: '0988 123 456',
+      email: 'leducdung117@gmail.com',
+      phone: '0398732177',
       address: 'Hà Nội, Việt Nam',
       dateOfBirth: '2001',
       gender: 'Nam',
@@ -41,11 +41,35 @@ const CV_SAMPLE_PROFILES = (function () {
     experience: [
       {
         id: 'exp-1',
-        position: 'Kỹ sư Điện & Tự động hóa',
+        position: 'Kỹ Thuật Dự Án (Project Technical Engineer)',
         company: 'Công Ty TNHH VASCO Hệ Thống Điện & Tự Động Hóa Việt Nam',
-        period: '07/2023 – Hiện nay',
+        period: '01/01/2026 – Hiện nay',
         location: 'Hà Nội',
-        description: '• Thiết kế và triển khai hệ thống điện, tủ điện công nghiệp: MSB, DB, MCC, ATS, tủ công tơ điện, tủ chiếu sáng, tủ điều khiển, tủ PLC, tủ biến tần.\n• Bóc tách thiết bị, vật tư từ bản vẽ kỹ thuật; xây dựng cấu hình tủ điện và lập báo giá công nghiệp với các hãng Siemens, Schneider Electric, ABB, Mitsubishi, LS.\n• Lập trình PLC/HMI và triển khai các hệ thống tự động hóa ở mức thực tế:\n  - Trạm xử lý nước thải Song Phượng (Đan Phượng, Hà Nội): Lập trình PLC và triển khai logic điều khiển hệ thống.\n  - Hệ thống điều hòa AHU (Sakurai Factory, Xưởng 18 & 19): Lập trình điều khiển AHU, xử lý logic vận hành & tín hiệu điều khiển.\n  - Dự án Bệnh viện Bạch Mai – CDS: Tham gia triển khai hệ thống điện và tự động hóa.'
+        description: '• Bóc tách bản vẽ kỹ thuật, phân tích đề bài dự án để xây dựng cấu hình và lập báo giá chi tiết cho tất cả các loại tủ điện: MSB, DB, MCC, ATS, tủ công tơ điện, tủ chiếu sáng, tủ điều khiển, tủ PLC/biến tần, trạm biến áp, tủ kiosk hợp bộ.\n• Bóc tách vật tư, thiết bị; lựa chọn phương án thiết bị tối ưu kỹ thuật và chi phí; làm việc chuyên sâu với các hãng Siemens, Schneider Electric, ABB, Mitsubishi, LS.\n• Phối hợp xử lý các yêu cầu kỹ thuật dự án và tham gia triển khai các hệ thống tự động hóa ở mức thực tế.\n• Tiếp tục nghiên cứu, phát triển các bộ công cụ phần mềm kỹ thuật và chia sẻ cho cộng đồng kỹ sư điện.'
+      },
+      {
+        id: 'exp-2',
+        position: 'Kỹ Sư Thiết Kế Điện (Electrical Design Engineer)',
+        company: 'Công Ty TNHH VASCO Hệ Thống Điện & Tự Động Hóa Việt Nam',
+        period: '13/07/2024 – 01/01/2026',
+        location: 'Hà Nội',
+        description: '• Đọc hiểu bản vẽ điện công nghiệp; thiết kế hệ thống điện và layout bố trí tủ điện công nghiệp trên AutoCAD và EPLAN Electric P8.\n• Bóc tách và kê danh mục vật tư BOM; đối chiếu (checklist) vật tư chi tiết với bản vẽ sơ đồ nguyên lý.\n• Trực tiếp lập trình PLC/HMI trên nền tảng TIA Portal và Weintek cho các hệ thống điều khiển công nghiệp (hệ thống xử lý nước thải, AHU công nghiệp).\n• Chủ động nghiên cứu và phát triển các tools hỗ trợ kỹ thuật: Bộ công cụ Excel DungLeTools (VBA & VSTO) và phần mềm in ấn bản vẽ siêu tốc DLPrint (AutoCAD API).'
+      },
+      {
+        id: 'exp-3',
+        position: 'Thực Tập Sinh Quy Trình & Kỹ Thuật',
+        company: 'Công Ty TNHH Điện Tử Canon Việt Nam',
+        period: '19/01/2023 – 19/07/2023',
+        location: 'Hà Nội',
+        description: '• Tiếp cận và tìm hiểu sâu sắc quy trình sản xuất dây chuyền công nghiệp công nghệ cao khép kín.\n• Rèn luyện tác phong kỷ luật, phương pháp làm việc chuẩn mực, tuân thủ nghiêm ngặt quy trình 5S, an toàn lao động và tiêu chuẩn kiểm soát chất lượng Nhật Bản.'
+      },
+      {
+        id: 'exp-4',
+        position: 'Thực Tập Sinh Lập Trình Điều Khiển',
+        company: 'Công Ty TNHH JCT Việt Nam',
+        period: '2021 – 2022',
+        location: 'Hà Nội',
+        description: '• Tham gia lập trình điều khiển PLC Siemens và thiết kế giao diện vận hành HMI Weintek lắp đặt cho các hệ thống máy cẩu và thiết bị nâng hạ công nghiệp.\n• Đọc hiểu sơ đồ mạch điện, đấu nối thiết bị và hỗ trợ kiểm tra vận hành thử nghiệm hệ thống.'
       }
     ],
     hardSkills: [

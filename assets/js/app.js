@@ -251,8 +251,15 @@ const CVApp = (function () {
 
     const saved = CV_STORAGE.loadFromLocalStorage();
     if (saved && saved.data) {
-      // Auto-migrate if stored profile is the old sample placeholder "NGUYỄN VĂN AN"
-      if (saved.data.personalInfo && (saved.data.personalInfo.fullName === 'NGUYỄN VĂN AN' || !saved.data.personalInfo.fullName)) {
+      // Auto-migrate if stored profile is older version (Nguyen Van An, old phone 0988, old email, or old 1-experience structure)
+      if (saved.data.personalInfo && (
+        saved.data.personalInfo.fullName === 'NGUYỄN VĂN AN' ||
+        !saved.data.personalInfo.fullName ||
+        saved.data.personalInfo.phone === '0988 123 456' ||
+        saved.data.personalInfo.email === 'leducdung.ee@gmail.com' ||
+        !saved.data.experience ||
+        saved.data.experience.length < 4
+      )) {
         profile = CV_SAMPLE_PROFILES.getDefaultProfile();
         CV_STORAGE.saveToLocalStorage(profile, saved.templateId || 'tpl-001', saved.skillRatingMode || 'percentage', saved.sectionsConfig, saved.themeColor, saved.customDesignConfig);
       } else {
