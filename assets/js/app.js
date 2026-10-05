@@ -769,7 +769,8 @@ const CVApp = (function () {
       </div>
     ` : '';
 
-    const avatarHtml = p.avatarUrl ? `<img src="${p.avatarUrl}" alt="Avatar" class="cv-avatar-img">` : '';
+    const avatarSrc = p.avatarUrl || 'assets/images/avatar-electrical-engineer.jpg';
+    const avatarHtml = `<img src="${avatarSrc}" alt="Avatar" class="cv-avatar-img">`;
 
     // ========================================================================
     // 12 DISTINCT ARCHETYPES RENDERING LOGIC (MATCHING TEMPLATES.CSS EXACTLY)
@@ -841,9 +842,14 @@ const CVApp = (function () {
       previewWrapper.innerHTML = `
         <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
           <div class="cv-minimal-header">
-            <h1 class="cv-candidate-name">${escapeHtml(p.fullName)}</h1>
-            <div class="cv-candidate-title">${escapeHtml(p.jobTitle)}</div>
-            ${contactChipsHtml}
+            <div class="cv-minimal-header-inner">
+              <div class="cv-avatar-wrap cv-minimal-avatar">${avatarHtml}</div>
+              <div class="cv-minimal-header-info">
+                <h1 class="cv-candidate-name">${escapeHtml(p.fullName)}</h1>
+                <div class="cv-candidate-title">${escapeHtml(p.jobTitle)}</div>
+                ${contactChipsHtml}
+              </div>
+            </div>
           </div>
           ${summaryBlock}
           <div class="cv-columns-grid">
@@ -937,6 +943,7 @@ const CVApp = (function () {
         <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
           <div class="executive-inner-border">
             <div class="executive-centered-header">
+              <div class="cv-avatar-wrap executive-avatar-wrap">${avatarHtml}</div>
               <h1 class="cv-candidate-name">${escapeHtml(p.fullName)}</h1>
               <div class="cv-candidate-title" style="letter-spacing:2px;">${escapeHtml(p.jobTitle)}</div>
               <div style="display:flex; justify-content:center; gap:16px; margin-top:6px;">
@@ -1093,6 +1100,7 @@ const CVApp = (function () {
         <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
           <div class="luxury-frame-box">
             <div class="luxury-header">
+              <div class="cv-avatar-wrap luxury-avatar-wrap">${avatarHtml}</div>
               <h1 class="cv-candidate-name">${escapeHtml(p.fullName)}</h1>
               <div class="cv-candidate-title">${escapeHtml(p.jobTitle)}</div>
               ${contactChipsHtml}

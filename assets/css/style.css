@@ -646,6 +646,8 @@ body {
    RIGHT PREVIEW WRAPPER (A4 Paper Stage & Toolbar)
    ========================================================================== */
 .preview-container {
+  flex: 1;
+  min-width: 0;
   height: calc(100vh - 64px);
   background: #cbd5e1;
   background-image: 
@@ -1012,7 +1014,7 @@ body {
    Lấp đầy khoảng trống bên phải màn hình, hỗ trợ chọn nhanh bố cục
    ========================================================================== */
 .templates-sidebar {
-  width: 280px;
+  width: 310px;
   flex-shrink: 0;
   background: #ffffff;
   border-left: 1px solid var(--gray-200);
@@ -1021,6 +1023,7 @@ body {
   flex-direction: column;
   overflow: hidden;
   z-index: 20;
+  box-sizing: border-box;
 }
 
 @media (max-width: 1250px) {
@@ -1049,12 +1052,13 @@ body {
 
 .templates-sidebar-filters {
   display: flex;
-  gap: 5px;
-  padding: 8px 12px;
+  gap: 4px;
+  padding: 8px 10px;
   border-bottom: 1px solid var(--gray-200);
   background: #ffffff;
   overflow-x: auto;
   scrollbar-width: none;
+  justify-content: space-between;
 }
 
 .templates-sidebar-filters::-webkit-scrollbar {
@@ -1062,7 +1066,7 @@ body {
 }
 
 .quick-filter-chip {
-  padding: 4px 10px;
+  padding: 4px 8px;
   font-size: 0.72rem;
   font-weight: 700;
   border-radius: 14px;
@@ -1072,6 +1076,7 @@ body {
   cursor: pointer;
   white-space: nowrap;
   transition: var(--transition);
+  text-align: center;
 }
 
 .quick-filter-chip:hover {
