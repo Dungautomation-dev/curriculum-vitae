@@ -46,7 +46,7 @@
 }
 
 .cv-section {
-  margin-bottom: 16px;
+  margin-bottom: 13px;
   position: relative;
 }
 
@@ -58,14 +58,14 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 1.02rem;
+  font-size: 0.98rem;
   font-weight: 800;
   text-transform: uppercase;
   color: var(--cv-primary);
   letter-spacing: 0.5px;
-  margin-top: 4px;
-  margin-bottom: 12px;
-  padding-bottom: 5px;
+  margin-top: 2px;
+  margin-bottom: 9px;
+  padding-bottom: 4px;
   border-bottom: 2px solid var(--cv-border);
   position: relative;
 }
@@ -166,7 +166,7 @@
 /* Timeline & Card Items */
 .timeline-item {
   position: relative;
-  margin-bottom: 14px;
+  margin-bottom: 11px;
 }
 
 .timeline-item:last-child {
@@ -198,13 +198,13 @@
   font-size: 0.8rem;
   font-weight: 600;
   color: #475569;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .timeline-desc {
   font-size: 0.8rem;
   color: #334155;
-  line-height: 1.55;
+  line-height: 1.52;
   white-space: pre-line;
 }
 
@@ -213,8 +213,8 @@
   background: var(--cv-bg-soft);
   border: 1px solid var(--cv-border);
   border-radius: 8px;
-  padding: 10px 14px;
-  margin-bottom: 10px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
 }
 
 .cv-card-item:last-child {
@@ -322,10 +322,10 @@
 .layout-modern-sidebar .cv-sidebar {
   background: var(--cv-primary);
   color: #ffffff;
-  padding: 28px 20px 28px 24px;
+  padding: 24px 18px 24px 20px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 13px;
   box-sizing: border-box;
 }
 
@@ -361,10 +361,10 @@
 }
 
 .layout-modern-sidebar .cv-main {
-  padding: 28px 28px 28px 26px;
+  padding: 24px 24px 24px 22px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 13px;
   background: #ffffff;
   box-sizing: border-box;
 }
@@ -380,10 +380,10 @@
 }
 
 .layout-right-sidebar .cv-main {
-  padding: 28px 26px 28px 28px;
+  padding: 24px 22px 24px 24px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 13px;
   background: #ffffff;
   box-sizing: border-box;
 }
@@ -391,10 +391,10 @@
 .layout-right-sidebar .cv-sidebar {
   background: var(--cv-bg-soft);
   border-left: 2px solid var(--cv-border);
-  padding: 28px 22px 28px 20px;
+  padding: 24px 18px 24px 18px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 13px;
   box-sizing: border-box;
 }
 
@@ -626,7 +626,7 @@
    Header nhỏ gọn + 3 cột dọc thông tin song song
    -------------------------------------------------------------------------- */
 .layout-compact-3col {
-  padding: 18mm 14mm;
+  padding: 15mm 12mm;
   background: #ffffff;
   box-sizing: border-box;
 }
@@ -636,19 +636,48 @@
   align-items: center;
   justify-content: space-between;
   border-bottom: 2px solid var(--cv-primary);
-  padding-bottom: 12px;
-  margin-bottom: 16px;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .layout-compact-3col .compact-3col-grid {
   display: grid;
-  grid-template-columns: 1fr 1.25fr 1fr;
-  gap: 16px;
+  grid-template-columns: 1fr 1.22fr 1fr;
+  gap: 14px;
+}
+
+.layout-compact-3col .cv-section {
+  margin-bottom: 11px;
 }
 
 .layout-compact-3col .cv-section-title {
-  font-size: 0.92rem;
+  font-size: 0.88rem;
+  margin-top: 2px;
+  margin-bottom: 7px;
+  padding-bottom: 3px;
+}
+
+.layout-compact-3col .cv-card-item {
+  padding: 6px 9px;
+  margin-bottom: 6px;
+}
+
+.layout-compact-3col .timeline-item {
   margin-bottom: 9px;
+}
+
+.layout-compact-3col .timeline-title {
+  font-size: 0.84rem;
+}
+
+.layout-compact-3col .timeline-subtitle {
+  font-size: 0.77rem;
+  margin-bottom: 2px;
+}
+
+.layout-compact-3col .timeline-desc {
+  font-size: 0.76rem;
+  line-height: 1.45;
 }
 
 /* --------------------------------------------------------------------------
@@ -700,7 +729,7 @@
    -------------------------------------------------------------------------- */
 .layout-split-contrast {
   display: grid;
-  grid-template-columns: 42% 58%;
+  grid-template-columns: 44% 56%;
   min-height: 297mm;
   box-sizing: border-box;
 }
@@ -708,19 +737,19 @@
 .layout-split-contrast .split-col-left {
   background: var(--cv-bg-soft);
   border-right: 2px solid var(--cv-border);
-  padding: 28px 22px 28px 24px;
+  padding: 24px 18px 24px 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 13px;
   box-sizing: border-box;
 }
 
 .layout-split-contrast .split-col-right {
   background: #ffffff;
-  padding: 28px 26px 28px 24px;
+  padding: 24px 22px 24px 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 13px;
   box-sizing: border-box;
 }
 
@@ -836,30 +865,52 @@
 
 /* 2. Spacing Presets */
 .spacing-compact .cv-section {
-  margin-bottom: 11px !important;
+  margin-bottom: 9px !important;
+}
+.spacing-compact .cv-section-title {
+  margin-bottom: 6px !important;
 }
 .spacing-compact .timeline-item {
-  margin-bottom: 7px !important;
+  margin-bottom: 6px !important;
+}
+.spacing-compact .cv-card-item {
+  padding: 6px 10px !important;
+  margin-bottom: 5px !important;
+}
+.spacing-compact .bento-card {
+  padding: 10px 14px !important;
+  margin-bottom: 8px !important;
 }
 .spacing-compact .cv-summary-text, .spacing-compact .timeline-desc {
   line-height: 1.35 !important;
 }
 
 .spacing-standard .cv-section {
-  margin-bottom: 16px !important;
+  margin-bottom: 13px !important;
+}
+.spacing-standard .cv-section-title {
+  margin-bottom: 9px !important;
 }
 .spacing-standard .timeline-item {
+  margin-bottom: 11px !important;
+}
+.spacing-standard .cv-card-item {
+  padding: 8px 12px !important;
+  margin-bottom: 8px !important;
+}
+.spacing-standard .bento-card {
+  padding: 14px 16px !important;
   margin-bottom: 12px !important;
 }
 
 .spacing-spacious .cv-section {
-  margin-bottom: 24px !important;
+  margin-bottom: 22px !important;
 }
 .spacing-spacious .timeline-item {
-  margin-bottom: 18px !important;
+  margin-bottom: 16px !important;
 }
 .spacing-spacious .cv-summary-text, .spacing-spacious .timeline-desc {
-  line-height: 1.7 !important;
+  line-height: 1.65 !important;
 }
 
 /* 3. Divider Styles */

@@ -818,7 +818,7 @@ const CVApp = (function () {
     // ========================================================================
 
     if (tpl.styleId === 'right-sidebar') {
-      // 2. CỘT PHẢI TINH TẾ
+      // 2. CỘT PHẢI TINH TẾ (Cân đối đều 2 cột)
       previewWrapper.innerHTML = `
         <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
           <div class="cv-main">
@@ -830,6 +830,7 @@ const CVApp = (function () {
             ${experienceHtml}
             ${educationHtml}
             ${projectsHtml}
+            ${referencesHtml}
           </div>
           <div class="cv-sidebar">
             <div class="cv-avatar-wrap">${avatarHtml}</div>
@@ -837,18 +838,17 @@ const CVApp = (function () {
               <h3 class="cv-section-title"><i class="fa-solid fa-address-book"></i> Liên Hệ</h3>
               ${contactHtml}
             </div>
+            ${certificationsHtml}
             ${hardSkillsHtml}
             ${softSkillsHtml}
-            ${certificationsHtml}
             ${strengthsHtml}
-            ${hobbiesHtml}
             ${languagesHtml}
-            ${referencesHtml}
+            ${hobbiesHtml}
           </div>
         </div>
       `;
     } else if (tpl.styleId === 'header-banner') {
-      // 3. HEADER BANNER TOÀN CHIỀU RỘNG
+      // 3. HEADER BANNER TOÀN CHIỀU RỘNG (Cân đối đều 2 cột)
       previewWrapper.innerHTML = `
         <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
           <div class="cv-banner-header">
@@ -864,22 +864,22 @@ const CVApp = (function () {
               ${summaryBlock}
               ${experienceHtml}
               ${projectsHtml}
+              ${certificationsHtml}
             </div>
             <div>
               ${educationHtml}
               ${hardSkillsHtml}
               ${softSkillsHtml}
-              ${certificationsHtml}
               ${strengthsHtml}
-              ${hobbiesHtml}
               ${languagesHtml}
+              ${hobbiesHtml}
               ${referencesHtml}
             </div>
           </div>
         </div>
       `;
     } else if (tpl.styleId === 'minimal-clean') {
-      // 4. TỐI GIẢN THỤY SĨ CHUẨN ATS
+      // 4. TỐI GIẢN THỤY SĨ CHUẨN ATS (Cân đối đều 2 cột)
       previewWrapper.innerHTML = `
         <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
           <div class="cv-minimal-header">
@@ -897,21 +897,22 @@ const CVApp = (function () {
             <div>
               ${experienceHtml}
               ${projectsHtml}
+              ${certificationsHtml}
             </div>
             <div>
               ${educationHtml}
               ${hardSkillsHtml}
               ${softSkillsHtml}
-              ${certificationsHtml}
               ${strengthsHtml}
               ${languagesHtml}
+              ${hobbiesHtml}
               ${referencesHtml}
             </div>
           </div>
         </div>
       `;
     } else if (tpl.styleId === 'timeline-focus') {
-      // 5. TRỤC THỜI GIAN TRỰC QUAN
+      // 5. TRỤC THỜI GIAN TRỰC QUAN (Cân đối đều 2 cột)
       previewWrapper.innerHTML = `
         <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
           <div class="cv-top-bar">
@@ -941,19 +942,22 @@ const CVApp = (function () {
                 </div>
               </div>
               ${projectsHtml}
+              ${certificationsHtml}
             </div>
             <div>
               ${educationHtml}
               ${hardSkillsHtml}
               ${softSkillsHtml}
-              ${certificationsHtml}
+              ${strengthsHtml}
               ${languagesHtml}
+              ${hobbiesHtml}
+              ${referencesHtml}
             </div>
           </div>
         </div>
       `;
     } else if (tpl.styleId === 'bento-cards') {
-      // 6. THẺ KHỐI BENTO HIỆN ĐẠI
+      // 6. THẺ KHỐI BENTO HIỆN ĐẠI (Cân đối đều 2 cột card)
       previewWrapper.innerHTML = `
         <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
           <div class="bento-card bento-hero-card">
@@ -967,19 +971,21 @@ const CVApp = (function () {
           ${summaryBlock ? `<div class="bento-card">${summaryBlock}</div>` : ''}
           <div class="bento-grid-2col">
             <div>
-              <div class="bento-card">${experienceHtml}</div>
-              <div class="bento-card">${projectsHtml}</div>
+              ${experienceHtml ? `<div class="bento-card">${experienceHtml}</div>` : ''}
+              ${projectsHtml ? `<div class="bento-card">${projectsHtml}</div>` : ''}
+              ${certificationsHtml ? `<div class="bento-card">${certificationsHtml}</div>` : ''}
             </div>
             <div>
-              <div class="bento-card">${educationHtml}</div>
-              <div class="bento-card">${hardSkillsHtml}</div>
-              <div class="bento-card">${softSkillsHtml}${certificationsHtml}${languagesHtml}</div>
+              ${educationHtml ? `<div class="bento-card">${educationHtml}</div>` : ''}
+              ${hardSkillsHtml ? `<div class="bento-card">${hardSkillsHtml}</div>` : ''}
+              ${(softSkillsHtml || strengthsHtml) ? `<div class="bento-card">${softSkillsHtml}${strengthsHtml}</div>` : ''}
+              ${(languagesHtml || hobbiesHtml || referencesHtml) ? `<div class="bento-card">${languagesHtml}${hobbiesHtml}${referencesHtml}</div>` : ''}
             </div>
           </div>
         </div>
       `;
     } else if (tpl.styleId === 'executive-bold') {
-      // 7. ĐẲNG CẤP QUẢN LÝ & LÃNH ĐẠO (SERIF)
+      // 7. ĐẲNG CẤP QUẢN LÝ & LÃNH ĐẠO (SERIF - Cân đối đều 2 cột)
       previewWrapper.innerHTML = `
         <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
           <div class="executive-inner-border">
@@ -996,12 +1002,15 @@ const CVApp = (function () {
               <div>
                 ${experienceHtml}
                 ${projectsHtml}
+                ${certificationsHtml}
               </div>
               <div>
                 ${educationHtml}
                 ${hardSkillsHtml}
-                ${certificationsHtml}
+                ${softSkillsHtml}
+                ${strengthsHtml}
                 ${languagesHtml}
+                ${hobbiesHtml}
                 ${referencesHtml}
               </div>
             </div>
@@ -1009,7 +1018,7 @@ const CVApp = (function () {
         </div>
       `;
     } else if (tpl.styleId === 'compact-3col') {
-      // 8. 3 CỘT CÔ ĐỌNG THÔNG TIN
+      // 8. 3 CỘT CÔ ĐỌNG THÔNG TIN (Cân đối đều hoàn hảo cả 3 cột - Triệt tiêu lỗi lệch 1 bên)
       previewWrapper.innerHTML = `
         <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
           <div class="compact-header">
@@ -1028,22 +1037,25 @@ const CVApp = (function () {
                 ${contactHtml}
               </div>
               ${educationHtml}
-              ${languagesHtml}
+              ${certificationsHtml}
             </div>
             <div>
               ${experienceHtml}
+              ${projectsHtml}
             </div>
             <div>
               ${hardSkillsHtml}
-              ${projectsHtml}
-              ${certificationsHtml}
+              ${softSkillsHtml}
               ${strengthsHtml}
+              ${languagesHtml}
+              ${hobbiesHtml}
+              ${referencesHtml}
             </div>
           </div>
         </div>
       `;
     } else if (tpl.styleId === 'editorial-magazine') {
-      // 9. TẠP CHÍ SÁNG TẠO
+      // 9. TẠP CHÍ SÁNG TẠO (Cân đối đều 2 cột)
       previewWrapper.innerHTML = `
         <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
           <div class="editorial-header">
@@ -1064,20 +1076,22 @@ const CVApp = (function () {
             <div>
               ${experienceHtml}
               ${projectsHtml}
+              ${certificationsHtml}
             </div>
             <div>
               ${educationHtml}
               ${hardSkillsHtml}
               ${softSkillsHtml}
-              ${certificationsHtml}
               ${strengthsHtml}
+              ${languagesHtml}
               ${hobbiesHtml}
+              ${referencesHtml}
             </div>
           </div>
         </div>
       `;
     } else if (tpl.styleId === 'split-contrast') {
-      // 10. CHIA ĐÔI TƯƠNG PHẢN 50/50 (SỬA DỨT ĐIỂM LỖI CHẠM MÉP)
+      // 10. CHIA ĐÔI TƯƠNG PHẢN (Cân đối tỷ lệ 45/55)
       previewWrapper.innerHTML = `
         <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
           <div class="split-col-left">
@@ -1086,11 +1100,12 @@ const CVApp = (function () {
               <h3 class="cv-section-title"><i class="fa-solid fa-address-book"></i> Liên Hệ</h3>
               ${contactHtml}
             </div>
+            ${certificationsHtml}
             ${hardSkillsHtml}
             ${softSkillsHtml}
             ${strengthsHtml}
-            ${hobbiesHtml}
             ${languagesHtml}
+            ${hobbiesHtml}
           </div>
           <div class="split-col-right">
             <div>
@@ -1101,13 +1116,12 @@ const CVApp = (function () {
             ${experienceHtml}
             ${educationHtml}
             ${projectsHtml}
-            ${certificationsHtml}
             ${referencesHtml}
           </div>
         </div>
       `;
     } else if (tpl.styleId === 'technical-grid') {
-      // 11. BẢN VẼ KỸ THUẬT & HUY HIỆU
+      // 11. BẢN VẼ KỸ THUẬT & HUY HIỆU (Cân đối đều 2 cột)
       previewWrapper.innerHTML = `
         <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
           <div class="technical-header-box">
@@ -1123,20 +1137,22 @@ const CVApp = (function () {
             <div>
               ${experienceHtml}
               ${projectsHtml}
+              ${certificationsHtml}
             </div>
             <div>
               ${educationHtml}
               ${hardSkillsHtml}
               ${softSkillsHtml}
-              ${certificationsHtml}
+              ${strengthsHtml}
               ${languagesHtml}
+              ${hobbiesHtml}
               ${referencesHtml}
             </div>
           </div>
         </div>
       `;
     } else if (tpl.styleId === 'framed-luxury') {
-      // 12. KHUNG VIỀN SANG TRỌNG CỔ ĐIỂN
+      // 12. KHUNG VIỀN SANG TRỌNG CỔ ĐIỂN (Cân đối đều 2 cột)
       previewWrapper.innerHTML = `
         <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
           <div class="luxury-frame-box">
@@ -1151,20 +1167,23 @@ const CVApp = (function () {
               <div>
                 ${experienceHtml}
                 ${projectsHtml}
+                ${certificationsHtml}
               </div>
               <div>
                 ${educationHtml}
                 ${hardSkillsHtml}
-                ${certificationsHtml}
+                ${softSkillsHtml}
                 ${strengthsHtml}
                 ${languagesHtml}
+                ${hobbiesHtml}
+                ${referencesHtml}
               </div>
             </div>
           </div>
         </div>
       `;
     } else {
-      // 1. CỘT TRÁI HIỆN ĐẠI (DEFAULT: MODERN LEFT SIDEBAR)
+      // 1. CỘT TRÁI HIỆN ĐẠI (DEFAULT: MODERN LEFT SIDEBAR - Cân đối đều 2 cột)
       previewWrapper.innerHTML = `
         <div class="cv-a4-sheet ${styleClass}" id="cv-printable-area">
           <div class="cv-sidebar">
@@ -1173,11 +1192,12 @@ const CVApp = (function () {
               <h3 class="cv-section-title"><i class="fa-solid fa-address-book"></i> Liên Hệ</h3>
               ${contactHtml}
             </div>
+            ${certificationsHtml}
             ${hardSkillsHtml}
             ${softSkillsHtml}
             ${strengthsHtml}
-            ${hobbiesHtml}
             ${languagesHtml}
+            ${hobbiesHtml}
           </div>
           <div class="cv-main">
             <div>
@@ -1188,7 +1208,6 @@ const CVApp = (function () {
             ${experienceHtml}
             ${educationHtml}
             ${projectsHtml}
-            ${certificationsHtml}
             ${referencesHtml}
           </div>
         </div>

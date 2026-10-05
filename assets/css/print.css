@@ -72,6 +72,8 @@
   .timeline-item,
   .skill-badge-item,
   .project-card,
+  .cv-card-item,
+  .bento-card,
   .cert-item {
     page-break-inside: avoid !important;
     break-inside: avoid !important;
