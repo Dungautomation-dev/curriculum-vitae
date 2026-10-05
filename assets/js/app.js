@@ -1396,7 +1396,6 @@ const CVApp = (function () {
       applyZoom(Math.max(0.5, currentZoom - 0.1));
       applyFitScreenView();
     });
-    if (btnZoomFit) btnZoomFit.addEventListener('click', toggleFitScreenMode);
 
     setupFormAutoPageSync();
     setupWheelPageFlip();
