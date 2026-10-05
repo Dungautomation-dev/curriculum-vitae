@@ -2530,21 +2530,74 @@ const CVApp = (function () {
     );
   }
 
-  function switchFitPage(pageNum) {
+  let isSyncingScrollFromCV = false;
+  let sidebarScrollDebounceTimer = null;
+
+  function switchFitPage(pageNum, syncSidebar = true) {
     if (pageNum < 1 || pageNum > totalCalculatedPages) return;
     activeFitPage = pageNum;
     applyFitScreenView();
+    if (syncSidebar) {
+      scrollSidebarToPage(pageNum);
+      scrollRightSidebarToActiveTemplate();
+    }
   }
 
   function nextFitPage() {
     if (activeFitPage < totalCalculatedPages) {
-      switchFitPage(activeFitPage + 1);
+      switchFitPage(activeFitPage + 1, true);
     }
   }
 
   function prevFitPage() {
     if (activeFitPage > 1) {
-      switchFitPage(activeFitPage - 1);
+      switchFitPage(activeFitPage - 1, true);
+    }
+  }
+
+  function scrollSidebarToPage(pageNum) {
+    const sidebar = document.getElementById('editor-sidebar');
+    if (!sidebar) return;
+
+    isSyncingScrollFromCV = true;
+
+    if (pageNum === 1) {
+      sidebar.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(() => { isSyncingScrollFromCV = false; }, 420);
+      return;
+    }
+
+    const sections = sidebar.querySelectorAll('.accordion-section[data-section]');
+    let targetSection = null;
+
+    for (let sec of sections) {
+      const secName = sec.getAttribute('data-section');
+      if (secName && getPageForSection(secName) >= pageNum) {
+        targetSection = sec;
+        break;
+      }
+    }
+
+    if (!targetSection && sections.length > 0) {
+      targetSection = sections[Math.floor(sections.length / 2)];
+    }
+
+    if (targetSection) {
+      const headerBar = sidebar.querySelector('.editor-header-bar');
+      const headerH = headerBar ? headerBar.offsetHeight : 52;
+      const targetTop = targetSection.offsetTop - headerH - 10;
+      sidebar.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
+    }
+
+    setTimeout(() => { isSyncingScrollFromCV = false; }, 450);
+  }
+
+  function scrollRightSidebarToActiveTemplate() {
+    const sidebar = document.getElementById('templates-sidebar');
+    if (!sidebar) return;
+    const activeCard = sidebar.querySelector('.template-quick-card.active');
+    if (activeCard) {
+      activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }
 
@@ -2568,7 +2621,7 @@ const CVApp = (function () {
       pill.type = 'button';
       pill.className = `page-nav-pill ${p === activeFitPage ? 'active' : ''}`;
       pill.innerHTML = `<i class="fa-solid fa-file"></i> Trang ${p}`;
-      pill.onclick = () => switchFitPage(p);
+      pill.onclick = () => switchFitPage(p, true);
       pillsWrap.appendChild(pill);
     }
 
@@ -2599,7 +2652,7 @@ const CVApp = (function () {
 
       const targetPage = getPageForSection(secName);
       if (targetPage && targetPage !== activeFitPage) {
-        switchFitPage(targetPage);
+        switchFitPage(targetPage, false);
       }
     });
 
@@ -2615,17 +2668,59 @@ const CVApp = (function () {
 
       const targetPage = getPageForSection(secName);
       if (targetPage && targetPage !== activeFitPage) {
-        switchFitPage(targetPage);
+        switchFitPage(targetPage, false);
       }
     });
+  }
+
+  /**
+   * Real-time ScrollSpy trên thanh bên trái (Lướt tab trái thì CV tự động ghim và lật trang theo)
+   */
+  function setupSidebarScrollSpy() {
+    const sidebar = document.getElementById('editor-sidebar');
+    if (!sidebar) return;
+
+    sidebar.addEventListener('scroll', () => {
+      if (!isFitScreenMode || isSyncingScrollFromCV || pageLayoutMode === 'horizontal' || totalCalculatedPages <= 1) return;
+
+      if (sidebarScrollDebounceTimer) cancelAnimationFrame(sidebarScrollDebounceTimer);
+      sidebarScrollDebounceTimer = requestAnimationFrame(() => {
+        if (sidebar.scrollTop <= 20) {
+          if (activeFitPage !== 1) switchFitPage(1, false);
+          return;
+        }
+
+        if (sidebar.scrollTop + sidebar.clientHeight >= sidebar.scrollHeight - 30) {
+          if (activeFitPage !== totalCalculatedPages) switchFitPage(totalCalculatedPages, false);
+          return;
+        }
+
+        const sidebarRect = sidebar.getBoundingClientRect();
+        const triggerY = sidebarRect.top + Math.min(160, sidebarRect.height * 0.32);
+
+        const sections = sidebar.querySelectorAll('.accordion-section[data-section]');
+        let activeSectionName = null;
+
+        for (let sec of sections) {
+          const rect = sec.getBoundingClientRect();
+          if (rect.top <= triggerY && rect.bottom >= sidebarRect.top + 45) {
+            activeSectionName = sec.getAttribute('data-section');
+          }
+        }
+
+        if (activeSectionName) {
+          const targetPage = getPageForSection(activeSectionName);
+          if (targetPage && targetPage !== activeFitPage) {
+            switchFitPage(targetPage, false);
+          }
+        }
+      });
+    }, { passive: true });
   }
 
   function getPageForSection(secName) {
     const sheet = document.getElementById('cv-printable-area');
     if (!sheet) return 1;
-
-    const sheetRect = sheet.getBoundingClientRect();
-    const a4HeightPx = 1122.52;
 
     const selectorMap = {
       'personal-info': '.cv-avatar-wrap, .cv-candidate-name, .cv-header',
@@ -2640,47 +2735,93 @@ const CVApp = (function () {
       'certificates': '.section-certificates',
       'awards': '.section-awards',
       'languages': '.section-languages',
-      'references': '.section-references'
+      'references': '.section-references',
+      'visibility': '.section-references, .section-languages'
     };
 
     const selector = selectorMap[secName];
     if (!selector) return 1;
 
     const el = sheet.querySelector(selector);
-    if (!el) return 1;
+    if (!el) {
+      const p2Sections = ['projects', 'education', 'awards', 'languages', 'references', 'strengths', 'hobbies'];
+      return p2Sections.includes(secName) ? Math.min(2, totalCalculatedPages) : 1;
+    }
 
+    const sheetRect = sheet.getBoundingClientRect();
     const elRect = el.getBoundingClientRect();
-    const offsetTop = elRect.top - sheetRect.top;
-    const page = Math.floor(offsetTop / a4HeightPx) + 1;
+    const zoom = currentZoom || 1;
+    // Bù trừ tỷ lệ phóng to transform: scale(zoom) để lấy toạ độ thực trên trang A4
+    const unscaledOffsetTop = (elRect.top - sheetRect.top) / zoom;
+    const a4HeightPx = 1122.52;
+
+    const page = Math.floor((unscaledOffsetTop + 35) / a4HeightPx) + 1;
     return Math.max(1, Math.min(page, totalCalculatedPages));
   }
 
   /**
-   * Lăn chuột trên CV preview để lật trang mượt mà
+   * Lăn chuột trên CV preview và các cạnh để lật trang mượt mà
    */
   function setupWheelPageFlip() {
     const viewport = document.getElementById('preview-stage-viewport');
-    if (!viewport) return;
+    if (viewport) {
+      viewport.addEventListener('wheel', (e) => {
+        if (!isFitScreenMode || pageLayoutMode === 'horizontal' || totalCalculatedPages <= 1) return;
+        e.preventDefault();
 
-    viewport.addEventListener('wheel', (e) => {
-      if (!isFitScreenMode || pageLayoutMode === 'horizontal' || totalCalculatedPages <= 1) return;
-      e.preventDefault();
+        if (isWheelThrottled) return;
 
-      if (isWheelThrottled) return;
+        if (e.deltaY > 20 && activeFitPage < totalCalculatedPages) {
+          isWheelThrottled = true;
+          nextFitPage();
+          setTimeout(() => { isWheelThrottled = false; }, 380);
+        } else if (e.deltaY < -20 && activeFitPage > 1) {
+          isWheelThrottled = true;
+          prevFitPage();
+          setTimeout(() => { isWheelThrottled = false; }, 380);
+        }
+      }, { passive: false });
+    }
 
-      if (e.deltaY > 25 && activeFitPage < totalCalculatedPages) {
-        isWheelThrottled = true;
+    // Lăn chuột ở thanh chọn mẫu bên phải khi chạm đỉnh hoặc chạm đáy
+    const rightSidebar = document.getElementById('templates-sidebar');
+    if (rightSidebar) {
+      rightSidebar.addEventListener('wheel', (e) => {
+        if (!isFitScreenMode || pageLayoutMode === 'horizontal' || totalCalculatedPages <= 1 || isWheelThrottled) return;
+        const atTop = rightSidebar.scrollTop <= 5 && e.deltaY < -25;
+        const atBottom = (rightSidebar.scrollTop + rightSidebar.clientHeight >= rightSidebar.scrollHeight - 8) && e.deltaY > 25;
+        if (atTop && activeFitPage > 1) {
+          isWheelThrottled = true;
+          prevFitPage();
+          setTimeout(() => { isWheelThrottled = false; }, 380);
+        } else if (atBottom && activeFitPage < totalCalculatedPages) {
+          isWheelThrottled = true;
+          nextFitPage();
+          setTimeout(() => { isWheelThrottled = false; }, 380);
+        }
+      }, { passive: true });
+    }
+
+    // Phím tắt bàn phím: PageDown / PageUp
+    window.addEventListener('keydown', (e) => {
+      if (!isFitScreenMode || totalCalculatedPages <= 1) return;
+      const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+      if (tag === 'input' || tag === 'textarea' || (e.target && e.target.isContentEditable)) return;
+
+      if (e.key === 'PageDown' || (e.altKey && e.key === 'ArrowDown')) {
+        e.preventDefault();
         nextFitPage();
-        setTimeout(() => { isWheelThrottled = false; }, 380);
-      } else if (e.deltaY < -25 && activeFitPage > 1) {
-        isWheelThrottled = true;
+      } else if (e.key === 'PageUp' || (e.altKey && e.key === 'ArrowUp')) {
+        e.preventDefault();
         prevFitPage();
-        setTimeout(() => { isWheelThrottled = false; }, 380);
       }
-    }, { passive: false });
+    });
   }
 
   function initFitScreenMode() {
+    setupFormAutoPageSync();
+    setupSidebarScrollSpy();
+    setupWheelPageFlip();
     applyFitScreenView();
   }
 

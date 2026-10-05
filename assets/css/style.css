@@ -760,6 +760,15 @@ body {
 /* ==========================================================================
    FIT-TO-SCREEN CANVAS MODE (HƯỚNG 2: CV LUÔN GHIM CỐ ĐỊNH TRONG TẦM MẮT)
    ========================================================================== */
+body.fit-screen-mode {
+  height: 100vh;
+  overflow: hidden !important;
+}
+
+body.fit-screen-mode .editor-sidebar {
+  scroll-behavior: smooth;
+}
+
 body.fit-screen-mode .preview-container {
   overflow: hidden !important;
 }
