@@ -84,8 +84,8 @@
 
       <!-- 10 Industry Sample Profiles Switcher -->
       <div style="display:flex; align-items:center; gap:6px;">
-        <span style="font-size:0.76rem; font-weight:700; color:var(--gray-500);"><i class="fa-solid fa-user-tie"></i> Dữ liệu ngành:</span>
-        <select id="select-industry-profile" class="form-select btn-sm" style="width:auto; font-weight:700; max-width:185px;" onchange="CVApp.loadIndustryProfile(this.value)" title="Chọn để nạp dữ liệu mẫu thực tế của ngành nghề tương ứng">
+        <span style="font-size:0.76rem; font-weight:700; color:var(--gray-500); white-space:nowrap;"><i class="fa-solid fa-user-tie"></i> Ngành nghề:</span>
+        <select id="select-industry-profile" class="form-select btn-sm" style="width:auto; font-weight:700; min-width:210px;" onchange="CVApp.loadIndustryProfile(this.value)" title="Chọn để nạp dữ liệu mẫu thực tế của ngành nghề tương ứng">
           <option value="electrical-tech">⚡ Kỹ Sư Điện (Mặc định)</option>
           <option value="it-software">💻 CNTT & Lập Trình Viên</option>
           <option value="business-sales">📈 Kinh Doanh & Sales B2B</option>
@@ -453,12 +453,12 @@
         <div class="toolbar-cluster-left">
           <div class="preview-zoom-controls">
             <button type="button" class="btn btn-outline btn-sm" id="btn-zoom-out" title="Thu nhỏ"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
-            <span id="zoom-percentage-text" style="font-size:0.8rem; font-weight:700; width:38px; text-align:center;">95%</span>
+            <span id="zoom-percentage-text" style="font-size:0.8rem; font-weight:700; width:36px; text-align:center;">95%</span>
             <button type="button" class="btn btn-outline btn-sm" id="btn-zoom-in" title="Phóng to"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
-            <button type="button" class="btn btn-outline btn-sm" id="btn-zoom-fit" title="Vừa vặn màn hình">Vừa màn hình</button>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-zoom-fit" title="Vừa vặn màn hình"><i class="fa-solid fa-arrows-to-eye"></i></button>
           </div>
 
-          <div class="history-controls" style="display:flex; gap:4px; margin-left:6px;">
+          <div class="history-controls" style="display:flex; gap:4px; margin-left:4px;">
             <button type="button" class="btn btn-outline btn-sm" id="btn-undo" title="Hoàn tác (Ctrl+Z)" onclick="CVApp.undo()" disabled>
               <i class="fa-solid fa-rotate-left"></i>
             </button>
@@ -497,12 +497,12 @@
 
           <!-- Design Customizer Drawer Button -->
           <button type="button" class="btn btn-outline btn-sm" id="btn-open-customizer" onclick="CVApp.toggleCustomizerDrawer()" title="Mở bảng tinh chỉnh sâu kiểu dáng mẫu CV">
-            <i class="fa-solid fa-sliders"></i> Tùy biến mẫu
+            <i class="fa-solid fa-sliders"></i> Tùy biến
           </button>
 
           <!-- Save My Custom Template Button -->
           <button type="button" class="btn btn-primary btn-sm" id="btn-save-custom-template" onclick="CVApp.openSaveCustomTemplateModal()" title="Lưu cấu trúc và phối màu hiện tại thành Mẫu Của Tôi">
-            <i class="fa-solid fa-floppy-disk"></i> Lưu mẫu riêng
+            <i class="fa-solid fa-floppy-disk"></i> Lưu mẫu
           </button>
         </div>
       </div>

@@ -2399,20 +2399,17 @@ const CVApp = (function () {
     const totalPages = Math.ceil(scrollH / standardA4Height);
 
     if (totalPages <= 1) {
-      fillText.innerText = `${percent}% A4 (1 Trang)`;
-    } else {
-      fillText.innerText = `${percent}% A4 (${totalPages} Trang)`;
-    }
-
-    if (percent <= 100) {
+      fillText.innerText = `${percent}% A4`;
       badge.className = 'a4-badge badge-green';
       badge.innerText = 'Chuẩn 1 trang';
     } else if (percent <= 108) {
+      fillText.innerText = `${percent}% A4`;
       badge.className = 'a4-badge badge-yellow';
       badge.innerText = `Tràn nhẹ (${percent}%)`;
     } else {
+      fillText.innerText = `${percent}% A4`;
       badge.className = 'a4-badge badge-red';
-      badge.innerText = `Trang 1/${totalPages} (+${totalPages - 1} trang)`;
+      badge.innerText = `Trang 1/${totalPages}`;
     }
   }
 

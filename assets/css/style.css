@@ -52,10 +52,10 @@ body {
    APP HEADER TOPBAR
    ========================================================================== */
 .app-header {
-  height: 64px;
+  height: 60px;
   background: #ffffff;
   border-bottom: 1px solid var(--gray-200);
-  padding: 0 20px;
+  padding: 0 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -63,21 +63,29 @@ body {
   top: 0;
   z-index: 100;
   box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+
+.app-header::-webkit-scrollbar {
+  display: none;
 }
 
 .brand-wrapper {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 .brand-logo-img {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
 }
 
 .brand-title {
-  font-size: 1.15rem;
+  font-size: 1.12rem;
   font-weight: 800;
   color: var(--gray-900);
   letter-spacing: -0.02em;
@@ -99,7 +107,9 @@ body {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 /* Button UI Components */
@@ -685,15 +695,23 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--gray-200);
-  padding: 8px 20px;
+  padding: 6px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+
+.preview-toolbar::-webkit-scrollbar {
+  display: none;
 }
 
 .preview-zoom-controls {
@@ -1359,12 +1377,14 @@ body {
 .toolbar-cluster-left, .toolbar-cluster-center, .toolbar-cluster-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 /* A4 Page Gauge (Gợi ý 2) */
 .a4-gauge-wrap {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
@@ -1374,13 +1394,26 @@ body {
   font-size: 0.76rem;
   font-weight: 700;
   color: var(--gray-800);
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1.1;
+}
+
+.a4-gauge-wrap span {
+  white-space: nowrap;
+  display: inline-block;
 }
 
 .a4-badge {
+  display: inline-flex;
+  align-items: center;
   font-size: 0.68rem;
   font-weight: 700;
-  padding: 1px 7px;
+  padding: 2px 7px;
   border-radius: 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1.1;
 }
 
 .badge-green {
