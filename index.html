@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Curriculum Vitae - Công Cụ Tạo CV Đa Ngành Nghề Chuyên Nghiệp (100 Mẫu CV)</title>
+  
+  <meta name="description" content="Tạo CV online chuyên nghiệp cho mọi ngành nghề với 100 mẫu chuẩn A4. Đánh giá kỹ năng sao/phần trăm, xuất PDF sắc nét và lưu nạp hồ sơ định dạng .dungauto. Mặc định CV Kỹ sư Điện.">
+  <meta name="author" content="Dung Automation">
+  <link rel="icon" type="image/svg+xml" href="assets/images/logo-icon.svg">
+
+  <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- html2pdf.js Bundle for 1-Click PDF Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <!-- Application Stylesheets -->
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/templates.css">
+  <link rel="stylesheet" href="assets/css/print.css" media="print">
+</head>
+<body>
+
+  <!-- ========================================================================
+       APPLICATION HEADER TOPBAR
+       ======================================================================== -->
+  <header class="app-header no-print">
+    <div class="brand-wrapper">
+      <img src="assets/images/logo-icon.svg" alt="Curriculum Vitae Logo" class="brand-logo-img">
+      <div class="brand-title">
+        <span>Curriculum Vitae</span>
+        <span class="brand-badge"><i class="fa-solid fa-wand-magic-sparkles"></i> Studio 100 Mẫu</span>
+      </div>
+      <a href="https://github.com/Dungautomation-dev/curriculum-vitae" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="border-radius:20px; font-size:0.75rem; padding:4px 10px; margin-left:8px; display:inline-flex; align-items:center; gap:5px; text-decoration:none;" title="Xem mã nguồn trên GitHub">
+        <i class="fa-brands fa-github"></i> <span>GitHub</span>
+      </a>
+    </div>
+
+    <!-- Active Template Quick Switcher -->
+    <div class="active-template-pill" id="btn-open-template-modal" title="Bấm để mở kho 100 mẫu CV đa ngành nghề">
+      <span id="active-template-name"><i class="fa-solid fa-palette" style="color:var(--accent);"></i> TPL-001: Kỹ Sư Điện - Blueprint Pro</span>
+      <i class="fa-solid fa-chevron-down" style="font-size:0.75rem; color:var(--gray-500);"></i>
+    </div>
+
+    <!-- Topbar Actions & Tools -->
+    <div class="header-actions">
+      <!-- Rating Mode Switcher -->
+      <div style="display:flex; align-items:center; gap:6px;">
+        <span style="font-size:0.76rem; font-weight:700; color:var(--gray-500);"><i class="fa-solid fa-sliders"></i> Đánh giá:</span>
+        <select id="select-rating-mode" class="form-select btn-sm" style="width:auto; font-weight:600;" onchange="CVApp.setRatingMode(this.value)">
+          <option value="percentage">Phần trăm (%)</option>
+          <option value="stars">Dấu sao (⭐)</option>
+          <option value="dots">Chấm tròn (•)</option>
+        </select>
+      </div>
+
+      <!-- Quick Sample Profiles Dropdown -->
+      <button type="button" class="btn btn-outline btn-sm" onclick="CVApp.loadSampleProfile('electrical')" title="Nạp hồ sơ chuẩn Kỹ sư Điện">
+        <i class="fa-solid fa-bolt" style="color:var(--accent);"></i> CV Kỹ Sư Điện
+      </button>
+
+      <button type="button" class="btn btn-outline btn-sm" onclick="CVApp.loadSampleProfile('it')" title="Nạp hồ sơ lập trình viên IT">
+        <i class="fa-solid fa-code" style="color:var(--primary);"></i> CV CNTT
+      </button>
+
+      <!-- Import / Export .dungauto File -->
+      <div style="display:flex; gap:6px;">
+        <button type="button" class="btn btn-outline btn-sm" id="btn-export-dungauto" title="Lưu toàn bộ hồ sơ ra file .dungauto để lần sau nạp lại sửa tiếp">
+          <i class="fa-solid fa-file-arrow-down" style="color:var(--success);"></i> Lưu .dungauto
+        </button>
+
+        <label class="btn btn-outline btn-sm" style="margin:0; cursor:pointer;" title="Chọn file .dungauto từ máy để nạp lại dữ liệu cũ">
+          <i class="fa-solid fa-file-arrow-up" style="color:var(--primary);"></i> Nạp .dungauto
+          <input type="file" id="file-import-dungauto" accept=".dungauto,.json" style="display:none;">
+        </label>
+      </div>
+
+      <!-- Print & Download PDF -->
+      <button type="button" class="btn btn-primary btn-sm" id="btn-download-pdf" title="Tải về file PDF chuẩn A4">
+        <i class="fa-solid fa-file-pdf"></i> Tải PDF
+      </button>
+
+      <button type="button" class="btn btn-accent btn-sm" id="btn-print-cv" title="Mở hộp thoại in ấn vector trình duyệt (Chuẩn nhất)">
+        <i class="fa-solid fa-print"></i> In A4
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       MAIN WORKSPACE (EDITOR SIDEBAR + A4 LIVE PREVIEW)
+       ======================================================================== -->
+  <main class="workspace-container">
+
+    <!-- ====================================================================
+         LEFT PANEL: INTERACTIVE FORM EDITOR
+         ==================================================================== -->
+    <aside class="editor-sidebar no-print">
+      <div class="editor-header-bar">
+        <div class="editor-header-title">
+          <i class="fa-solid fa-pen-to-square" style="color:var(--primary);"></i>
+          <span>Biên Tập Hồ Sơ Ứng Viên</span>
+        </div>
+        <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('btn-open-template-modal').click();" title="Chọn mẫu trong 100 giao diện">
+          <i class="fa-solid fa-palette"></i> Đổi Mẫu CV
+        </button>
+      </div>
+
+      <div class="editor-content-body">
+
+        <!-- Accordion 1: Thông tin cá nhân & Ảnh đại diện -->
+        <div class="accordion-section active">
+          <div class="accordion-header">
+            <div class="accordion-header-left">
+              <i class="fa-solid fa-user-tie"></i>
+              <span>1. Thông Tin Cá Nhân &amp; Ảnh</span>
+            </div>
+            <i class="fa-solid fa-chevron-down accordion-chevron"></i>
+          </div>
+          <div class="accordion-body">
+            <!-- Avatar Upload & Live Preview -->
+            <div class="avatar-upload-box">
+              <img src="assets/images/avatar-electrical-engineer.jpg" alt="Avatar Preview" id="avatar-preview-display" class="avatar-preview-img">
+              <div style="flex:1;">
+                <label class="form-label">Ảnh chân dung (3x4 hoặc 4x6)</label>
+                <div style="display:flex; gap:6px; margin-top:4px;">
+                  <label class="btn btn-outline btn-sm" style="cursor:pointer;">
+                    <i class="fa-solid fa-upload"></i> Chọn Ảnh Mới
+                    <input type="file" id="input-avatar-file" accept="image/*" style="display:none;">
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label">Họ và tên *</label>
+                <input type="text" id="input-fullname" class="form-input" placeholder="VD: NGUYỄN VĂN AN">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Vị trí ứng tuyển *</label>
+                <input type="text" id="input-jobtitle" class="form-input" placeholder="VD: KỸ SƯ ĐIỆN CÔNG NGHIỆP">
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label"><i class="fa-solid fa-envelope"></i> Email</label>
+                <input type="email" id="input-email" class="form-input" placeholder="email@example.com">
+              </div>
+              <div class="form-group">
+                <label class="form-label"><i class="fa-solid fa-phone"></i> Số điện thoại</label>
+                <input type="tel" id="input-phone" class="form-input" placeholder="0988 123 456">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label"><i class="fa-solid fa-location-dot"></i> Địa chỉ nơi ở</label>
+              <input type="text" id="input-address" class="form-input" placeholder="Quận/Huyện, Tỉnh/TP">
+            </div>
+
+            <div class="form-row-3">
+              <div class="form-group">
+                <label class="form-label">Ngày sinh</label>
+                <input type="text" id="input-dob" class="form-input" placeholder="DD/MM/YYYY">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Giới tính</label>
+                <input type="text" id="input-gender" class="form-input" placeholder="Nam/Nữ">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Bằng lái xe</label>
+                <input type="text" id="input-license" class="form-input" placeholder="Hạng B2...">
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label"><i class="fa-solid fa-globe"></i> Website / LinkedIn</label>
+                <input type="text" id="input-website" class="form-input" placeholder="linkedin.com/in/...">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tình trạng hôn nhân</label>
+                <input type="text" id="input-marital" class="form-input" placeholder="Độc thân...">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accordion 2: Giới thiệu bản thân -->
+        <div class="accordion-section active">
+          <div class="accordion-header">
+            <div class="accordion-header-left">
+              <i class="fa-solid fa-align-left"></i>
+              <span>2. Giới Thiệu Bản Thân / Mục Tiêu</span>
+            </div>
+            <i class="fa-solid fa-chevron-down accordion-chevron"></i>
+          </div>
+          <div class="accordion-body">
+            <div class="form-group">
+              <label class="form-label">Tóm tắt năng lực cốt lõi &amp; Định hướng phát triển</label>
+              <textarea id="input-summary" class="form-textarea" rows="4" placeholder="Nêu bật số năm kinh nghiệm, thế mạnh chuyên môn và giá trị bạn mang lại cho doanh nghiệp..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accordion 3: Trình độ học vấn -->
+        <div class="accordion-section active">
+          <div class="accordion-header">
+            <div class="accordion-header-left">
+              <i class="fa-solid fa-graduation-cap"></i>
+              <span>3. Trình Độ Học Vấn</span>
+            </div>
+            <i class="fa-solid fa-chevron-down accordion-chevron"></i>
+          </div>
+          <div class="accordion-body">
+            <div id="education-list-inputs" style="display:flex; flex-direction:column; gap:10px;"></div>
+            <button type="button" class="btn btn-outline btn-sm" onclick="CVApp.addEducation()" style="align-self:flex-start; margin-top:4px;">
+              <i class="fa-solid fa-plus"></i> Thêm Học Vấn
+            </button>
+          </div>
+        </div>
+
+        <!-- Accordion 4: Kinh nghiệm làm việc -->
+        <div class="accordion-section active">
+          <div class="accordion-header">
+            <div class="accordion-header-left">
+              <i class="fa-solid fa-briefcase"></i>
+              <span>4. Kinh Nghiệm Làm Việc</span>
+            </div>
+            <i class="fa-solid fa-chevron-down accordion-chevron"></i>
+          </div>
+          <div class="accordion-body">
+            <div id="experience-list-inputs" style="display:flex; flex-direction:column; gap:10px;"></div>
+            <button type="button" class="btn btn-outline btn-sm" onclick="CVApp.addExperience()" style="align-self:flex-start; margin-top:4px;">
+              <i class="fa-solid fa-plus"></i> Thêm Kinh Nghiệm
+            </button>
+          </div>
+        </div>
+
+        <!-- Accordion 5: Kỹ năng chuyên môn (Hard Skills) -->
+        <div class="accordion-section active">
+          <div class="accordion-header">
+            <div class="accordion-header-left">
+              <i class="fa-solid fa-screwdriver-wrench"></i>
+              <span>5. Kỹ Năng Chuyên Môn (Có Đánh Giá)</span>
+            </div>
+            <i class="fa-solid fa-chevron-down accordion-chevron"></i>
+          </div>
+          <div class="accordion-body">
+            <div style="font-size:0.75rem; color:var(--gray-500); margin-bottom:4px;">
+              Kéo thanh trượt để điều chỉnh mức độ thành thạo (sẽ tự động đổi sang Sao ⭐ hoặc Điểm nếu chọn chế độ tương ứng):
+            </div>
+            <div id="hardskills-list-inputs" style="display:flex; flex-direction:column; gap:6px;"></div>
+            <button type="button" class="btn btn-outline btn-sm" onclick="CVApp.addHardSkill()" style="align-self:flex-start; margin-top:4px;">
+              <i class="fa-solid fa-plus"></i> Thêm Kỹ Năng Chuyên Môn
+            </button>
+          </div>
+        </div>
+
+        <!-- Accordion 6: Kỹ năng mềm (Tích chọn nhanh) -->
+        <div class="accordion-section">
+          <div class="accordion-header">
+            <div class="accordion-header-left">
+              <i class="fa-solid fa-lightbulb"></i>
+              <span>6. Kỹ Năng Mềm (Tích Chọn Nhanh)</span>
+            </div>
+            <i class="fa-solid fa-chevron-down accordion-chevron"></i>
+          </div>
+          <div class="accordion-body">
+            <div style="font-size:0.75rem; color:var(--gray-500);">
+              Tích chọn các kỹ năng mềm có sẵn phù hợp với bạn:
+            </div>
+            <div class="quick-checkboxes-grid" id="softskills-quick-select"></div>
+          </div>
+        </div>
+
+        <!-- Accordion 7: Ưu điểm & Thế mạnh (Tích chọn nhanh) -->
+        <div class="accordion-section">
+          <div class="accordion-header">
+            <div class="accordion-header-left">
+              <i class="fa-solid fa-star"></i>
+              <span>7. Ưu Điểm Nổi Bật (Tích Chọn Nhanh)</span>
+            </div>
+            <i class="fa-solid fa-chevron-down accordion-chevron"></i>
+          </div>
+          <div class="accordion-body">
+            <div style="font-size:0.75rem; color:var(--gray-500);">
+              Tích chọn điểm mạnh vượt trội để gây ấn tượng với nhà tuyển dụng:
+            </div>
+            <div class="quick-checkboxes-grid" id="strengths-quick-select"></div>
+          </div>
+        </div>
+
+        <!-- Accordion 8: Sở thích (Tích chọn nhanh) -->
+        <div class="accordion-section">
+          <div class="accordion-header">
+            <div class="accordion-header-left">
+              <i class="fa-solid fa-heart"></i>
+              <span>8. Sở Thích &amp; Đam Mê</span>
+            </div>
+            <i class="fa-solid fa-chevron-down accordion-chevron"></i>
+          </div>
+          <div class="accordion-body">
+            <div class="quick-checkboxes-grid" id="hobbies-quick-select"></div>
+          </div>
+        </div>
+
+        <!-- Accordion 9: Chứng chỉ chuyên môn -->
+        <div class="accordion-section">
+          <div class="accordion-header">
+            <div class="accordion-header-left">
+              <i class="fa-solid fa-certificate"></i>
+              <span>9. Chứng Chỉ &amp; Bằng Cấp Kỹ Thuật</span>
+            </div>
+            <i class="fa-solid fa-chevron-down accordion-chevron"></i>
+          </div>
+          <div class="accordion-body">
+            <div id="certs-list-inputs" style="display:flex; flex-direction:column; gap:8px;"></div>
+            <button type="button" class="btn btn-outline btn-sm" onclick="CVApp.addCert()" style="align-self:flex-start; margin-top:4px;">
+              <i class="fa-solid fa-plus"></i> Thêm Chứng Chỉ
+            </button>
+          </div>
+        </div>
+
+        <!-- Accordion 10: Dự án tiêu biểu -->
+        <div class="accordion-section">
+          <div class="accordion-header">
+            <div class="accordion-header-left">
+              <i class="fa-solid fa-diagram-project"></i>
+              <span>10. Dự Án Tiêu Biểu</span>
+            </div>
+            <i class="fa-solid fa-chevron-down accordion-chevron"></i>
+          </div>
+          <div class="accordion-body">
+            <div id="projects-list-inputs" style="display:flex; flex-direction:column; gap:8px;"></div>
+            <button type="button" class="btn btn-outline btn-sm" onclick="CVApp.addProject()" style="align-self:flex-start; margin-top:4px;">
+              <i class="fa-solid fa-plus"></i> Thêm Dự Án
+            </button>
+          </div>
+        </div>
+
+        <!-- Accordion 11: Ngoại ngữ -->
+        <div class="accordion-section">
+          <div class="accordion-header">
+            <div class="accordion-header-left">
+              <i class="fa-solid fa-language"></i>
+              <span>11. Ngoại Ngữ</span>
+            </div>
+            <i class="fa-solid fa-chevron-down accordion-chevron"></i>
+          </div>
+          <div class="accordion-body">
+            <div id="languages-list-inputs" style="display:flex; flex-direction:column; gap:6px;"></div>
+            <button type="button" class="btn btn-outline btn-sm" onclick="CVApp.addLanguage()" style="align-self:flex-start; margin-top:4px;">
+              <i class="fa-solid fa-plus"></i> Thêm Ngoại Ngữ
+            </button>
+          </div>
+        </div>
+
+        <!-- Accordion 12: Người tham chiếu -->
+        <div class="accordion-section">
+          <div class="accordion-header">
+            <div class="accordion-header-left">
+              <i class="fa-solid fa-user-check"></i>
+              <span>12. Người Tham Chiếu (References)</span>
+            </div>
+            <i class="fa-solid fa-chevron-down accordion-chevron"></i>
+          </div>
+          <div class="accordion-body">
+            <div id="references-list-inputs" style="display:flex; flex-direction:column; gap:8px;"></div>
+            <button type="button" class="btn btn-outline btn-sm" onclick="CVApp.addReference()" style="align-self:flex-start; margin-top:4px;">
+              <i class="fa-solid fa-plus"></i> Thêm Người Tham Chiếu
+            </button>
+          </div>
+        </div>
+
+        <!-- Accordion 13: Quản lý ẩn / hiện các đề mục -->
+        <div class="accordion-section">
+          <div class="accordion-header">
+            <div class="accordion-header-left">
+              <i class="fa-solid fa-eye"></i>
+              <span>13. Quản Lý Ẩn / Hiện Các Mục (Căn Trang A4)</span>
+            </div>
+            <i class="fa-solid fa-chevron-down accordion-chevron"></i>
+          </div>
+          <div class="accordion-body">
+            <div style="font-size:0.75rem; color:var(--gray-500); margin-bottom:4px;">
+              Tích chọn để bật hoặc tắt bất kỳ mục nào trên bản in CV (giúp vừa khít 1 hoặc 2 trang A4):
+            </div>
+            <div class="quick-checkboxes-grid" id="sections-visibility-toggles"></div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- ====================================================================
+         RIGHT PANEL: REAL-TIME A4 LIVE PREVIEW STAGE
+         ==================================================================== -->
+    <section class="preview-container">
+      <!-- Sticky Preview Toolbar -->
+      <div class="preview-toolbar no-print">
+        <div class="preview-zoom-controls">
+          <button type="button" class="btn btn-outline btn-sm" id="btn-zoom-out" title="Thu nhỏ"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+          <span id="zoom-percentage-text" style="font-size:0.8rem; font-weight:700; width:40px; text-align:center;">95%</span>
+          <button type="button" class="btn btn-outline btn-sm" id="btn-zoom-in" title="Phóng to"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+          <button type="button" class="btn btn-outline btn-sm" id="btn-zoom-fit" title="Vừa vặn màn hình">Vừa màn hình</button>
+        </div>
+
+        <div style="font-size:0.8rem; font-weight:600; color:var(--gray-600); display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-file-lines" style="color:var(--primary);"></i>
+          <span>Khổ giấy A4 Chuẩn Tuyển Dụng (210mm × 297mm) • Vector 100%</span>
+        </div>
+
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn btn-outline btn-sm" onclick="CVApp.renderCVPreview()" title="Vẽ lại bản xem trước">
+            <i class="fa-solid fa-rotate"></i> Làm mới
+          </button>
+        </div>
+      </div>
+
+      <!-- Live A4 Zoomable Stage Viewport -->
+      <div class="preview-stage-viewport">
+        <div class="preview-zoom-stage" id="preview-zoom-stage">
+          <!-- CV A4 Sheet Render Target -->
+          <div id="cv-a4-render-target">
+            <!-- Dynamically populated by CVApp.renderCVPreview() -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================================
+       MODAL: BỘ SƯU TẬP 100 MẪU CV ĐA NGÀNH NGHỀ
+       ======================================================================== -->
+  <div class="modal-overlay no-print" id="template-modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-layer-group" style="color:var(--primary);"></i>
+          <span>Thư Viện 100 Biểu Mẫu CV Đa Ngành Nghề</span>
+        </div>
+        <button type="button" class="modal-close-btn" id="btn-close-template-modal" title="Đóng">&times;</button>
+      </div>
+
+      <div class="modal-filter-bar">
+        <!-- Search Row -->
+        <div class="modal-search-row">
+          <div style="position:relative; flex:1;">
+            <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--gray-400);"></i>
+            <input type="text" id="modal-template-search" class="form-input" style="padding-left:36px;" placeholder="Tìm kiếm mẫu CV theo ngành nghề, phong cách, tên mẫu..." oninput="CVApp.renderTemplatesCatalogModal()">
+          </div>
+        </div>
+
+        <!-- 10 Industry Sectors Tabs -->
+        <div class="industry-tabs-scroll" id="modal-industry-tabs">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- 100 Template Cards Grid -->
+      <div class="templates-cards-grid" id="modal-templates-grid">
+        <!-- Dynamically populated -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Toast Notification Container -->
+  <div class="toast-container no-print" id="app-toast-container"></div>
+
+  <!-- Application Scripts in Dependency Order -->
+  <script src="assets/js/templates-data.js"></script>
+  <script src="assets/js/sample-data.js"></script>
+  <script src="assets/js/storage.js"></script>
+  <script src="assets/js/export-pdf.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
