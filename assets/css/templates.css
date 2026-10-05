@@ -210,11 +210,12 @@
 
 /* Card item component */
 .cv-card-item {
-  background: var(--cv-bg-soft);
+  background: #ffffff;
   border: 1px solid var(--cv-border);
   border-radius: 8px;
   padding: 8px 12px;
   margin-bottom: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .cv-card-item:last-child {
@@ -313,9 +314,10 @@
    BỐ CỤC 1: CỘT TRÁI HIỆN ĐẠI (.layout-modern-sidebar)
    Thanh bên trái trang nhã (74mm) + Cột phải trắng rộng rãi
    -------------------------------------------------------------------------- */
+.layout-modern-sidebar#cv-printable-area,
 .layout-modern-sidebar {
-  display: grid;
-  grid-template-columns: 74mm 1fr;
+  display: grid !important;
+  grid-template-columns: 74mm 1fr !important;
   min-height: 297mm;
 }
 
@@ -364,14 +366,17 @@
 .cv-sidebar .cv-card-item {
   background: #ffffff !important;
   border: 1px solid var(--cv-border) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
 }
 
 .cv-sidebar .cv-card-title {
   color: #0f172a !important;
+  font-weight: 700 !important;
 }
 
 .cv-sidebar .cv-card-meta {
   color: var(--cv-primary) !important;
+  font-weight: 600 !important;
 }
 
 .cv-sidebar .cv-card-desc {
@@ -391,9 +396,10 @@
    BỐ CỤC 2: CỘT PHẢI TINH TẾ (.layout-right-sidebar)
    Cột chính bên trái + Thanh phụ dịu nhẹ bên phải (74mm)
    -------------------------------------------------------------------------- */
+.layout-right-sidebar#cv-printable-area,
 .layout-right-sidebar {
-  display: grid;
-  grid-template-columns: 1fr 74mm;
+  display: grid !important;
+  grid-template-columns: 1fr 74mm !important;
   min-height: 297mm;
 }
 

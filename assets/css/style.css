@@ -345,8 +345,8 @@ body {
 
 /* Left Form Editor Panel */
 .editor-sidebar {
-  width: var(--editor-width, 420px);
-  min-width: 340px;
+  width: var(--editor-width, 340px);
+  min-width: 280px;
   max-width: 750px;
   flex-shrink: 0;
   height: 100%;

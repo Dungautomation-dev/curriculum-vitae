@@ -96,13 +96,15 @@ const CVApp = (function () {
     const sidebar = document.querySelector('.editor-sidebar');
     if (!resizer || !sidebar) return;
 
-    // Restore saved width
-    const savedWidth = localStorage.getItem('dungauto_cv_editor_width');
-    if (savedWidth) {
-      document.documentElement.style.setProperty('--editor-width', `${savedWidth}px`);
-    } else {
-      document.documentElement.style.setProperty('--editor-width', '420px');
+    // Restore saved width or initialize to 340px (min width requested)
+    let savedWidth = localStorage.getItem('dungauto_cv_editor_width');
+    if (!savedWidth || savedWidth === '530' || savedWidth === '530px' || savedWidth === '420' || savedWidth === '420px') {
+      savedWidth = '340';
+      localStorage.setItem('dungauto_cv_editor_width', '340');
     }
+    const widthVal = parseInt(savedWidth, 10) || 340;
+    const clamped = Math.max(280, Math.min(750, widthVal));
+    document.documentElement.style.setProperty('--editor-width', `${clamped}px`);
 
     let isDragging = false;
     let startX = 0;
@@ -121,8 +123,8 @@ const CVApp = (function () {
       if (!isDragging) return;
       const deltaX = e.clientX - startX;
       let newWidth = startWidth + deltaX;
-      // Clamp between 340px and 750px
-      if (newWidth < 340) newWidth = 340;
+      // Clamp between 280px and 750px
+      if (newWidth < 280) newWidth = 280;
       if (newWidth > 750) newWidth = 750;
       document.documentElement.style.setProperty('--editor-width', `${newWidth}px`);
     });
@@ -138,11 +140,11 @@ const CVApp = (function () {
       }
     });
 
-    // Double-click to reset to default 420px
+    // Double-click to reset to default 340px
     resizer.addEventListener('dblclick', () => {
-      document.documentElement.style.setProperty('--editor-width', '420px');
-      localStorage.setItem('dungauto_cv_editor_width', '420');
-      showToast('Đã đặt lại độ rộng cột điền về 420px chuẩn!', 'fa-solid fa-arrows-left-right');
+      document.documentElement.style.setProperty('--editor-width', '340px');
+      localStorage.setItem('dungauto_cv_editor_width', '340');
+      showToast('Đã đặt lại độ rộng cột điền về 340px chuẩn!', 'fa-solid fa-arrows-left-right');
     });
   }
 
