@@ -1330,21 +1330,69 @@ const CVApp = (function () {
     updateA4PageGauge();
   }
 
-  /* Zoom Controller */
+  /* Zoom Controller with Scaled Wrapper Bounding (Không bao giờ cuộn mất view CV) */
   function applyZoom(zoom) {
-    currentZoom = zoom;
+    currentZoom = Math.max(0.4, Math.min(1.6, Math.round(zoom * 100) / 100));
     const stage = document.getElementById('preview-zoom-stage');
+    const wrapper = document.getElementById('preview-zoom-wrapper');
+    const viewport = document.getElementById('preview-stage-viewport');
+    const sheet = document.getElementById('cv-printable-area');
     const zoomText = document.getElementById('zoom-percentage-text');
-    if (stage) {
-      if (isFitScreenMode && pageLayoutMode === 'vertical' && activeFitPage > 1) {
-        const a4HeightPx = 1122.52;
-        stage.style.transform = `scale(${zoom}) translateY(-${(activeFitPage - 1) * a4HeightPx}px)`;
+
+    if (zoomText) {
+      zoomText.innerText = `${Math.round(currentZoom * 100)}%`;
+    }
+    if (!stage) return;
+
+    const a4W = 793.7;
+    const a4H = 1122.52;
+    let baseW = a4W;
+    let baseH = a4H;
+
+    if (pageLayoutMode === 'horizontal') {
+      const isMulti = sheet && sheet.scrollHeight > a4H + 20;
+      baseW = isMulti ? (a4W * 2 + 36) : a4W;
+      baseH = a4H;
+    } else if (sheet && sheet.offsetHeight > 100) {
+      baseH = sheet.offsetHeight;
+    } else {
+      baseH = Math.max(a4H, (totalCalculatedPages || 1) * a4H);
+    }
+
+    const scaledW = Math.round(baseW * currentZoom);
+    const scaledH = Math.round(baseH * currentZoom);
+
+    if (wrapper) {
+      wrapper.style.width = `${scaledW}px`;
+      wrapper.style.height = `${scaledH}px`;
+      if (viewport && scaledW > (viewport.clientWidth - 40)) {
+        wrapper.style.margin = '16px 20px 80px 20px';
       } else {
-        stage.style.transform = `scale(${zoom})`;
+        wrapper.style.margin = '16px auto 80px auto';
       }
     }
-    if (zoomText) {
-      zoomText.innerText = `${Math.round(zoom * 100)}%`;
+
+    stage.style.width = `${baseW}px`;
+    stage.style.transform = `scale(${currentZoom})`;
+    stage.style.transformOrigin = 'top left';
+
+    renderFloatingPageNavigator();
+  }
+
+  function zoomIn() {
+    applyZoom(currentZoom + 0.1);
+  }
+
+  function zoomOut() {
+    applyZoom(currentZoom - 0.1);
+  }
+
+  function resetZoomToFit() {
+    const fitZoom = calculateFitZoom();
+    applyZoom(fitZoom);
+    const viewport = document.getElementById('preview-stage-viewport');
+    if (viewport) {
+      viewport.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
@@ -1384,23 +1432,20 @@ const CVApp = (function () {
     // Zoom & Fit Buttons
     const btnZoomIn = document.getElementById('btn-zoom-in');
     const btnZoomOut = document.getElementById('btn-zoom-out');
-    const btnZoomFit = document.getElementById('btn-zoom-fit');
+    const btnZoomReset = document.getElementById('btn-zoom-reset');
+    const zoomTextEl = document.getElementById('zoom-percentage-text');
 
-    if (btnZoomIn) btnZoomIn.addEventListener('click', () => {
-      isFitScreenMode = false;
-      applyZoom(Math.min(1.4, currentZoom + 0.1));
-      applyFitScreenView();
-    });
-    if (btnZoomOut) btnZoomOut.addEventListener('click', () => {
-      isFitScreenMode = false;
-      applyZoom(Math.max(0.5, currentZoom - 0.1));
-      applyFitScreenView();
-    });
+    if (btnZoomIn) btnZoomIn.onclick = () => zoomIn();
+    if (btnZoomOut) btnZoomOut.onclick = () => zoomOut();
+    if (btnZoomReset) btnZoomReset.onclick = () => resetZoomToFit();
+    if (zoomTextEl) zoomTextEl.onclick = () => resetZoomToFit();
 
     setupFormAutoPageSync();
-    setupWheelPageFlip();
+    setupViewportScrollSync();
+    setupWheelZoom();
+
     window.addEventListener('resize', () => {
-      if (isFitScreenMode) applyFitScreenView();
+      applyZoom(currentZoom);
     });
 
     // Template Modal
@@ -2384,7 +2429,7 @@ const CVApp = (function () {
 
     localStorage.setItem('dungauto_cv_left_collapsed', isLeftSidebarCollapsed);
     updateZenModeButton();
-    if (isFitScreenMode) setTimeout(applyFitScreenView, 320);
+    setTimeout(() => applyZoom(currentZoom), 320);
   }
 
   function toggleRightSidebar(forceState) {
@@ -2408,7 +2453,7 @@ const CVApp = (function () {
 
     localStorage.setItem('dungauto_cv_right_collapsed', isRightSidebarCollapsed);
     updateZenModeButton();
-    if (isFitScreenMode) setTimeout(applyFitScreenView, 320);
+    setTimeout(() => applyZoom(currentZoom), 320);
   }
 
   function toggleZenMode() {
@@ -2446,25 +2491,24 @@ const CVApp = (function () {
 
   /**
    * ==========================================================================
-   * HƯỚNG 2: FIT-TO-SCREEN CANVAS ENGINE (CV LUÔN GHIM CỐ ĐỊNH TRONG TẦM MẮT)
-   * Tự động tính toán tỷ lệ zoom để trang A4 vừa khít 100% trong màn hình,
-   * điều hướng lật trang mượt mà (Trang 1 ↔ Trang 2), tự động lật theo form bên trái.
+   * CANVAS ENGINE & SMART PAGE NAVIGATION (CV LUÔN GHIM CỐ ĐỊNH TRONG TẦM MẮT)
+   * Tự động tính toán tỷ lệ zoom, điều hướng lật trang mượt mà (Trang 1 ↔ Trang 2),
+   * tự động nhảy đến đúng section trên CV khi người dùng sửa form.
    * ==========================================================================
    */
-  let isFitScreenMode = true; // Mặc định kích hoạt Hướng 2
+  let isFitScreenMode = true; // Luôn ở chế độ ghim màn hình cố định
   let activeFitPage = 1;
   let totalCalculatedPages = 1;
-  let isWheelThrottled = false;
 
   function calculateFitZoom() {
     const viewport = document.getElementById('preview-stage-viewport');
     if (!viewport) return 0.85;
 
-    const vpW = Math.max(320, viewport.clientWidth - 40);
-    const vpH = Math.max(320, viewport.clientHeight - 65); // 65px khoảng đệm an toàn
+    const vpW = Math.max(320, viewport.clientWidth - 48);
+    const vpH = Math.max(320, viewport.clientHeight - 40);
 
     const a4W = 793.7;
-    const a4H = 1122.5;
+    const a4H = 1122.52;
 
     if (pageLayoutMode === 'horizontal') {
       const sheet = document.getElementById('cv-printable-area');
@@ -2472,61 +2516,20 @@ const CVApp = (function () {
       const totalW = isMulti ? (a4W * 2 + 36) : a4W;
       const scaleX = vpW / totalW;
       const scaleY = vpH / a4H;
-      return Math.min(scaleX, scaleY, 1.05);
+      return Math.max(0.4, Math.min(scaleX, scaleY, 1.05));
     } else {
       const scaleX = vpW / a4W;
       const scaleY = vpH / a4H;
-      return Math.min(scaleX, scaleY, 1.0);
+      return Math.max(0.45, Math.min(scaleX, scaleY, 1.0));
     }
   }
 
   function applyFitScreenView() {
-    const stage = document.getElementById('preview-zoom-stage');
-    const btnFit = document.getElementById('btn-zoom-fit');
-    const fitLabel = document.getElementById('fit-mode-label');
-    if (!stage) return;
-
-    document.body.classList.toggle('fit-screen-mode', isFitScreenMode);
-
-    if (btnFit) {
-      btnFit.classList.toggle('active', isFitScreenMode);
-      if (fitLabel) {
-        fitLabel.innerText = isFitScreenMode ? 'Đang Ghim Vừa Hình' : 'Ghim Vừa Hình';
-      }
-      btnFit.setAttribute(
-        'data-tooltip',
-        isFitScreenMode ? 'Đang bật Ghim Vừa Màn Hình (Nhấp để cuộn tự do)' : 'Bật Ghim Vừa Màn Hình (CV cố định trong tầm mắt)'
-      );
-    }
-
-    if (isFitScreenMode) {
-      const fitZoom = calculateFitZoom();
-      currentZoom = fitZoom;
-      const zoomText = document.getElementById('zoom-percentage-text');
-      if (zoomText) zoomText.innerText = `${Math.round(currentZoom * 100)}%`;
-
-      if (pageLayoutMode === 'vertical') {
-        const a4HeightPx = 1122.52;
-        stage.style.transform = `scale(${currentZoom}) translateY(-${(activeFitPage - 1) * a4HeightPx}px)`;
-      } else {
-        stage.style.transform = `scale(${currentZoom})`;
-      }
-      renderFloatingPageNavigator();
-    } else {
-      stage.style.transform = `scale(${currentZoom})`;
-      hideFloatingPageNavigator();
-    }
+    applyZoom(currentZoom);
   }
 
   function toggleFitScreenMode() {
-    isFitScreenMode = !isFitScreenMode;
-    applyFitScreenView();
-    showToast(
-      isFitScreenMode
-        ? '🎯 Đã bật chế độ Ghim Vừa Màn Hình (CV luôn cố định trong tầm mắt)!'
-        : '↕️ Đã chuyển về chế độ Cuộn Dọc tự do.',
-      isFitScreenMode ? 'fa-solid fa-arrows-to-eye' : 'fa-solid fa-arrows-up-down'
-    );
+    resetZoomToFit();
   }
 
   let highlightTimeout = null;
@@ -2534,7 +2537,12 @@ const CVApp = (function () {
   function switchFitPage(pageNum) {
     if (pageNum < 1 || pageNum > totalCalculatedPages) return;
     activeFitPage = pageNum;
-    applyFitScreenView();
+    updatePageNavPillsHighlight();
+    const viewport = document.getElementById('preview-stage-viewport');
+    if (!viewport) return;
+    const a4HeightPx = 1122.52;
+    const targetTop = Math.round((pageNum - 1) * a4HeightPx * currentZoom);
+    viewport.scrollTo({ top: targetTop, behavior: 'smooth' });
   }
 
   function nextFitPage() {
@@ -2556,7 +2564,8 @@ const CVApp = (function () {
     if (!secName) return;
 
     const sheet = document.getElementById('cv-printable-area');
-    if (!sheet) return;
+    const viewport = document.getElementById('preview-stage-viewport');
+    if (!sheet || !viewport) return;
 
     const selectorMap = {
       'personal-info': '.cv-avatar-wrap, .cv-candidate-name, .cv-header',
@@ -2579,22 +2588,18 @@ const CVApp = (function () {
     if (!selector) return;
 
     const el = sheet.querySelector(selector);
-
-    // 1. Nếu đang ở chế độ Ghim vừa màn hình: lật sang đúng trang chứa mục đó
-    if (isFitScreenMode && pageLayoutMode !== 'horizontal' && totalCalculatedPages > 1) {
-      const targetPage = getPageForSection(secName);
-      if (targetPage && targetPage !== activeFitPage) {
-        switchFitPage(targetPage);
-      }
-    } else if (!isFitScreenMode) {
-      // 2. Nếu ở chế độ cuộn dọc tự do: cuộn khung nhìn tới mục đó
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }
-
-    // 3. Hiệu ứng viền phát sáng (Pulse Highlight) giúp người dùng thấy ngay vị trí đang sửa trên CV
     if (el) {
+      const viewportRect = viewport.getBoundingClientRect();
+      const elRect = el.getBoundingClientRect();
+      const currentScrollTop = viewport.scrollTop;
+      const targetScrollTop = currentScrollTop + (elRect.top - viewportRect.top) - (viewport.clientHeight * 0.25);
+
+      viewport.scrollTo({
+        top: Math.max(0, targetScrollTop),
+        behavior: 'smooth'
+      });
+
+      // Hiệu ứng viền phát sáng (Pulse Highlight) giúp người dùng thấy ngay vị trí đang sửa trên CV
       document.querySelectorAll('.cv-section-focused').forEach(node => node.classList.remove('cv-section-focused'));
       el.classList.add('cv-section-focused');
       clearTimeout(highlightTimeout);
@@ -2611,7 +2616,7 @@ const CVApp = (function () {
     const btnNext = document.getElementById('btn-page-next');
     if (!nav || !pillsWrap) return;
 
-    if (!isFitScreenMode || pageLayoutMode === 'horizontal' || totalCalculatedPages <= 1) {
+    if (pageLayoutMode === 'horizontal' || totalCalculatedPages <= 1) {
       nav.style.display = 'none';
       return;
     }
@@ -2632,6 +2637,17 @@ const CVApp = (function () {
     if (btnNext) btnNext.disabled = (activeFitPage >= totalCalculatedPages);
   }
 
+  function updatePageNavPillsHighlight() {
+    const pills = document.querySelectorAll('.page-nav-pill');
+    pills.forEach((pill, idx) => {
+      pill.classList.toggle('active', (idx + 1) === activeFitPage);
+    });
+    const btnPrev = document.getElementById('btn-page-prev');
+    const btnNext = document.getElementById('btn-page-next');
+    if (btnPrev) btnPrev.disabled = (activeFitPage <= 1);
+    if (btnNext) btnNext.disabled = (activeFitPage >= totalCalculatedPages);
+  }
+
   function hideFloatingPageNavigator() {
     const nav = document.getElementById('floating-page-navigator');
     if (nav) nav.style.display = 'none';
@@ -2644,7 +2660,6 @@ const CVApp = (function () {
     const sidebar = document.getElementById('editor-sidebar');
     if (!sidebar) return;
 
-    // Khi focus vào bất kỳ ô nhập liệu nào
     sidebar.addEventListener('focusin', (e) => {
       const sec = e.target.closest('.accordion-section');
       if (sec) {
@@ -2653,7 +2668,6 @@ const CVApp = (function () {
       }
     });
 
-    // Khi gõ phím chỉnh sửa nội dung
     sidebar.addEventListener('input', (e) => {
       const sec = e.target.closest('.accordion-section');
       if (sec) {
@@ -2662,7 +2676,6 @@ const CVApp = (function () {
       }
     });
 
-    // Khi nhấp chuột vào accordion header, nút thêm/xóa mục hoặc các nhãn lựa chọn
     sidebar.addEventListener('click', (e) => {
       const header = e.target.closest('.accordion-header');
       if (header) {
@@ -2685,76 +2698,47 @@ const CVApp = (function () {
     });
   }
 
-  function getPageForSection(secName) {
-    const sheet = document.getElementById('cv-printable-area');
-    if (!sheet) return 1;
+  /**
+   * Đồng bộ active pill khi cuộn khung nhìn CV
+   */
+  function setupViewportScrollSync() {
+    const viewport = document.getElementById('preview-stage-viewport');
+    if (!viewport) return;
 
-    const selectorMap = {
-      'personal-info': '.cv-avatar-wrap, .cv-candidate-name, .cv-header',
-      'summary': '.section-summary, .cv-summary-text',
-      'experience': '.section-experience',
-      'projects': '.section-projects',
-      'education': '.section-education',
-      'hard-skills': '.section-hard-skills',
-      'soft-skills': '.section-soft-skills',
-      'strengths': '.section-strengths',
-      'hobbies': '.section-hobbies',
-      'certificates': '.section-certificates',
-      'awards': '.section-awards',
-      'languages': '.section-languages',
-      'references': '.section-references',
-      'visibility': '.section-references, .section-languages'
-    };
-
-    const selector = selectorMap[secName];
-    if (!selector) return 1;
-
-    const el = sheet.querySelector(selector);
-    if (!el) {
-      const p2Sections = ['projects', 'education', 'awards', 'languages', 'references', 'strengths', 'hobbies'];
-      return p2Sections.includes(secName) ? Math.min(2, totalCalculatedPages) : 1;
-    }
-
-    const sheetRect = sheet.getBoundingClientRect();
-    const elRect = el.getBoundingClientRect();
-    const zoom = currentZoom || 1;
-    // Bù trừ tỷ lệ phóng to transform: scale(zoom) để lấy toạ độ thực trên trang A4
-    const unscaledOffsetTop = (elRect.top - sheetRect.top) / zoom;
-    const a4HeightPx = 1122.52;
-
-    const page = Math.floor((unscaledOffsetTop + 35) / a4HeightPx) + 1;
-    return Math.max(1, Math.min(page, totalCalculatedPages));
+    viewport.addEventListener('scroll', () => {
+      if (pageLayoutMode === 'horizontal' || totalCalculatedPages <= 1) return;
+      const a4HeightPx = 1122.52;
+      const scaledPageH = a4HeightPx * (currentZoom || 1);
+      const scrollPos = viewport.scrollTop;
+      const detectedPage = Math.floor((scrollPos + scaledPageH * 0.45) / scaledPageH) + 1;
+      const clampedPage = Math.max(1, Math.min(detectedPage, totalCalculatedPages));
+      if (clampedPage !== activeFitPage) {
+        activeFitPage = clampedPage;
+        updatePageNavPillsHighlight();
+      }
+    }, { passive: true });
   }
 
   /**
-   * Lăn chuột trên CV preview để lật trang (chỉ ảnh hưởng khi con trỏ ở vùng CV)
+   * Phóng to / Thu nhỏ mượt mà bằng Ctrl + lăn chuột
    */
-  function setupWheelPageFlip() {
+  function setupWheelZoom() {
     const viewport = document.getElementById('preview-stage-viewport');
     if (!viewport) return;
 
     viewport.addEventListener('wheel', (e) => {
-      if (!isFitScreenMode || pageLayoutMode === 'horizontal' || totalCalculatedPages <= 1) return;
-      e.preventDefault();
-
-      if (isWheelThrottled) return;
-
-      if (e.deltaY > 20 && activeFitPage < totalCalculatedPages) {
-        isWheelThrottled = true;
-        nextFitPage();
-        setTimeout(() => { isWheelThrottled = false; }, 380);
-      } else if (e.deltaY < -20 && activeFitPage > 1) {
-        isWheelThrottled = true;
-        prevFitPage();
-        setTimeout(() => { isWheelThrottled = false; }, 380);
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        const delta = e.deltaY < 0 ? 0.05 : -0.05;
+        applyZoom(currentZoom + delta);
       }
     }, { passive: false });
   }
 
   function initFitScreenMode() {
-    setupFormAutoPageSync();
-    setupWheelPageFlip();
-    applyFitScreenView();
+    setupViewportScrollSync();
+    setupWheelZoom();
+    applyZoom(calculateFitZoom());
   }
 
   /**
@@ -3010,9 +2994,8 @@ const CVApp = (function () {
     const totalPages = Math.max(1, Math.ceil(scrollH / a4HeightPx));
     totalCalculatedPages = totalPages;
 
-    if (isFitScreenMode) {
-      applyFitScreenView();
-    }
+    applyZoom(currentZoom);
+    renderFloatingPageNavigator();
 
     if (totalPages === 1) {
       fillText.innerText = `${percent}% A4`;
@@ -3484,7 +3467,10 @@ const CVApp = (function () {
     toggleRightSidebar,
     toggleZenMode,
     togglePageLayoutMode,
-    // Sticky Fit-Screen Mode & Page Navigation API
+    // Sticky Pinned Canvas & Zoom / Navigation API
+    zoomIn,
+    zoomOut,
+    resetZoomToFit,
     toggleFitScreenMode,
     nextFitPage,
     prevFitPage,

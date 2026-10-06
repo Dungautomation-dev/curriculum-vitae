@@ -42,10 +42,10 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--gray-100);
   color: var(--gray-800);
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden !important;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
 }
 
 /* ==========================================================================
@@ -351,6 +351,7 @@ body {
   flex-shrink: 0;
   height: 100%;
   overflow-y: auto;
+  overscroll-behavior: contain;
   background: #ffffff;
   border-right: 1px solid var(--gray-200);
   display: flex;
@@ -678,20 +679,17 @@ body {
 .preview-container {
   flex: 1;
   min-width: 0;
-  height: calc(100vh - 64px);
+  height: 100%;
   background: #cbd5e1;
   background-image: 
     radial-gradient(#94a3b8 10%, transparent 11%), 
     radial-gradient(#94a3b8 10%, transparent 11%);
   background-size: 24px 24px;
   background-position: 0 0, 12px 12px;
-  overflow-y: auto;
-  overflow-x: hidden !important;
+  overflow: hidden !important;
   display: flex;
   flex-direction: column;
   position: relative;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
 }
 
 .preview-container::-webkit-scrollbar {
@@ -743,53 +741,50 @@ body {
 
 .preview-stage-viewport {
   flex: 1;
-  padding: 24px 20px 40px 20px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 100%;
+  overflow-y: auto !important;
+  overflow-x: auto !important;
+  overscroll-behavior: contain;
+  padding: 16px 20px 80px 20px;
   position: relative;
   box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 116, 139, 0.4) transparent;
 }
 
-.preview-zoom-stage {
-  transform-origin: top center;
-  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+.preview-stage-viewport::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.preview-stage-viewport::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.preview-stage-viewport::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.35);
+  border-radius: 4px;
+}
+
+.preview-stage-viewport::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.65);
 }
 
 /* ==========================================================================
-   FIT-TO-SCREEN CANVAS MODE (HƯỚNG 2: CV LUÔN GHIM CỐ ĐỊNH TRONG TẦM MẮT)
+   BOUNDED SCALED WRAPPER & ZOOM STAGE (ZOOM & CUỘN CHUẨN, KHÔNG MẤT VIEW CV)
    ========================================================================== */
-body.fit-screen-mode {
-  height: 100vh;
-  overflow: hidden !important;
+.preview-zoom-wrapper {
+  margin: 12px auto 60px auto;
+  position: relative;
+  transition: width 0.15s ease-out, height 0.15s ease-out;
 }
 
-body.fit-screen-mode .preview-container {
-  overflow: hidden !important;
-}
-
-body.fit-screen-mode .preview-stage-viewport {
-  overflow: hidden !important;
-  padding: 16px 20px 65px 20px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  height: calc(100vh - 64px - 52px);
-  box-sizing: border-box;
-}
-
-body.fit-screen-mode .preview-zoom-stage {
-  transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
-  margin: 0 auto;
-}
-
-/* Nút Ghim Vừa Màn Hình trên Toolbar */
-.btn-fit-mode.active {
-  background: var(--primary) !important;
-  color: #ffffff !important;
-  border-color: var(--primary) !important;
-  box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.25) !important;
+.preview-zoom-stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+  transition: transform 0.15s ease-out;
+  box-shadow: 0 10px 32px rgba(15, 23, 42, 0.18);
 }
 
 /* Floating Sticky Page Navigator (Thanh Lật Trang Thông Minh) */
@@ -1441,6 +1436,7 @@ body.fit-screen-mode .preview-zoom-stage {
 .templates-quick-list {
   flex: 1;
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 12px;
   display: flex;
   flex-direction: column;
