@@ -1053,16 +1053,19 @@ const CVApp = (function () {
           ${summaryBlock ? `<div class="bento-card">${summaryBlock}</div>` : ''}
           <div class="bento-grid-2col">
             <div>
-              ${experienceHtml ? `<div class="bento-card">${experienceHtml}</div>` : ''}
-              ${projectsHtml ? `<div class="bento-card">${projectsHtml}</div>` : ''}
-              ${awardsHtml ? `<div class="bento-card">${awardsHtml}</div>` : ''}
-              ${certificationsHtml ? `<div class="bento-card">${certificationsHtml}</div>` : ''}
+              ${experienceHtml}
+              ${projectsHtml}
+              ${awardsHtml}
+              ${certificationsHtml}
             </div>
             <div>
-              ${educationHtml ? `<div class="bento-card">${educationHtml}</div>` : ''}
-              ${hardSkillsHtml ? `<div class="bento-card">${hardSkillsHtml}</div>` : ''}
-              ${(softSkillsHtml || strengthsHtml) ? `<div class="bento-card">${softSkillsHtml}${strengthsHtml}</div>` : ''}
-              ${(languagesHtml || hobbiesHtml || referencesHtml) ? `<div class="bento-card">${languagesHtml}${hobbiesHtml}${referencesHtml}</div>` : ''}
+              ${educationHtml}
+              ${hardSkillsHtml}
+              ${softSkillsHtml}
+              ${strengthsHtml}
+              ${languagesHtml}
+              ${hobbiesHtml}
+              ${referencesHtml}
             </div>
           </div>
         </div>
@@ -1121,19 +1124,19 @@ const CVApp = (function () {
                 ${contactHtml}
               </div>
               ${educationHtml}
-              ${certificationsHtml}
+              ${softSkillsHtml}
+              ${languagesHtml}
+              ${hobbiesHtml}
             </div>
             <div>
               ${experienceHtml}
               ${projectsHtml}
-              ${awardsHtml}
             </div>
             <div>
               ${hardSkillsHtml}
-              ${softSkillsHtml}
               ${strengthsHtml}
-              ${languagesHtml}
-              ${hobbiesHtml}
+              ${certificationsHtml}
+              ${awardsHtml}
               ${referencesHtml}
             </div>
           </div>
@@ -2793,9 +2796,10 @@ const CVApp = (function () {
     const sheet = document.getElementById('cv-printable-area');
     if (!sheet) return 1;
 
-    // 1. Dọn dẹp toàn bộ spacer và divider cũ
+    // 1. Dọn dẹp toàn bộ spacer, divider và khung viền cũ
     sheet.querySelectorAll('.cv-page-break-spacer').forEach(el => el.remove());
     sheet.querySelectorAll('.cv-page-break-divider').forEach(el => el.remove());
+    sheet.querySelectorAll('.cv-page-frame-border').forEach(el => el.remove());
     sheet.style.minHeight = '';
 
     const sheetRect = sheet.getBoundingClientRect();
@@ -2852,11 +2856,12 @@ const CVApp = (function () {
         // Thu thập các khối nguyên tử (atomic blocks) theo thứ tự hiển thị
         const blocks = [];
         Array.from(col.children).forEach(child => {
-          if (child.classList.contains('cv-page-break-spacer') || child.classList.contains('no-print')) return;
+          if (child.classList.contains('cv-page-break-spacer') || child.classList.contains('no-print') || child.classList.contains('cv-page-frame-border')) return;
 
-          if (child.classList.contains('cv-section')) {
-            const items = Array.from(child.querySelectorAll('.timeline-item, .cv-card-item, .skill-item-bar, .bento-card'));
-            const title = child.querySelector('.cv-section-title');
+          const sectionEl = child.classList.contains('cv-section') ? child : child.querySelector('.cv-section');
+          if (sectionEl) {
+            const items = Array.from(sectionEl.querySelectorAll('.timeline-item, .cv-card-item, .skill-item-bar, .bento-card'));
+            const title = sectionEl.querySelector('.cv-section-title');
 
             if (items.length > 0) {
               if (title) blocks.push({ el: title, parentSection: child, isTitle: true });
@@ -2930,11 +2935,11 @@ const CVApp = (function () {
       '.cv-section, .cv-card-item, .timeline-item, .skill-item-bar, ' +
       '.cv-banner-header, .cv-minimal-header, .cv-top-bar, .bento-card, ' +
       '.executive-centered-header, .compact-header, .editorial-header, ' +
-      '.technical-header-box, .luxury-header, .luxury-frame-box, .split-col-left, .split-col-right'
+      '.technical-header-box, .luxury-header, .split-col-left, .split-col-right'
     );
 
     allContentBlocks.forEach(el => {
-      if (el.classList.contains('cv-page-break-spacer') || el.classList.contains('no-print')) return;
+      if (el.classList.contains('cv-page-break-spacer') || el.classList.contains('no-print') || el.classList.contains('cv-page-frame-border')) return;
       const r = el.getBoundingClientRect();
       if (r.height <= 0) return;
       const b = (r.bottom - sheetRect.top) / zoom;
@@ -2965,11 +2970,28 @@ const CVApp = (function () {
 
     // Dọn dẹp DOM cũ
     sheet.querySelectorAll('.cv-page-break-divider').forEach(el => el.remove());
+    sheet.querySelectorAll('.cv-page-frame-border').forEach(el => el.remove());
     const oldRow = previewWrapper.querySelector('.horizontal-pages-row');
     if (oldRow) oldRow.remove();
 
     // 1. Phân trang DOM Semantic thông minh trước khi render hiển thị
     const totalPages = applySmartPagination();
+
+    // 1b. Gắn khung viền từng trang độc lập (Mỗi trang 1 viền) cho template có khung viền (Mẫu 7 & Mẫu 9)
+    const tpl = (typeof CV_TEMPLATES !== 'undefined') ? CV_TEMPLATES.find(t => t.id === currentTemplateId) : null;
+    const isFramedTemplate = tpl && (tpl.styleId === 'executive-bold' || tpl.styleId === 'framed-luxury');
+    if (isFramedTemplate) {
+      sheet.querySelectorAll('.cv-page-frame-border').forEach(el => el.remove());
+      for (let p = 1; p <= totalPages; p++) {
+        const frame = document.createElement('div');
+        frame.className = 'cv-page-frame-border';
+        frame.style.top = `${(p - 1) * 297 + 16}mm`;
+        frame.style.left = '14mm';
+        frame.style.width = 'calc(210mm - 28mm)';
+        frame.style.height = 'calc(297mm - 32mm)';
+        sheet.appendChild(frame);
+      }
+    }
 
     const sheetRect = sheet.getBoundingClientRect();
     const zoom = currentZoom || 1;
@@ -3007,9 +3029,9 @@ const CVApp = (function () {
           '.cv-section, .cv-card-item, .timeline-item, .skill-item-bar, ' +
           '.cv-banner-header, .cv-minimal-header, .cv-top-bar, .bento-card, ' +
           '.executive-centered-header, .compact-header, .editorial-header, ' +
-          '.technical-header-box, .luxury-header, .luxury-frame-box, .split-col-left, .split-col-right'
+          '.technical-header-box, .luxury-header, .split-col-left, .split-col-right'
         ).forEach(el => {
-          if (el.classList.contains('cv-page-break-spacer') || el.classList.contains('no-print')) return;
+          if (el.classList.contains('cv-page-break-spacer') || el.classList.contains('no-print') || el.classList.contains('cv-page-frame-border')) return;
           const r = el.getBoundingClientRect();
           if (r.height <= 0) return;
           const b = (r.bottom - sheetRect.top) / zoom;

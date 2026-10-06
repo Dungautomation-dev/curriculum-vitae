@@ -608,13 +608,14 @@
   box-sizing: border-box;
 }
 
-.layout-bento-cards .bento-card {
+.layout-bento-cards .bento-card,
+.layout-bento-cards .cv-section {
   background: #ffffff;
   border: 1px solid var(--cv-border);
   border-radius: 12px;
-  padding: 16px 18px;
+  padding: 14px 16px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .layout-bento-cards .bento-hero-card {
@@ -642,12 +643,10 @@
 }
 
 .layout-executive-bold .executive-inner-border {
-  border: 2px solid var(--cv-primary);
-  outline: 1px solid var(--cv-border);
-  outline-offset: -5px;
-  padding: 22px 24px;
+  border: none !important;
+  outline: none !important;
+  padding: 16px 18px;
   box-sizing: border-box;
-  min-height: calc(297mm - 32mm);
 }
 
 .layout-executive-bold .executive-centered-header {
@@ -866,10 +865,28 @@
 }
 
 .layout-framed-luxury .luxury-frame-box {
-  border: 3px double var(--cv-primary);
-  padding: 22px 24px;
+  border: none !important;
+  outline: none !important;
+  padding: 16px 18px;
   box-sizing: border-box;
-  min-height: calc(297mm - 32mm);
+}
+
+/* Khung viền từng trang độc lập (Mỗi trang 1 viền - Per-Page Frame Overlay) */
+.cv-page-frame-border {
+  position: absolute;
+  pointer-events: none;
+  box-sizing: border-box;
+  z-index: 5;
+}
+
+.layout-executive-bold .cv-page-frame-border {
+  border: 2px solid var(--cv-primary);
+  outline: 1px solid var(--cv-border);
+  outline-offset: -5px;
+}
+
+.layout-framed-luxury .cv-page-frame-border {
+  border: 3px double var(--cv-primary);
 }
 
 .layout-framed-luxury .luxury-header {
