@@ -2781,15 +2781,19 @@ const CVApp = (function () {
   }
 
   /**
-   * Smart Semantic Pagination Engine (Hướng B - Chuẩn hóa ngắt trang không cắt chữ)
-   * Tự động đo đạc vị trí các khối nội dung (.timeline-item, .cv-card-item, .cv-section, badge...)
-   * và chèn spacer thông minh để đẩy các phần tử tràn trang sang đầu trang mới nguyên vẹn.
+   * Smart Semantic Pagination Engine (Chuẩn Hướng B - Cân bằng viền trang tuyệt đối)
+   * Đảm bảo:
+   * 1. Viền trên và viền dưới của MỌI trang A4 luôn cách đều, không chạm mép giấy (lề >= 19mm ~ 72px).
+   * 2. Không bao giờ cắt ngang bất kỳ khối nội dung nào (.timeline-item, .cv-card-item, .skill-item-bar, .bento-card).
+   * 3. Đồng bộ tất cả các cột trên cùng một trang để cùng xuất phát đồng đều ở lề trên.
+   * 4. Triệt tiêu 100% hiện tượng tiêu đề mồ côi (orphan header).
+   * 5. Miễn nhiễm 100% với tỷ lệ Zoom (tính toán hoàn toàn trên toạ độ unscaled CSS pixels).
    */
   function applySmartPagination() {
     const sheet = document.getElementById('cv-printable-area');
     if (!sheet) return 1;
 
-    // 1. Dọn dẹp toàn bộ spacer cũ
+    // 1. Dọn dẹp toàn bộ spacer và divider cũ
     sheet.querySelectorAll('.cv-page-break-spacer').forEach(el => el.remove());
     sheet.querySelectorAll('.cv-page-break-divider').forEach(el => el.remove());
     sheet.style.minHeight = '';
@@ -2797,18 +2801,17 @@ const CVApp = (function () {
     const sheetRect = sheet.getBoundingClientRect();
     if (!sheetRect || sheetRect.width <= 0) return 1;
 
-    // Chiều cao chuẩn A4 (297mm / 210mm = 1.4142857)
-    const a4HeightPx = sheetRect.width * (297 / 210);
-    const scrollH = sheet.scrollHeight;
+    // Toạ độ unscaled dựa trên tỷ lệ zoom hiện tại
+    const zoom = currentZoom || 1;
 
-    // Nếu vừa khít trong 1 trang A4 (dung sai an toàn 48px cho padding/margin)
-    if (scrollH <= a4HeightPx + 48) {
-      sheet.style.minHeight = '297mm';
-      return 1;
-    }
+    // Chiều cao chuẩn A4 trong hệ toạ độ unscaled CSS (297mm / 210mm * 793.7px = 1122.52px)
+    const a4HeightPx = 1122.52;
+
+    // Quy chuẩn khoảng cách viền trang an toàn (Golden Margin: ~19mm = 72px)
+    const pageTopMargin = 72;    // Lề đầu trang mới (px)
+    const pageBottomMargin = 72; // Lề đáy trang an toàn (px)
 
     const maxPages = 4;
-    const pageTopPadding = 14; // Khoảng đệm đầu trang mới gọn gàng (px)
 
     // Xác định các cột độc lập trong layout (hỗ trợ cả 12 mẫu template)
     let columnContainers = Array.from(sheet.querySelectorAll(
@@ -2822,25 +2825,44 @@ const CVApp = (function () {
       columnContainers = [sheet];
     }
 
+    // Vòng lặp phân trang từng ranh giới trang (p = 1, 2, 3...)
     for (let p = 1; p < maxPages; p++) {
       const boundaryY = p * a4HeightPx;
-      if (sheet.scrollHeight < boundaryY - 15) break;
+      const safeBottom = boundaryY - pageBottomMargin;
+      const nextPageTop = boundaryY + pageTopMargin;
 
+      // Kiểm tra xem trang p có nội dung lấn qua safeBottom hay không
+      let pageNeedsBreak = false;
+      columnContainers.forEach(col => {
+        const colRect = col.getBoundingClientRect();
+        if (colRect.width <= 0) return;
+        const colBottom = (colRect.bottom - sheetRect.top) / zoom;
+        if (colBottom > safeBottom) {
+          pageNeedsBreak = true;
+        }
+      });
+
+      if (!pageNeedsBreak) break;
+
+      // Duyệt qua từng cột để đẩy các khối nội dung sang trang tiếp theo đồng bộ
       columnContainers.forEach(col => {
         const colRect = col.getBoundingClientRect();
         if (colRect.width <= 0) return;
 
+        // Thu thập các khối nguyên tử (atomic blocks) theo thứ tự hiển thị
         const blocks = [];
         Array.from(col.children).forEach(child => {
           if (child.classList.contains('cv-page-break-spacer') || child.classList.contains('no-print')) return;
 
           if (child.classList.contains('cv-section')) {
-            const items = child.querySelectorAll('.timeline-item, .cv-card-item, .skill-item-bar');
+            const items = Array.from(child.querySelectorAll('.timeline-item, .cv-card-item, .skill-item-bar, .bento-card'));
             const title = child.querySelector('.cv-section-title');
 
             if (items.length > 0) {
               if (title) blocks.push({ el: title, parentSection: child, isTitle: true });
-              items.forEach(it => blocks.push({ el: it, parentSection: child, isItem: true }));
+              items.forEach((it, idx) => {
+                blocks.push({ el: it, parentSection: child, isItem: true, isFirstItem: (idx === 0) });
+              });
             } else {
               blocks.push({ el: child, isWholeSection: true });
             }
@@ -2849,50 +2871,60 @@ const CVApp = (function () {
           }
         });
 
+        // Tìm khối đầu tiên trong cột này cần phải chuyển sang trang p + 1
+        let targetToPush = null;
+
         for (let i = 0; i < blocks.length; i++) {
           const item = blocks[i];
-          const el = item.el;
-          const rect = el.getBoundingClientRect();
-          const top = rect.top - sheetRect.top;
-          const bottom = top + rect.height;
+          const elRect = item.el.getBoundingClientRect();
+          const unscaledTop = (elRect.top - sheetRect.top) / zoom;
+          const unscaledBottom = (elRect.bottom - sheetRect.top) / zoom;
 
-          // Nếu phần tử bị vạch boundaryY cắt ngang hoặc quá sát mép đáy trang (< 18px)
-          // Và phần tử thực sự lấn qua boundaryY hơn 12px
-          if (top < boundaryY && bottom > boundaryY - 18 && bottom > boundaryY + 12) {
-            let targetToPush = el;
+          // Nếu khối này kết thúc an toàn trước vùng lề đáy của trang p
+          if (unscaledBottom <= safeBottom) {
+            continue;
+          }
 
-            // Xử lý chống mồ côi tiêu đề
-            if (item.isTitle && item.parentSection) {
+          // Khối này chạm/lấn vào lề đáy của trang p hoặc vượt qua boundaryY!
+          if (item.isTitle && item.parentSection) {
+            targetToPush = item.parentSection;
+          } else if (item.isItem && item.parentSection) {
+            if (item.isFirstItem) {
+              // Chống tiêu đề mồ côi: nếu mục đầu tiên của section bị đẩy, đẩy cả section
               targetToPush = item.parentSection;
-            } else if (item.isItem && item.parentSection) {
-              const firstItem = item.parentSection.querySelector('.timeline-item, .cv-card-item, .skill-item-bar');
-              if (el === firstItem) {
-                targetToPush = item.parentSection;
-              }
+            } else {
+              targetToPush = item.el;
             }
+          } else if (item.isWholeSection) {
+            targetToPush = item.el;
+          } else {
+            targetToPush = item.el;
+          }
+          break;
+        }
 
-            const pushRect = targetToPush.getBoundingClientRect();
-            const pushTop = pushRect.top - sheetRect.top;
-            const pushDistance = (boundaryY - pushTop) + pageTopPadding;
+        // Nếu tìm thấy khối cần đẩy, chèn spacer để khối này bắt đầu chính xác tại nextPageTop
+        if (targetToPush) {
+          const pushRect = targetToPush.getBoundingClientRect();
+          const currentUnscaledTop = (pushRect.top - sheetRect.top) / zoom;
+          const pushDistance = nextPageTop - currentUnscaledTop;
 
-            if (pushDistance > 0) {
-              const spacer = document.createElement('div');
-              spacer.className = 'cv-page-break-spacer';
-              spacer.style.height = `${Math.round(pushDistance)}px`;
-              spacer.style.width = '100%';
-              spacer.style.display = 'block';
-              spacer.style.flexShrink = '0';
-              spacer.style.pointerEvents = 'none';
+          if (pushDistance > 0) {
+            const spacer = document.createElement('div');
+            spacer.className = 'cv-page-break-spacer';
+            spacer.style.height = `${Math.round(pushDistance)}px`;
+            spacer.style.width = '100%';
+            spacer.style.display = 'block';
+            spacer.style.flexShrink = '0';
+            spacer.style.pointerEvents = 'none';
 
-              targetToPush.parentNode.insertBefore(spacer, targetToPush);
-            }
-            break; // Cột này đã được căn ngắt trang cho boundaryY
+            targetToPush.parentNode.insertBefore(spacer, targetToPush);
           }
         }
       });
     }
 
-    // ĐO TOẠ ĐỘ ĐÁY THỰC TẾ CỦA TẤT CẢ PHẦN TỬ NỘI DUNG (Triệt tiêu 100% trang trống / Phantom Page)
+    // 2. ĐO TOẠ ĐỘ ĐÁY THỰC TẾ CỦA TẤT CẢ PHẦN TỬ NỘI DUNG (Triệt tiêu 100% trang trắng)
     let maxContentBottom = 0;
     const allContentBlocks = sheet.querySelectorAll(
       '.cv-section, .cv-card-item, .timeline-item, .skill-item-bar, ' +
@@ -2903,20 +2935,16 @@ const CVApp = (function () {
 
     allContentBlocks.forEach(el => {
       if (el.classList.contains('cv-page-break-spacer') || el.classList.contains('no-print')) return;
-      const rect = el.getBoundingClientRect();
-      if (rect.height <= 0) return;
-      const b = rect.bottom - sheetRect.top;
+      const r = el.getBoundingClientRect();
+      if (r.height <= 0) return;
+      const b = (r.bottom - sheetRect.top) / zoom;
       if (b > maxContentBottom) maxContentBottom = b;
     });
 
-    // Ngưỡng dung sai an toàn: 50px (~13mm).
-    // Nếu nội dung chỉ vượt qua ranh giới trang <= 50px (do margin/padding đáy card cuối cùng),
-    // tuyệt đối không được sinh thêm trang trắng mới!
-    const pageTolerance = 50;
     let calculatedPages = 1;
     for (let p = 1; p <= maxPages; p++) {
       const pageTop = (p - 1) * a4HeightPx;
-      if (maxContentBottom > pageTop + pageTolerance) {
+      if (maxContentBottom > pageTop + 35) {
         calculatedPages = p;
       }
     }
@@ -2944,7 +2972,8 @@ const CVApp = (function () {
     const totalPages = applySmartPagination();
 
     const sheetRect = sheet.getBoundingClientRect();
-    const a4HeightPx = (sheetRect && sheetRect.width > 0) ? (sheetRect.width * (297 / 210)) : 1122.52;
+    const zoom = currentZoom || 1;
+    const a4HeightPx = 1122.52;
 
     // 2. Chế độ Dọc (Vertical)
     if (pageLayoutMode === 'vertical') {
@@ -2972,7 +3001,7 @@ const CVApp = (function () {
         const row = document.createElement('div');
         row.className = 'horizontal-pages-row no-print';
 
-        // Lấy toạ độ đáy thực tế để kiểm tra an toàn từng card
+        // Lấy toạ độ đáy thực tế (unscaled) để kiểm tra an toàn từng card
         let maxBottom = 0;
         sheet.querySelectorAll(
           '.cv-section, .cv-card-item, .timeline-item, .skill-item-bar, ' +
@@ -2983,7 +3012,7 @@ const CVApp = (function () {
           if (el.classList.contains('cv-page-break-spacer') || el.classList.contains('no-print')) return;
           const r = el.getBoundingClientRect();
           if (r.height <= 0) return;
-          const b = r.bottom - sheetRect.top;
+          const b = (r.bottom - sheetRect.top) / zoom;
           if (b > maxBottom) maxBottom = b;
         });
 
@@ -3120,7 +3149,7 @@ const CVApp = (function () {
       }
     }
 
-    const targetMaxH = targetPages * a4HeightPx - Math.max(0, (targetPages - 1) * 55);
+    const targetMaxH = targetPages * a4HeightPx - Math.max(0, (targetPages - 1) * 144);
 
     const spacingOptions = ['standard', 'compact', 'spacious'];
     const scaleOptions = [100, 98, 96, 94, 92, 90, 88, 102, 104];
