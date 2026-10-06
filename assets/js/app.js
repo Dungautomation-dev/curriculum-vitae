@@ -1350,7 +1350,7 @@ const CVApp = (function () {
     let baseH = a4H;
 
     if (pageLayoutMode === 'horizontal') {
-      const isMulti = sheet && sheet.scrollHeight > a4H + 20;
+      const isMulti = (totalCalculatedPages || 1) > 1;
       baseW = isMulti ? (a4W * 2 + 36) : a4W;
       baseH = a4H;
     } else if (sheet && sheet.offsetHeight > 100) {
@@ -2511,8 +2511,7 @@ const CVApp = (function () {
     const a4H = 1122.52;
 
     if (pageLayoutMode === 'horizontal') {
-      const sheet = document.getElementById('cv-printable-area');
-      const isMulti = sheet && sheet.scrollHeight > a4H + 20;
+      const isMulti = (totalCalculatedPages || 1) > 1;
       const totalW = isMulti ? (a4W * 2 + 36) : a4W;
       const scaleX = vpW / totalW;
       const scaleY = vpH / a4H;
@@ -2802,14 +2801,14 @@ const CVApp = (function () {
     const a4HeightPx = sheetRect.width * (297 / 210);
     const scrollH = sheet.scrollHeight;
 
-    // Nếu vừa khít trong 1 trang A4
-    if (scrollH <= a4HeightPx + 10) {
+    // Nếu vừa khít trong 1 trang A4 (dung sai an toàn 48px cho padding/margin)
+    if (scrollH <= a4HeightPx + 48) {
       sheet.style.minHeight = '297mm';
       return 1;
     }
 
     const maxPages = 4;
-    const pageTopPadding = 26; // Khoảng đệm đầu trang mới (px)
+    const pageTopPadding = 14; // Khoảng đệm đầu trang mới gọn gàng (px)
 
     // Xác định các cột độc lập trong layout (hỗ trợ cả 12 mẫu template)
     let columnContainers = Array.from(sheet.querySelectorAll(
@@ -2825,7 +2824,7 @@ const CVApp = (function () {
 
     for (let p = 1; p < maxPages; p++) {
       const boundaryY = p * a4HeightPx;
-      if (sheet.scrollHeight < boundaryY - 20) break;
+      if (sheet.scrollHeight < boundaryY - 15) break;
 
       columnContainers.forEach(col => {
         const colRect = col.getBoundingClientRect();
@@ -2857,8 +2856,9 @@ const CVApp = (function () {
           const top = rect.top - sheetRect.top;
           const bottom = top + rect.height;
 
-          // Nếu phần tử bị vạch boundaryY cắt ngang hoặc quá sát mép đáy trang (< 24px)
-          if (top < boundaryY && bottom > boundaryY - 24) {
+          // Nếu phần tử bị vạch boundaryY cắt ngang hoặc quá sát mép đáy trang (< 18px)
+          // Và phần tử thực sự lấn qua boundaryY hơn 12px
+          if (top < boundaryY && bottom > boundaryY - 18 && bottom > boundaryY + 12) {
             let targetToPush = el;
 
             // Xử lý chống mồ côi tiêu đề
@@ -2892,8 +2892,36 @@ const CVApp = (function () {
       });
     }
 
-    const finalScrollH = sheet.scrollHeight;
-    const totalPages = Math.max(1, Math.ceil(finalScrollH / a4HeightPx));
+    // ĐO TOẠ ĐỘ ĐÁY THỰC TẾ CỦA TẤT CẢ PHẦN TỬ NỘI DUNG (Triệt tiêu 100% trang trống / Phantom Page)
+    let maxContentBottom = 0;
+    const allContentBlocks = sheet.querySelectorAll(
+      '.cv-section, .cv-card-item, .timeline-item, .skill-item-bar, ' +
+      '.cv-banner-header, .cv-minimal-header, .cv-top-bar, .bento-card, ' +
+      '.executive-centered-header, .compact-header, .editorial-header, ' +
+      '.technical-header-box, .luxury-header, .luxury-frame-box, .split-col-left, .split-col-right'
+    );
+
+    allContentBlocks.forEach(el => {
+      if (el.classList.contains('cv-page-break-spacer') || el.classList.contains('no-print')) return;
+      const rect = el.getBoundingClientRect();
+      if (rect.height <= 0) return;
+      const b = rect.bottom - sheetRect.top;
+      if (b > maxContentBottom) maxContentBottom = b;
+    });
+
+    // Ngưỡng dung sai an toàn: 50px (~13mm).
+    // Nếu nội dung chỉ vượt qua ranh giới trang <= 50px (do margin/padding đáy card cuối cùng),
+    // tuyệt đối không được sinh thêm trang trắng mới!
+    const pageTolerance = 50;
+    let calculatedPages = 1;
+    for (let p = 1; p <= maxPages; p++) {
+      const pageTop = (p - 1) * a4HeightPx;
+      if (maxContentBottom > pageTop + pageTolerance) {
+        calculatedPages = p;
+      }
+    }
+
+    const totalPages = Math.max(1, calculatedPages);
     sheet.style.minHeight = `${totalPages * 297}mm`;
     return totalPages;
   }
@@ -2901,7 +2929,7 @@ const CVApp = (function () {
   function renderPageBreakDividersAndHorizontal() {
     const previewWrapper = document.getElementById('cv-a4-render-target');
     const sheet = document.getElementById('cv-printable-area');
-    if (!previewWrapper || !sheet) return;
+    if (!previewWrapper || !sheet) return 1;
 
     // Đảm bảo sheet được hiển thị để đo đạc chính xác kích thước và ngắt trang
     sheet.classList.remove('cv-hidden-for-horizontal');
@@ -2914,6 +2942,9 @@ const CVApp = (function () {
 
     // 1. Phân trang DOM Semantic thông minh trước khi render hiển thị
     const totalPages = applySmartPagination();
+
+    const sheetRect = sheet.getBoundingClientRect();
+    const a4HeightPx = (sheetRect && sheetRect.width > 0) ? (sheetRect.width * (297 / 210)) : 1122.52;
 
     // 2. Chế độ Dọc (Vertical)
     if (pageLayoutMode === 'vertical') {
@@ -2941,7 +2972,29 @@ const CVApp = (function () {
         const row = document.createElement('div');
         row.className = 'horizontal-pages-row no-print';
 
+        // Lấy toạ độ đáy thực tế để kiểm tra an toàn từng card
+        let maxBottom = 0;
+        sheet.querySelectorAll(
+          '.cv-section, .cv-card-item, .timeline-item, .skill-item-bar, ' +
+          '.cv-banner-header, .cv-minimal-header, .cv-top-bar, .bento-card, ' +
+          '.executive-centered-header, .compact-header, .editorial-header, ' +
+          '.technical-header-box, .luxury-header, .luxury-frame-box, .split-col-left, .split-col-right'
+        ).forEach(el => {
+          if (el.classList.contains('cv-page-break-spacer') || el.classList.contains('no-print')) return;
+          const r = el.getBoundingClientRect();
+          if (r.height <= 0) return;
+          const b = r.bottom - sheetRect.top;
+          if (b > maxBottom) maxBottom = b;
+        });
+
+        let renderedCount = 0;
         for (let p = 1; p <= totalPages; p++) {
+          // Bỏ qua card nếu trang này hoàn toàn không có nội dung thực tế (chống sinh Card rỗng / trang trắng)
+          const pageTopLimit = (p - 1) * a4HeightPx;
+          if (p > 1 && maxBottom <= pageTopLimit + 25) {
+            continue;
+          }
+
           const card = document.createElement('div');
           card.className = 'horizontal-page-card';
           card.innerHTML = `
@@ -2963,7 +3016,13 @@ const CVApp = (function () {
 
           card.querySelector('.horizontal-page-clone').appendChild(clone);
           row.appendChild(card);
+          renderedCount++;
         }
+
+        // Cập nhật lại số trang trên badge của card nếu có card rỗng bị loại bỏ
+        row.querySelectorAll('.horizontal-page-header-badge').forEach((badge, idx) => {
+          badge.innerHTML = `<i class="fa-solid fa-file-lines" style="color:var(--primary);"></i> TRANG ${idx + 1} / ${renderedCount}`;
+        });
 
         // Ẩn sheet gốc sau khi đã nhân bản xong
         sheet.classList.add('cv-hidden-for-horizontal');
@@ -2974,6 +3033,8 @@ const CVApp = (function () {
         sheet.style.removeProperty('display');
       }
     }
+
+    return totalPages;
   }
 
   /**
@@ -2985,13 +3046,12 @@ const CVApp = (function () {
     const badge = document.getElementById('a4-status-badge');
     if (!sheet || !fillText || !badge) return;
 
-    renderPageBreakDividersAndHorizontal();
+    const totalPages = renderPageBreakDividersAndHorizontal();
 
     const sheetRect = sheet.getBoundingClientRect();
     const a4HeightPx = (sheetRect && sheetRect.width > 0) ? (sheetRect.width * (297 / 210)) : 1122.52;
     const scrollH = sheet.scrollHeight;
     const percent = Math.round((scrollH / a4HeightPx) * 100);
-    const totalPages = Math.max(1, Math.ceil(scrollH / a4HeightPx));
     totalCalculatedPages = totalPages;
 
     applyZoom(currentZoom);
@@ -3003,7 +3063,7 @@ const CVApp = (function () {
       badge.innerText = 'Chuẩn 1 trang';
     } else if (totalPages === 2) {
       fillText.innerText = `${percent}% (2 Trang)`;
-      if (percent <= 208) {
+      if (percent <= 215) {
         badge.className = 'a4-badge badge-green';
         badge.innerText = 'Chuẩn 2 trang';
       } else {
@@ -3012,7 +3072,7 @@ const CVApp = (function () {
       }
     } else if (totalPages === 3) {
       fillText.innerText = `${percent}% (3 Trang)`;
-      if (percent <= 308) {
+      if (percent <= 315) {
         badge.className = 'a4-badge badge-green';
         badge.innerText = 'Chuẩn 3 trang';
       } else {
@@ -3060,7 +3120,7 @@ const CVApp = (function () {
       }
     }
 
-    const targetMaxH = targetPages * a4HeightPx;
+    const targetMaxH = targetPages * a4HeightPx - Math.max(0, (targetPages - 1) * 55);
 
     const spacingOptions = ['standard', 'compact', 'spacious'];
     const scaleOptions = [100, 98, 96, 94, 92, 90, 88, 102, 104];

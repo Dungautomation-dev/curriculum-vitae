@@ -50,8 +50,21 @@
   position: relative;
 }
 
-.cv-section:last-child {
-  margin-bottom: 0;
+.cv-section:last-child,
+.cv-body-content > div > .cv-section:last-child,
+.cv-columns-grid > div > .cv-section:last-child,
+.cv-two-col-body > div > .cv-section:last-child,
+.bento-grid-2col > div > .cv-section:last-child,
+.executive-columns > div > .cv-section:last-child,
+.compact-3col-grid > div > .cv-section:last-child,
+.editorial-columns > div > .cv-section:last-child,
+.tech-columns > div > .cv-section:last-child,
+.luxury-columns > div > .cv-section:last-child,
+.split-col-left > .cv-section:last-child,
+.split-col-right > .cv-section:last-child,
+.cv-main > .cv-section:last-child,
+.cv-sidebar > .cv-section:last-child {
+  margin-bottom: 0 !important;
 }
 
 .cv-section-title {
