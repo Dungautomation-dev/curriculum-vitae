@@ -637,7 +637,7 @@
    Khung viền đôi trang trọng, tiêu đề căn giữa quý phái, phong cách Serif
    -------------------------------------------------------------------------- */
 .layout-executive-bold {
-  padding: 16mm 14mm;
+  padding: 24mm 22mm;
   background: #ffffff;
   box-sizing: border-box;
 }
@@ -859,7 +859,7 @@
    Chỉ viền đôi hoàng gia, bố cục thanh nhã cách mép giấy 20mm
    -------------------------------------------------------------------------- */
 .layout-framed-luxury {
-  padding: 16mm 14mm;
+  padding: 24mm 22mm;
   background: #ffffff;
   box-sizing: border-box;
 }

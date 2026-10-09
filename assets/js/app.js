@@ -2589,24 +2589,35 @@ const CVApp = (function () {
     const selector = selectorMap[secName];
     if (!selector) return;
 
-    const el = sheet.querySelector(selector);
-    if (el) {
+    let targetEl = null;
+    const row = document.querySelector('.horizontal-pages-row');
+    if (pageLayoutMode === 'horizontal' && row) {
+      targetEl = row.querySelector(selector);
+    } else {
+      targetEl = sheet.querySelector(selector);
+    }
+
+    if (targetEl) {
       const viewportRect = viewport.getBoundingClientRect();
-      const elRect = el.getBoundingClientRect();
+      const elRect = targetEl.getBoundingClientRect();
       const currentScrollTop = viewport.scrollTop;
+      const currentScrollLeft = viewport.scrollLeft;
+      
       const targetScrollTop = currentScrollTop + (elRect.top - viewportRect.top) - (viewport.clientHeight * 0.25);
+      const targetScrollLeft = currentScrollLeft + (elRect.left - viewportRect.left) - (viewport.clientWidth * 0.1);
 
       viewport.scrollTo({
         top: Math.max(0, targetScrollTop),
+        left: Math.max(0, targetScrollLeft),
         behavior: 'smooth'
       });
 
       // Hiệu ứng viền phát sáng (Pulse Highlight) giúp người dùng thấy ngay vị trí đang sửa trên CV
       document.querySelectorAll('.cv-section-focused').forEach(node => node.classList.remove('cv-section-focused'));
-      el.classList.add('cv-section-focused');
+      targetEl.classList.add('cv-section-focused');
       clearTimeout(highlightTimeout);
       highlightTimeout = setTimeout(() => {
-        el.classList.remove('cv-section-focused');
+        targetEl.classList.remove('cv-section-focused');
       }, 2000);
     }
   }
@@ -2811,11 +2822,18 @@ const CVApp = (function () {
     // Chiều cao chuẩn A4 trong hệ toạ độ unscaled CSS (297mm / 210mm * 793.7px = 1122.52px)
     const a4HeightPx = 1122.52;
 
-    // Quy chuẩn khoảng cách viền trang an toàn (Golden Margin: ~19mm = 72px)
-    const pageTopMargin = 72;    // Lề đầu trang mới (px)
-    const pageBottomMargin = 72; // Lề đáy trang an toàn (px)
+    // Lấy margin an toàn động dựa trên padding của chính layout hiện tại để đảm bảo tính nhất quán (không bị sát mép)
+    const computedStyle = window.getComputedStyle(sheet);
+    const pt = parseFloat(computedStyle.paddingTop) || 72;
+    const pb = parseFloat(computedStyle.paddingBottom) || 72;
+    const pageTopMargin = pt / zoom;    // Lề đầu trang mới (px unscaled)
+    const pageBottomMargin = pb / zoom; // Lề đáy trang an toàn (px unscaled)
 
     const maxPages = 4;
+
+    // Lấy styleId để xử lý đặc thù cho các mẫu
+    const tpl = (typeof CV_TEMPLATES !== 'undefined') ? CV_TEMPLATES.find(t => t.id === currentTemplateId) : null;
+    const styleId = tpl ? tpl.styleId : '';
 
     // Xác định các cột độc lập trong layout (hỗ trợ cả 12 mẫu template)
     let columnContainers = Array.from(sheet.querySelectorAll(
@@ -2859,7 +2877,10 @@ const CVApp = (function () {
           if (child.classList.contains('cv-page-break-spacer') || child.classList.contains('no-print') || child.classList.contains('cv-page-frame-border')) return;
 
           const sectionEl = child.classList.contains('cv-section') ? child : child.querySelector('.cv-section');
-          if (sectionEl) {
+          // Mẫu 8 (bento-cards) sử dụng .cv-section như một thẻ bento-card nguyên khối, KHÔNG được bẻ gãy.
+          const isAtomicSection = (styleId === 'bento-cards');
+          
+          if (sectionEl && !isAtomicSection) {
             const items = Array.from(sectionEl.querySelectorAll('.timeline-item, .cv-card-item, .skill-item-bar, .bento-card'));
             const title = sectionEl.querySelector('.cv-section-title');
 
@@ -2985,10 +3006,10 @@ const CVApp = (function () {
       for (let p = 1; p <= totalPages; p++) {
         const frame = document.createElement('div');
         frame.className = 'cv-page-frame-border';
-        frame.style.top = `${(p - 1) * 297 + 16}mm`;
-        frame.style.left = '14mm';
-        frame.style.width = 'calc(210mm - 28mm)';
-        frame.style.height = 'calc(297mm - 32mm)';
+        frame.style.top = `${(p - 1) * 297 + 12}mm`;
+        frame.style.left = '11mm';
+        frame.style.width = 'calc(210mm - 22mm)';
+        frame.style.height = 'calc(297mm - 24mm)';
         sheet.appendChild(frame);
       }
     }
