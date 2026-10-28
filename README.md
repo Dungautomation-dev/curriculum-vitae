@@ -162,3 +162,9 @@ Truy cập trực tiếp: **[https://dungautomation-dev.github.io/curriculum-vit
 * **Tác giả**: **Lê Đức Dũng** (Dung Automation)
 * **GitHub**: [@Dungautomation-dev](https://github.com/Dungautomation-dev)
 * **Giấy phép**: Phát hành theo [Giấy phép MIT](LICENSE). Hoàn toàn miễn phí sử dụng cho mục đích cá nhân và thương mại.
+
+---
+
+## Stars ⭐
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Dungautomation-dev/curriculum-vitae&type=Date)](https://star-history.com/#Dungautomation-dev/curriculum-vitae&Date)
