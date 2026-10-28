@@ -110,3 +110,9 @@ Visit directly: **[https://dungautomation-dev.github.io/curriculum-vitae/](https
 * **Author**: **Lê Đức Dũng** (Dung Automation)
 * **GitHub**: [@Dungautomation-dev](https://github.com/Dungautomation-dev)
 * **License**: Released under the [MIT License](LICENSE). Free for personal and commercial use.
+
+---
+
+## Stars ⭐
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Dungautomation-dev/curriculum-vitae&type=Date)](https://star-history.com/#Dungautomation-dev/curriculum-vitae&Date)
